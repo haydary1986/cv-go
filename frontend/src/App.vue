@@ -100,6 +100,8 @@
         <p class="mb-0">&copy; {{ new Date().getFullYear() }} {{ t('app.name') }}</p>
       </div>
     </footer>
+
+    <ToastNotification />
   </div>
 </template>
 
@@ -109,6 +111,7 @@ import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from './stores/auth'
 import { useNotificationStore } from './stores/notification'
+import ToastNotification from './components/ToastNotification.vue'
 
 const { t, locale } = useI18n()
 const router = useRouter()

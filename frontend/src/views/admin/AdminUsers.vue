@@ -13,7 +13,7 @@
 
     <div class="row g-2 mb-3">
       <div class="col-md-4">
-        <input type="text" class="form-control" :placeholder="t('app.search')" v-model="search" @input="fetchUsers" />
+        <input type="text" class="form-control" :placeholder="t('app.search')" v-model="search" @input="debouncedFetchUsers" />
       </div>
       <div class="col-md-3">
         <select class="form-select" v-model="roleFilter" @change="fetchUsers">
@@ -25,7 +25,14 @@
       </div>
     </div>
 
-    <div class="table-responsive">
+    <!-- Empty State -->
+    <div v-if="users.length === 0" class="text-center py-5">
+      <i class="fas fa-users fa-4x text-muted mb-3 d-block"></i>
+      <h5 class="text-muted">No users found</h5>
+      <p class="text-muted">Try adjusting your search or filter criteria.</p>
+    </div>
+
+    <div v-else class="table-responsive">
       <table class="table table-hover">
         <thead>
           <tr>
@@ -78,7 +85,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { adminAPI } from '../../services/api'
 
@@ -89,6 +96,15 @@ const roleFilter = ref('')
 const showCreditsModal = ref(false)
 const selectedUserId = ref(0)
 const newCredits = ref(0)
+
+let searchDebounceTimer: ReturnType<typeof setTimeout> | null = null
+
+function debouncedFetchUsers() {
+  if (searchDebounceTimer) clearTimeout(searchDebounceTimer)
+  searchDebounceTimer = setTimeout(() => {
+    fetchUsers()
+  }, 300)
+}
 
 async function fetchUsers() {
   const res = await adminAPI.listUsers({ search: search.value, role: roleFilter.value })
@@ -124,4 +140,8 @@ async function importCSV(e: Event) {
 }
 
 onMounted(fetchUsers)
+
+onUnmounted(() => {
+  if (searchDebounceTimer) clearTimeout(searchDebounceTimer)
+})
 </script>

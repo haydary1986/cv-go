@@ -4,7 +4,7 @@
 
     <div class="row g-2 mb-3">
       <div class="col-md-4">
-        <input type="text" class="form-control" :placeholder="t('app.search')" v-model="search" @input="fetchLogs" />
+        <input type="text" class="form-control" :placeholder="t('app.search')" v-model="search" @input="debouncedFetchLogs" />
       </div>
       <div class="col-md-3">
         <select class="form-select" v-model="actionFilter" @change="fetchLogs">
@@ -20,7 +20,14 @@
       </div>
     </div>
 
-    <div class="table-responsive">
+    <!-- Empty State -->
+    <div v-if="logs.length === 0" class="text-center py-5">
+      <i class="fas fa-history fa-4x text-muted mb-3 d-block"></i>
+      <h5 class="text-muted">No activity logs found</h5>
+      <p class="text-muted">There are no logs matching your current filters.</p>
+    </div>
+
+    <div v-else class="table-responsive">
       <table class="table table-sm table-hover">
         <thead>
           <tr>
@@ -56,7 +63,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { adminAPI } from '../../services/api'
 
@@ -67,6 +74,16 @@ const actionFilter = ref('')
 const page = ref(1)
 const totalPages = ref(1)
 
+let searchDebounceTimer: ReturnType<typeof setTimeout> | null = null
+
+function debouncedFetchLogs() {
+  if (searchDebounceTimer) clearTimeout(searchDebounceTimer)
+  searchDebounceTimer = setTimeout(() => {
+    page.value = 1
+    fetchLogs()
+  }, 300)
+}
+
 async function fetchLogs() {
   const res = await adminAPI.getActivityLogs({ search: search.value, action: actionFilter.value, page: page.value })
   logs.value = res.data.logs || []
@@ -75,4 +92,8 @@ async function fetchLogs() {
 }
 
 onMounted(fetchLogs)
+
+onUnmounted(() => {
+  if (searchDebounceTimer) clearTimeout(searchDebounceTimer)
+})
 </script>
