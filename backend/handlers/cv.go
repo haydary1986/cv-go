@@ -8,9 +8,9 @@ import (
 	"strconv"
 
 	"cv-go/models"
+	"cv-go/utils"
 
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -33,12 +33,13 @@ func (h *CVHandler) CreateCV(c *gin.Context) {
 		return
 	}
 
-	shareToken := uuid.New().String() + uuid.New().String()
-	if len(shareToken) > 64 {
-		shareToken = shareToken[:64]
+	// Generate secure share token
+	shareToken, err := utils.GenerateToken(32)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate share token"})
+		return
 	}
 
-	// Generate QR code URL
 	shareURL := fmt.Sprintf("%s/shared/%s", c.Request.Host, shareToken)
 
 	cv := models.CV{
@@ -57,7 +58,6 @@ func (h *CVHandler) CreateCV(c *gin.Context) {
 		return
 	}
 
-	// Log activity
 	h.DB.Create(&models.ActivityLog{
 		UserID: userID, Action: "create_cv",
 		Details: fmt.Sprintf("CV ID: %d", cv.ID),
@@ -74,6 +74,9 @@ func (h *CVHandler) ListCVs(c *gin.Context) {
 
 	if page < 1 {
 		page = 1
+	}
+	if limit < 1 || limit > 100 {
+		limit = 12
 	}
 	offset := (page - 1) * limit
 
@@ -110,12 +113,12 @@ func (h *CVHandler) GetCV(c *gin.Context) {
 		return
 	}
 
-	if cv.UserID != userID && role.(string) != "admin" {
+	roleStr, _ := role.(string)
+	if cv.UserID != userID && roleStr != "admin" {
 		c.JSON(http.StatusForbidden, gin.H{"error": "Access denied"})
 		return
 	}
 
-	// Log view
 	h.DB.Create(&models.ActivityLog{
 		UserID: userID, Action: "view_cv",
 		Details: fmt.Sprintf("CV ID: %d", cv.ID),
@@ -166,7 +169,6 @@ func (h *CVHandler) UpdateCV(c *gin.Context) {
 	h.DB.Model(&cv).Updates(updates)
 	h.DB.First(&cv, cvID)
 
-	// Log activity
 	h.DB.Create(&models.ActivityLog{
 		UserID: userID, Action: "edit_cv",
 		Details: fmt.Sprintf("CV ID: %d", cv.ID),
@@ -193,7 +195,6 @@ func (h *CVHandler) DeleteCV(c *gin.Context) {
 
 	h.DB.Delete(&cv)
 
-	// Log activity
 	h.DB.Create(&models.ActivityLog{
 		UserID: userID, Action: "delete_cv",
 		Details: fmt.Sprintf("CV ID: %d", cv.ID),
@@ -233,8 +234,8 @@ func (h *CVHandler) GetSharedCV(c *gin.Context) {
 		return
 	}
 
-	// Increment view count
-	h.DB.Model(&cv).Update("view_count", gorm.Expr("view_count + 1"))
+	// Atomic increment of view count
+	h.DB.Model(&models.CV{}).Where("id = ?", cv.ID).Update("view_count", gorm.Expr("view_count + 1"))
 
 	c.JSON(http.StatusOK, gin.H{"cv": cv})
 }

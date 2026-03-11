@@ -57,6 +57,9 @@ func (h *AdminHandler) ListAllCVs(c *gin.Context) {
 	if page < 1 {
 		page = 1
 	}
+	if limit < 1 || limit > 100 {
+		limit = 20
+	}
 	offset := (page - 1) * limit
 
 	query := h.DB.Model(&models.CV{}).Preload("User")
@@ -191,6 +194,9 @@ func (h *AdminHandler) ListUsers(c *gin.Context) {
 
 	if page < 1 {
 		page = 1
+	}
+	if limit < 1 || limit > 100 {
+		limit = 20
 	}
 	offset := (page - 1) * limit
 
@@ -370,6 +376,17 @@ func (h *AdminHandler) UpdateAISettings(c *gin.Context) {
 		return
 	}
 
+	// Validate provider
+	validProviders := map[string]bool{"openai": true, "gemini": true, "deepseek": true}
+	if !validProviders[input.Provider] {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid provider. Must be openai, gemini, or deepseek"})
+		return
+	}
+
+	if input.MaxTokens < 0 || input.MaxTokens > 16000 {
+		input.MaxTokens = 2000
+	}
+
 	var setting models.AISetting
 	h.DB.Where("provider = ?", input.Provider).FirstOrCreate(&setting, models.AISetting{Provider: input.Provider})
 
@@ -381,9 +398,11 @@ func (h *AdminHandler) UpdateAISettings(c *gin.Context) {
 
 	if input.APIKey != "" {
 		encrypted, err := utils.EncryptAES(input.APIKey, h.AESKey)
-		if err == nil {
-			updates["api_key_enc"] = encrypted
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to encrypt API key"})
+			return
 		}
+		updates["api_key_enc"] = encrypted
 	}
 
 	h.DB.Model(&setting).Updates(updates)
@@ -457,6 +476,9 @@ func (h *AdminHandler) GetActivityLogs(c *gin.Context) {
 
 	if page < 1 {
 		page = 1
+	}
+	if limit < 1 || limit > 100 {
+		limit = 50
 	}
 	offset := (page - 1) * limit
 
@@ -591,12 +613,18 @@ func (h *AdminHandler) ImportUsersCSV(c *gin.Context) {
 			continue
 		}
 
-		hashedPw, _ := utils.HashPassword("changeme123")
+		// Generate unique random password for each imported user
+		randomPw, _ := utils.GenerateToken(12)
+		hashedPw, _ := utils.HashPassword(randomPw)
+		role := record[3]
+		if role != "student" && role != "teacher" && role != "admin" {
+			role = "student"
+		}
 		user := models.User{
 			Email:      record[0],
 			FullNameAr: record[1],
 			FullNameEn: record[2],
-			Role:       record[3],
+			Role:       role,
 			Password:   hashedPw,
 			AICredits:  10,
 			IsActive:   true,

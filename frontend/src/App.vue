@@ -97,7 +97,7 @@
     <!-- Footer -->
     <footer class="bg-dark text-white text-center py-3 mt-5">
       <div class="container">
-        <p class="mb-0">&copy; 2024 {{ t('app.name') }}</p>
+        <p class="mb-0">&copy; {{ new Date().getFullYear() }} {{ t('app.name') }}</p>
       </div>
     </footer>
   </div>

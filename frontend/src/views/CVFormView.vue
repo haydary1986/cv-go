@@ -454,16 +454,30 @@ onMounted(async () => {
   }
 })
 
-// Auto-save draft
+// Auto-save draft with debounce (1 second delay)
+let saveTimeout: ReturnType<typeof setTimeout> | null = null
 watch(form, () => {
   if (!isEdit.value) {
-    localStorage.setItem('cv_draft', JSON.stringify(form))
+    if (saveTimeout) clearTimeout(saveTimeout)
+    saveTimeout = setTimeout(() => {
+      localStorage.setItem('cv_draft', JSON.stringify(form))
+    }, 1000)
   }
 }, { deep: true })
 
 function handlePhotoUpload(e: Event) {
   const file = (e.target as HTMLInputElement).files?.[0]
   if (!file) return
+  // Validate file size (max 2MB)
+  if (file.size > 2 * 1024 * 1024) {
+    alert(t('cv.photoTooLarge') || 'Photo must be less than 2MB')
+    return
+  }
+  // Validate file type
+  if (!file.type.startsWith('image/')) {
+    alert(t('cv.invalidPhotoType') || 'Please upload an image file')
+    return
+  }
   const reader = new FileReader()
   reader.onload = () => {
     form.data.photo = reader.result as string

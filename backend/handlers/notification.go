@@ -22,6 +22,9 @@ func (h *NotificationHandler) GetNotifications(c *gin.Context) {
 	if page < 1 {
 		page = 1
 	}
+	if limit < 1 || limit > 100 {
+		limit = 20
+	}
 	offset := (page - 1) * limit
 
 	var notifications []models.Notification

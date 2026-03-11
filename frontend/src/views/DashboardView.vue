@@ -171,6 +171,9 @@ async function exportJSON() {
     a.download = 'my-cvs.json'
     a.click()
     URL.revokeObjectURL(url)
-  } catch {}
+  } catch (err) {
+    console.error('Export failed:', err)
+    alert(t('app.error') || 'Export failed')
+  }
 }
 </script>

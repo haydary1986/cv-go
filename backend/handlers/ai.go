@@ -63,7 +63,10 @@ func callOpenAI(apiKey, model, prompt string, maxTokens int) (string, error) {
 	}
 	data, _ := json.Marshal(body)
 
-	req, _ := http.NewRequest("POST", "https://api.openai.com/v1/chat/completions", bytes.NewBuffer(data))
+	req, err := http.NewRequest("POST", "https://api.openai.com/v1/chat/completions", bytes.NewBuffer(data))
+	if err != nil {
+		return "", fmt.Errorf("failed to create request: %w", err)
+	}
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+apiKey)
 
@@ -74,17 +77,38 @@ func callOpenAI(apiKey, model, prompt string, maxTokens int) (string, error) {
 	}
 	defer resp.Body.Close()
 
-	respBody, _ := io.ReadAll(resp.Body)
+	if resp.StatusCode != http.StatusOK {
+		respBody, _ := io.ReadAll(resp.Body)
+		return "", fmt.Errorf("OpenAI API error (status %d): %s", resp.StatusCode, string(respBody))
+	}
+
+	respBody, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", fmt.Errorf("failed to read response: %w", err)
+	}
+
 	var result map[string]interface{}
-	json.Unmarshal(respBody, &result)
+	if err := json.Unmarshal(respBody, &result); err != nil {
+		return "", fmt.Errorf("failed to parse response: %w", err)
+	}
 
 	choices, ok := result["choices"].([]interface{})
 	if !ok || len(choices) == 0 {
 		return "", fmt.Errorf("no response from OpenAI")
 	}
-	choice := choices[0].(map[string]interface{})
-	message := choice["message"].(map[string]interface{})
-	return message["content"].(string), nil
+	choice, ok := choices[0].(map[string]interface{})
+	if !ok {
+		return "", fmt.Errorf("invalid response format from OpenAI")
+	}
+	message, ok := choice["message"].(map[string]interface{})
+	if !ok {
+		return "", fmt.Errorf("invalid message format from OpenAI")
+	}
+	content, ok := message["content"].(string)
+	if !ok {
+		return "", fmt.Errorf("invalid content format from OpenAI")
+	}
+	return content, nil
 }
 
 func callGemini(apiKey, model, prompt string, maxTokens int) (string, error) {
@@ -107,7 +131,10 @@ func callGemini(apiKey, model, prompt string, maxTokens int) (string, error) {
 	}
 	data, _ := json.Marshal(body)
 
-	req, _ := http.NewRequest("POST", url, bytes.NewBuffer(data))
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(data))
+	if err != nil {
+		return "", fmt.Errorf("failed to create request: %w", err)
+	}
 	req.Header.Set("Content-Type", "application/json")
 
 	client := &http.Client{Timeout: 60 * time.Second}
@@ -117,19 +144,46 @@ func callGemini(apiKey, model, prompt string, maxTokens int) (string, error) {
 	}
 	defer resp.Body.Close()
 
-	respBody, _ := io.ReadAll(resp.Body)
+	if resp.StatusCode != http.StatusOK {
+		respBody, _ := io.ReadAll(resp.Body)
+		return "", fmt.Errorf("Gemini API error (status %d): %s", resp.StatusCode, string(respBody))
+	}
+
+	respBody, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", fmt.Errorf("failed to read response: %w", err)
+	}
+
 	var result map[string]interface{}
-	json.Unmarshal(respBody, &result)
+	if err := json.Unmarshal(respBody, &result); err != nil {
+		return "", fmt.Errorf("failed to parse response: %w", err)
+	}
 
 	candidates, ok := result["candidates"].([]interface{})
 	if !ok || len(candidates) == 0 {
 		return "", fmt.Errorf("no response from Gemini")
 	}
-	candidate := candidates[0].(map[string]interface{})
-	content := candidate["content"].(map[string]interface{})
-	parts := content["parts"].([]interface{})
-	part := parts[0].(map[string]interface{})
-	return part["text"].(string), nil
+	candidate, ok := candidates[0].(map[string]interface{})
+	if !ok {
+		return "", fmt.Errorf("invalid response format from Gemini")
+	}
+	content, ok := candidate["content"].(map[string]interface{})
+	if !ok {
+		return "", fmt.Errorf("invalid content format from Gemini")
+	}
+	parts, ok := content["parts"].([]interface{})
+	if !ok || len(parts) == 0 {
+		return "", fmt.Errorf("invalid parts format from Gemini")
+	}
+	part, ok := parts[0].(map[string]interface{})
+	if !ok {
+		return "", fmt.Errorf("invalid part format from Gemini")
+	}
+	text, ok := part["text"].(string)
+	if !ok {
+		return "", fmt.Errorf("invalid text format from Gemini")
+	}
+	return text, nil
 }
 
 func callDeepSeek(apiKey, model, prompt string, maxTokens int) (string, error) {
@@ -145,7 +199,10 @@ func callDeepSeek(apiKey, model, prompt string, maxTokens int) (string, error) {
 	}
 	data, _ := json.Marshal(body)
 
-	req, _ := http.NewRequest("POST", "https://api.deepseek.com/v1/chat/completions", bytes.NewBuffer(data))
+	req, err := http.NewRequest("POST", "https://api.deepseek.com/v1/chat/completions", bytes.NewBuffer(data))
+	if err != nil {
+		return "", fmt.Errorf("failed to create request: %w", err)
+	}
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+apiKey)
 
@@ -156,17 +213,38 @@ func callDeepSeek(apiKey, model, prompt string, maxTokens int) (string, error) {
 	}
 	defer resp.Body.Close()
 
-	respBody, _ := io.ReadAll(resp.Body)
+	if resp.StatusCode != http.StatusOK {
+		respBody, _ := io.ReadAll(resp.Body)
+		return "", fmt.Errorf("DeepSeek API error (status %d): %s", resp.StatusCode, string(respBody))
+	}
+
+	respBody, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", fmt.Errorf("failed to read response: %w", err)
+	}
+
 	var result map[string]interface{}
-	json.Unmarshal(respBody, &result)
+	if err := json.Unmarshal(respBody, &result); err != nil {
+		return "", fmt.Errorf("failed to parse response: %w", err)
+	}
 
 	choices, ok := result["choices"].([]interface{})
 	if !ok || len(choices) == 0 {
 		return "", fmt.Errorf("no response from DeepSeek")
 	}
-	choice := choices[0].(map[string]interface{})
-	message := choice["message"].(map[string]interface{})
-	return message["content"].(string), nil
+	choice, ok := choices[0].(map[string]interface{})
+	if !ok {
+		return "", fmt.Errorf("invalid response format from DeepSeek")
+	}
+	message, ok := choice["message"].(map[string]interface{})
+	if !ok {
+		return "", fmt.Errorf("invalid message format from DeepSeek")
+	}
+	content, ok := message["content"].(string)
+	if !ok {
+		return "", fmt.Errorf("invalid content format from DeepSeek")
+	}
+	return content, nil
 }
 
 func (h *AIHandler) checkCredits(userID uint, required int) (*models.User, error) {
@@ -189,6 +267,18 @@ func (h *AIHandler) deductCredits(user *models.User, credits int, feature string
 	})
 }
 
+// verifyCVOwnership checks that the CV belongs to the requesting user
+func (h *AIHandler) verifyCVOwnership(userID uint, cvID uint64) (*models.CV, error) {
+	var cv models.CV
+	if err := h.DB.First(&cv, cvID).Error; err != nil {
+		return nil, fmt.Errorf("CV not found")
+	}
+	if cv.UserID != userID {
+		return nil, fmt.Errorf("access denied")
+	}
+	return &cv, nil
+}
+
 func (h *AIHandler) ImproveText(c *gin.Context) {
 	userID := c.GetUint("user_id")
 	var input struct {
@@ -197,6 +287,11 @@ func (h *AIHandler) ImproveText(c *gin.Context) {
 	}
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if len(input.Text) > 10000 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Text too long (max 10000 characters)"})
 		return
 	}
 
@@ -233,9 +328,9 @@ func (h *AIHandler) AnalyzeCV(c *gin.Context) {
 		return
 	}
 
-	var cv models.CV
-	if err := h.DB.First(&cv, cvID).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "CV not found"})
+	cv, err := h.verifyCVOwnership(userID, cvID)
+	if err != nil {
+		c.JSON(http.StatusForbidden, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -279,9 +374,9 @@ func (h *AIHandler) GenerateCoverLetter(c *gin.Context) {
 		return
 	}
 
-	var cv models.CV
-	if err := h.DB.First(&cv, input.CVID).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "CV not found"})
+	cv, err := h.verifyCVOwnership(userID, uint64(input.CVID))
+	if err != nil {
+		c.JSON(http.StatusForbidden, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -320,13 +415,12 @@ func (h *AIHandler) SuggestJobs(c *gin.Context) {
 		return
 	}
 
-	var cv models.CV
-	if err := h.DB.First(&cv, cvID).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "CV not found"})
+	cv, err := h.verifyCVOwnership(userID, cvID)
+	if err != nil {
+		c.JSON(http.StatusForbidden, gin.H{"error": err.Error()})
 		return
 	}
 
-	// Build skills summary
 	var skills []string
 	for _, s := range cv.Data.Skills {
 		skills = append(skills, s.Name)
@@ -364,9 +458,9 @@ func (h *AIHandler) EvaluateResearch(c *gin.Context) {
 		return
 	}
 
-	var cv models.CV
-	if err := h.DB.First(&cv, cvID).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "CV not found"})
+	cv, err := h.verifyCVOwnership(userID, cvID)
+	if err != nil {
+		c.JSON(http.StatusForbidden, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -402,9 +496,9 @@ func (h *AIHandler) GetAITips(c *gin.Context) {
 		return
 	}
 
-	var cv models.CV
-	if err := h.DB.First(&cv, cvID).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "CV not found"})
+	cv, err := h.verifyCVOwnership(userID, cvID)
+	if err != nil {
+		c.JSON(http.StatusForbidden, gin.H{"error": err.Error()})
 		return
 	}
 

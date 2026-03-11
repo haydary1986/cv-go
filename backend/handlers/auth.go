@@ -181,9 +181,16 @@ func (h *AuthHandler) GoogleCallback(c *gin.Context) {
 	}
 	defer resp.Body.Close()
 
-	body, _ := io.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		c.Redirect(http.StatusTemporaryRedirect, h.FrontendURL+"/login?error=token_exchange")
+		return
+	}
 	var tokenData map[string]interface{}
-	json.Unmarshal(body, &tokenData)
+	if err := json.Unmarshal(body, &tokenData); err != nil {
+		c.Redirect(http.StatusTemporaryRedirect, h.FrontendURL+"/login?error=token_exchange")
+		return
+	}
 
 	accessToken, ok := tokenData["access_token"].(string)
 	if !ok {
@@ -202,13 +209,25 @@ func (h *AuthHandler) GoogleCallback(c *gin.Context) {
 	}
 	defer userResp.Body.Close()
 
-	userBody, _ := io.ReadAll(userResp.Body)
+	userBody, err := io.ReadAll(userResp.Body)
+	if err != nil {
+		c.Redirect(http.StatusTemporaryRedirect, h.FrontendURL+"/login?error=user_info")
+		return
+	}
 	var googleUser map[string]interface{}
-	json.Unmarshal(userBody, &googleUser)
+	if err := json.Unmarshal(userBody, &googleUser); err != nil {
+		c.Redirect(http.StatusTemporaryRedirect, h.FrontendURL+"/login?error=user_info")
+		return
+	}
 
 	googleID, _ := googleUser["id"].(string)
 	email, _ := googleUser["email"].(string)
 	name, _ := googleUser["name"].(string)
+
+	if email == "" {
+		c.Redirect(http.StatusTemporaryRedirect, h.FrontendURL+"/login?error=no_email")
+		return
+	}
 
 	// Find or create user
 	var user models.User
@@ -303,7 +322,11 @@ func (h *AuthHandler) ChangePassword(c *gin.Context) {
 		return
 	}
 
-	hashedPassword, _ := utils.HashPassword(input.NewPassword)
+	hashedPassword, err := utils.HashPassword(input.NewPassword)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to hash password"})
+		return
+	}
 	h.DB.Model(&user).Update("password", hashedPassword)
 
 	c.JSON(http.StatusOK, gin.H{"message": "Password changed successfully"})

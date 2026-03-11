@@ -18,6 +18,7 @@ type RateLimiter struct {
 	mu       sync.RWMutex
 	limit    int
 	window   time.Duration
+	done     chan struct{}
 }
 
 func NewRateLimiter(limit int, window time.Duration) *RateLimiter {
@@ -25,21 +26,28 @@ func NewRateLimiter(limit int, window time.Duration) *RateLimiter {
 		visitors: make(map[string]*visitor),
 		limit:    limit,
 		window:   window,
+		done:     make(chan struct{}),
 	}
 	go rl.cleanup()
 	return rl
 }
 
 func (rl *RateLimiter) cleanup() {
+	ticker := time.NewTicker(5 * time.Minute)
+	defer ticker.Stop()
 	for {
-		time.Sleep(time.Minute)
-		rl.mu.Lock()
-		for ip, v := range rl.visitors {
-			if time.Since(v.lastSeen) > rl.window {
-				delete(rl.visitors, ip)
+		select {
+		case <-ticker.C:
+			rl.mu.Lock()
+			for ip, v := range rl.visitors {
+				if time.Since(v.lastSeen) > rl.window {
+					delete(rl.visitors, ip)
+				}
 			}
+			rl.mu.Unlock()
+		case <-rl.done:
+			return
 		}
-		rl.mu.Unlock()
 	}
 }
 
@@ -83,6 +91,7 @@ func (rl *RateLimiter) Middleware() gin.HandlerFunc {
 type LoginRateLimiter struct {
 	attempts map[string]*loginAttempt
 	mu       sync.RWMutex
+	done     chan struct{}
 }
 
 type loginAttempt struct {
@@ -91,8 +100,33 @@ type loginAttempt struct {
 }
 
 func NewLoginRateLimiter() *LoginRateLimiter {
-	return &LoginRateLimiter{
+	lrl := &LoginRateLimiter{
 		attempts: make(map[string]*loginAttempt),
+		done:     make(chan struct{}),
+	}
+	go lrl.cleanup()
+	return lrl
+}
+
+func (lrl *LoginRateLimiter) cleanup() {
+	ticker := time.NewTicker(10 * time.Minute)
+	defer ticker.Stop()
+	for {
+		select {
+		case <-ticker.C:
+			lrl.mu.Lock()
+			for email, a := range lrl.attempts {
+				if a.lockedAt != nil && time.Since(*a.lockedAt) > 15*time.Minute {
+					delete(lrl.attempts, email)
+				} else if a.lockedAt == nil && a.count > 0 {
+					// Clean up stale attempts older than 30 minutes
+					delete(lrl.attempts, email)
+				}
+			}
+			lrl.mu.Unlock()
+		case <-lrl.done:
+			return
+		}
 	}
 }
 

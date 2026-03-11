@@ -4,7 +4,7 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
-	"encoding/base64"
+	"encoding/hex"
 	"errors"
 	"io"
 
@@ -23,8 +23,12 @@ func CheckPassword(hashedPassword, password string) bool {
 	return err == nil
 }
 
-// EncryptAES encrypts data using AES-256-CBC
+// EncryptAES encrypts data using AES-256-GCM
 func EncryptAES(plaintext string, key string) (string, error) {
+	if len(key) != 32 {
+		return "", errors.New("AES key must be exactly 32 bytes")
+	}
+
 	block, err := aes.NewCipher([]byte(key))
 	if err != nil {
 		return "", err
@@ -41,12 +45,16 @@ func EncryptAES(plaintext string, key string) (string, error) {
 	}
 
 	ciphertext := aesGCM.Seal(nonce, nonce, []byte(plaintext), nil)
-	return base64.StdEncoding.EncodeToString(ciphertext), nil
+	return hex.EncodeToString(ciphertext), nil
 }
 
-// DecryptAES decrypts AES-256 encrypted data
+// DecryptAES decrypts AES-256-GCM encrypted data
 func DecryptAES(encryptedStr string, key string) (string, error) {
-	ciphertext, err := base64.StdEncoding.DecodeString(encryptedStr)
+	if len(key) != 32 {
+		return "", errors.New("AES key must be exactly 32 bytes")
+	}
+
+	ciphertext, err := hex.DecodeString(encryptedStr)
 	if err != nil {
 		return "", err
 	}
@@ -75,11 +83,11 @@ func DecryptAES(encryptedStr string, key string) (string, error) {
 	return string(plaintext), nil
 }
 
-// GenerateToken generates a random token of specified length
+// GenerateToken generates a cryptographically secure random hex token
 func GenerateToken(length int) (string, error) {
 	bytes := make([]byte, length)
 	if _, err := rand.Read(bytes); err != nil {
 		return "", err
 	}
-	return base64.URLEncoding.EncodeToString(bytes)[:length], nil
+	return hex.EncodeToString(bytes), nil
 }

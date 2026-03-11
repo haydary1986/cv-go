@@ -49,7 +49,7 @@ func AuthMiddleware() gin.HandlerFunc {
 		}
 
 		parts := strings.SplitN(authHeader, " ", 2)
-		if len(parts) != 2 || parts[0] != "Bearer" {
+		if len(parts) != 2 || !strings.EqualFold(parts[0], "Bearer") {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid authorization format"})
 			c.Abort()
 			return
@@ -57,6 +57,9 @@ func AuthMiddleware() gin.HandlerFunc {
 
 		claims := &Claims{}
 		token, err := jwt.ParseWithClaims(parts[1], claims, func(token *jwt.Token) (interface{}, error) {
+			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+				return nil, jwt.ErrSignatureInvalid
+			}
 			return JWTSecret, nil
 		})
 
@@ -77,7 +80,13 @@ func AuthMiddleware() gin.HandlerFunc {
 func AdminMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		role, exists := c.Get("user_role")
-		if !exists || role.(string) != "admin" {
+		if !exists {
+			c.JSON(http.StatusForbidden, gin.H{"error": "Admin access required"})
+			c.Abort()
+			return
+		}
+		roleStr, ok := role.(string)
+		if !ok || roleStr != "admin" {
 			c.JSON(http.StatusForbidden, gin.H{"error": "Admin access required"})
 			c.Abort()
 			return
@@ -95,8 +104,8 @@ func TeacherOrAdminMiddleware() gin.HandlerFunc {
 			c.Abort()
 			return
 		}
-		r := role.(string)
-		if r != "admin" && r != "teacher" {
+		roleStr, ok := role.(string)
+		if !ok || (roleStr != "admin" && roleStr != "teacher") {
 			c.JSON(http.StatusForbidden, gin.H{"error": "Teacher or admin access required"})
 			c.Abort()
 			return
@@ -115,13 +124,16 @@ func OptionalAuthMiddleware() gin.HandlerFunc {
 		}
 
 		parts := strings.SplitN(authHeader, " ", 2)
-		if len(parts) != 2 || parts[0] != "Bearer" {
+		if len(parts) != 2 || !strings.EqualFold(parts[0], "Bearer") {
 			c.Next()
 			return
 		}
 
 		claims := &Claims{}
 		token, err := jwt.ParseWithClaims(parts[1], claims, func(token *jwt.Token) (interface{}, error) {
+			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+				return nil, jwt.ErrSignatureInvalid
+			}
 			return JWTSecret, nil
 		})
 
@@ -130,23 +142,6 @@ func OptionalAuthMiddleware() gin.HandlerFunc {
 			c.Set("user_email", claims.Email)
 			c.Set("user_role", claims.Role)
 		}
-		c.Next()
-	}
-}
-
-// APIKeyMiddleware validates API key for public API endpoints
-func APIKeyMiddleware() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		apiKey := c.GetHeader("X-API-Key")
-		if apiKey == "" {
-			apiKey = c.Query("api_key")
-		}
-		if apiKey == "" {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "API key required"})
-			c.Abort()
-			return
-		}
-		// API key validation would check against database
 		c.Next()
 	}
 }
