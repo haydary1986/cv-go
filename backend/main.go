@@ -57,6 +57,7 @@ func main() {
 	// Seed admin user and initial data
 	seedAdmin(db)
 	seedFacultiesAndDepartments(db)
+	seedDemoData(db)
 
 	// Initialize handlers
 	loginRL := middleware.NewLoginRateLimiter()
@@ -341,4 +342,439 @@ func seedFacultiesAndDepartments(db *gorm.DB) {
 		}
 	}
 	log.Printf("Seeded %d faculties with departments", len(faculties))
+}
+
+func seedDemoData(db *gorm.DB) {
+	var cvCount int64
+	db.Model(&models.CV{}).Count(&cvCount)
+	if cvCount > 0 {
+		return // Already has data
+	}
+
+	// Get faculty/department IDs for assigning to users
+	var faculties []models.Faculty
+	db.Find(&faculties)
+	if len(faculties) == 0 {
+		return
+	}
+
+	var departments []models.Department
+	db.Find(&departments)
+
+	// Helper to get faculty/dept IDs
+	fid := func(idx int) *uint {
+		if idx < len(faculties) {
+			return &faculties[idx].ID
+		}
+		return &faculties[0].ID
+	}
+	did := func(idx int) *uint {
+		if idx < len(departments) {
+			return &departments[idx].ID
+		}
+		return &departments[0].ID
+	}
+
+	// --- Demo Users ---
+	pw, _ := utils.HashPassword("demo123")
+
+	users := []models.User{
+		{
+			Email: "ahmed@demo.com", Password: pw,
+			FullNameAr: "أحمد محمد علي", FullNameEn: "Ahmed Mohammed Ali",
+			Phone: "07701234567", Role: "student", AICredits: 10, IsActive: true,
+			FacultyID: fid(8), DepartmentID: did(14), // كلية العلوم - علوم الحاسبات
+		},
+		{
+			Email: "fatima@demo.com", Password: pw,
+			FullNameAr: "فاطمة حسين كاظم", FullNameEn: "Fatima Hussein Kadhim",
+			Phone: "07709876543", Role: "student", AICredits: 5, IsActive: true,
+			FacultyID: fid(0), DepartmentID: did(0), // كلية الصيدلة
+		},
+		{
+			Email: "dr.ali@demo.com", Password: pw,
+			FullNameAr: "د. علي عبدالله جاسم", FullNameEn: "Dr. Ali Abdullah Jasim",
+			Phone: "07705551234", Role: "teacher", AICredits: 20, IsActive: true,
+			FacultyID: fid(10), DepartmentID: did(22), // كلية الهندسة - هندسة الطب الحياتي
+		},
+		{
+			Email: "noor@demo.com", Password: pw,
+			FullNameAr: "نور سعد محمود", FullNameEn: "Noor Saad Mahmoud",
+			Phone: "07708884321", Role: "student", AICredits: 8, IsActive: true,
+			FacultyID: fid(7), DepartmentID: did(12), // كلية الاداب - اللغة الانكليزية
+		},
+		{
+			Email: "dr.sarah@demo.com", Password: pw,
+			FullNameAr: "د. سارة خالد عمر", FullNameEn: "Dr. Sarah Khalid Omar",
+			Phone: "07702223344", Role: "teacher", AICredits: 15, IsActive: true,
+			FacultyID: fid(4), DepartmentID: did(5), // كلية الادارة والاقتصاد - المحاسبة
+		},
+		{
+			Email: "omar@demo.com", Password: pw,
+			FullNameAr: "عمر حيدر رشيد", FullNameEn: "Omar Haider Rashid",
+			Phone: "07706667788", Role: "student", AICredits: 0, IsActive: true,
+			FacultyID: fid(8), DepartmentID: did(17), // كلية العلوم - علوم الامن السيبراني
+		},
+	}
+
+	for i := range users {
+		db.Create(&users[i])
+	}
+	log.Printf("Seeded %d demo users (password: demo123)", len(users))
+
+	// --- Demo CVs ---
+	genToken := func() string {
+		t, _ := utils.GenerateToken(32)
+		return t
+	}
+
+	cvs := []models.CV{
+		// Ahmed - Arabic Modern CV (approved, shared)
+		{
+			UserID: users[0].ID, Title: "سيرتي الذاتية - تقنية المعلومات", Language: "ar", Template: "modern",
+			Status: "approved", ShareToken: genToken(), IsShared: true, ViewCount: 42,
+			Data: models.CVData{
+				PersonalInfo: models.PersonalInfo{
+					FullName: "أحمد محمد علي", Email: "ahmed@demo.com", Phone: "07701234567",
+					Address: "بغداد، العراق", DateOfBirth: "1999-03-15", Nationality: "عراقي",
+					JobTitle: "مطور برمجيات",
+				},
+				Objective: "مطور برمجيات طموح أبحث عن فرصة عمل في مجال تطوير تطبيقات الويب والذكاء الاصطناعي",
+				Experiences: []models.Experience{
+					{Title: "مطور ويب متدرب", Company: "شركة التقنية العراقية", Location: "بغداد", StartDate: "2023-06", EndDate: "2023-12", Description: "تطوير واجهات المستخدم باستخدام Vue.js وتطوير واجهات برمجية REST"},
+					{Title: "مساعد مختبر", Company: "جامعة الكوفة", Location: "النجف", StartDate: "2022-09", EndDate: "2023-05", Description: "مساعدة الطلاب في مختبرات البرمجة وقواعد البيانات"},
+				},
+				Education: []models.Education{
+					{Degree: "بكالوريوس علوم الحاسبات", Institution: "جامعة الكوفة", Location: "النجف", StartDate: "2019-09", EndDate: "2023-06", GPA: "3.6/4.0"},
+				},
+				Skills: []models.Skill{
+					{Name: "Go", Level: "intermediate"}, {Name: "Vue.js", Level: "advanced"},
+					{Name: "Python", Level: "intermediate"}, {Name: "SQL", Level: "advanced"},
+					{Name: "Docker", Level: "beginner"}, {Name: "Git", Level: "advanced"},
+				},
+				Languages: []models.LangSkill{
+					{Name: "العربية", Level: "native"}, {Name: "English", Level: "fluent"},
+				},
+				Projects: []models.Project{
+					{Name: "نظام إدارة المكتبة", Description: "نظام متكامل لإدارة المكتبة الجامعية باستخدام Go و Vue.js", StartDate: "2023-01", EndDate: "2023-05"},
+					{Name: "تطبيق الطقس الذكي", Description: "تطبيق موبايل يستخدم الذكاء الاصطناعي للتنبؤ بالطقس", StartDate: "2022-06", EndDate: "2022-09"},
+				},
+				Certificates: []models.Certificate{
+					{Name: "AWS Cloud Practitioner", Issuer: "Amazon Web Services", Date: "2023-08"},
+					{Name: "شهادة Google IT Support", Issuer: "Google", Date: "2022-12"},
+				},
+				References: []models.Reference{
+					{Name: "د. محمد حسن", Position: "أستاذ مساعد", Company: "جامعة الكوفة", Email: "m.hassan@uokufa.edu.iq"},
+				},
+			},
+		},
+		// Ahmed - English Academic CV (draft)
+		{
+			UserID: users[0].ID, Title: "Academic CV - Computer Science", Language: "en", Template: "academic",
+			Status: "draft", ShareToken: genToken(),
+			Data: models.CVData{
+				PersonalInfo: models.PersonalInfo{
+					FullName: "Ahmed Mohammed Ali", Email: "ahmed@demo.com", Phone: "+964-770-123-4567",
+					Address: "Baghdad, Iraq", DateOfBirth: "1999-03-15", Nationality: "Iraqi",
+					JobTitle: "Computer Science Graduate",
+				},
+				Objective: "Seeking a graduate research position in artificial intelligence and machine learning",
+				Education: []models.Education{
+					{Degree: "B.Sc. Computer Science", Institution: "University of Kufa", Location: "Najaf, Iraq", StartDate: "2019-09", EndDate: "2023-06", GPA: "3.6/4.0", Description: "Focus on AI and web development"},
+				},
+				Skills: []models.Skill{
+					{Name: "Python", Level: "advanced"}, {Name: "Machine Learning", Level: "intermediate"},
+					{Name: "TensorFlow", Level: "beginner"}, {Name: "Research Writing", Level: "intermediate"},
+				},
+				Languages: []models.LangSkill{
+					{Name: "Arabic", Level: "native"}, {Name: "English", Level: "fluent"},
+				},
+			},
+		},
+		// Fatima - Arabic Professional CV (pending)
+		{
+			UserID: users[1].ID, Title: "السيرة الذاتية - صيدلانية", Language: "ar", Template: "professional",
+			Status: "pending", ShareToken: genToken(),
+			Data: models.CVData{
+				PersonalInfo: models.PersonalInfo{
+					FullName: "فاطمة حسين كاظم", Email: "fatima@demo.com", Phone: "07709876543",
+					Address: "النجف، العراق", DateOfBirth: "2000-07-22", Nationality: "عراقية",
+					JobTitle: "صيدلانية",
+				},
+				Objective: "صيدلانية متخرجة حديثاً أبحث عن فرصة عمل في مجال الصيدلة السريرية",
+				Experiences: []models.Experience{
+					{Title: "صيدلانية متدربة", Company: "مستشفى الصدر التعليمي", Location: "النجف", StartDate: "2023-01", EndDate: "2023-06", Description: "تدريب سريري في قسم الصيدلة السريرية"},
+				},
+				Education: []models.Education{
+					{Degree: "بكالوريوس صيدلة", Institution: "جامعة الكوفة", Location: "النجف", StartDate: "2018-09", EndDate: "2023-06", GPA: "3.8/4.0"},
+				},
+				Skills: []models.Skill{
+					{Name: "الصيدلة السريرية", Level: "advanced"}, {Name: "التحليل الدوائي", Level: "intermediate"},
+					{Name: "Microsoft Office", Level: "advanced"}, {Name: "البحث العلمي", Level: "intermediate"},
+				},
+				Languages: []models.LangSkill{
+					{Name: "العربية", Level: "native"}, {Name: "English", Level: "conversational"},
+				},
+				Certificates: []models.Certificate{
+					{Name: "شهادة الإسعافات الأولية", Issuer: "الهلال الأحمر العراقي", Date: "2022-05"},
+				},
+			},
+		},
+		// Dr. Ali - English Academic CV (approved, shared)
+		{
+			UserID: users[2].ID, Title: "Academic CV - Biomedical Engineering", Language: "en", Template: "academic",
+			Status: "approved", ShareToken: genToken(), IsShared: true, ViewCount: 156,
+			Data: models.CVData{
+				PersonalInfo: models.PersonalInfo{
+					FullName: "Dr. Ali Abdullah Jasim", Email: "dr.ali@demo.com", Phone: "+964-770-555-1234",
+					Address: "Najaf, Iraq", Nationality: "Iraqi",
+					JobTitle: "Assistant Professor - Biomedical Engineering",
+				},
+				Objective: "Experienced academic and researcher in biomedical engineering with focus on medical imaging and AI-assisted diagnostics",
+				Experiences: []models.Experience{
+					{Title: "Assistant Professor", Company: "University of Kufa", Location: "Najaf", StartDate: "2018-09", Current: true, Description: "Teaching biomedical engineering courses, supervising graduate students, conducting research in medical imaging"},
+					{Title: "Research Fellow", Company: "Imperial College London", Location: "London, UK", StartDate: "2016-01", EndDate: "2018-06", Description: "Post-doctoral research in AI-assisted medical image analysis"},
+					{Title: "Lecturer", Company: "University of Kufa", Location: "Najaf", StartDate: "2012-09", EndDate: "2015-12", Description: "Teaching undergraduate biomedical engineering courses"},
+				},
+				Education: []models.Education{
+					{Degree: "Ph.D. Biomedical Engineering", Institution: "University of Manchester", Location: "Manchester, UK", StartDate: "2012-09", EndDate: "2016-06", Description: "Thesis: AI-Based Medical Image Segmentation for Cancer Detection"},
+					{Degree: "M.Sc. Biomedical Engineering", Institution: "University of Baghdad", Location: "Baghdad, Iraq", StartDate: "2009-09", EndDate: "2011-06", GPA: "3.9/4.0"},
+					{Degree: "B.Sc. Biomedical Engineering", Institution: "University of Baghdad", Location: "Baghdad, Iraq", StartDate: "2005-09", EndDate: "2009-06", GPA: "3.7/4.0"},
+				},
+				Skills: []models.Skill{
+					{Name: "MATLAB", Level: "expert"}, {Name: "Python", Level: "advanced"},
+					{Name: "Medical Imaging", Level: "expert"}, {Name: "Deep Learning", Level: "advanced"},
+					{Name: "Research Methodology", Level: "expert"}, {Name: "Academic Writing", Level: "expert"},
+				},
+				Languages: []models.LangSkill{
+					{Name: "Arabic", Level: "native"}, {Name: "English", Level: "fluent"},
+				},
+				Projects: []models.Project{
+					{Name: "AI-Cancer Detection System", Description: "Deep learning system for early cancer detection from MRI scans", StartDate: "2019-01", EndDate: "2021-12"},
+					{Name: "Smart Prosthetics Lab", Description: "Establishing a lab for smart prosthetic limb research", StartDate: "2020-06"},
+				},
+				Certificates: []models.Certificate{
+					{Name: "IEEE Senior Member", Issuer: "IEEE", Date: "2020-01"},
+					{Name: "Certified LabVIEW Developer", Issuer: "National Instruments", Date: "2017-06"},
+				},
+				References: []models.Reference{
+					{Name: "Prof. James Smith", Position: "Professor", Company: "University of Manchester", Email: "j.smith@manchester.ac.uk"},
+					{Name: "Prof. Hassan Al-Kindi", Position: "Professor", Company: "University of Baghdad", Email: "h.alkindi@uobaghdad.edu.iq"},
+				},
+				Links: []models.Link{
+					{Title: "Google Scholar", URL: "https://scholar.google.com", Type: "academic"},
+					{Title: "ResearchGate", URL: "https://researchgate.net", Type: "academic"},
+				},
+			},
+		},
+		// Noor - Arabic Modern CV (rejected)
+		{
+			UserID: users[3].ID, Title: "السيرة الذاتية - مترجمة", Language: "ar", Template: "modern",
+			Status: "rejected", RejectNote: "يرجى إضافة المزيد من التفاصيل حول الخبرات العملية والشهادات", ShareToken: genToken(),
+			Data: models.CVData{
+				PersonalInfo: models.PersonalInfo{
+					FullName: "نور سعد محمود", Email: "noor@demo.com", Phone: "07708884321",
+					Address: "النجف، العراق", DateOfBirth: "2001-11-08", Nationality: "عراقية",
+					JobTitle: "مترجمة",
+				},
+				Objective: "مترجمة محترفة في اللغتين العربية والإنكليزية",
+				Education: []models.Education{
+					{Degree: "بكالوريوس لغة إنكليزية", Institution: "جامعة الكوفة", Location: "النجف", StartDate: "2019-09", EndDate: "2023-06", GPA: "3.5/4.0"},
+				},
+				Skills: []models.Skill{
+					{Name: "الترجمة التحريرية", Level: "advanced"}, {Name: "الترجمة الفورية", Level: "intermediate"},
+				},
+				Languages: []models.LangSkill{
+					{Name: "العربية", Level: "native"}, {Name: "English", Level: "fluent"}, {Name: "Français", Level: "basic"},
+				},
+			},
+		},
+		// Noor - English Professional CV (draft)
+		{
+			UserID: users[3].ID, Title: "Translator CV", Language: "en", Template: "professional",
+			Status: "draft", ShareToken: genToken(),
+			Data: models.CVData{
+				PersonalInfo: models.PersonalInfo{
+					FullName: "Noor Saad Mahmoud", Email: "noor@demo.com", Phone: "+964-770-888-4321",
+					Address: "Najaf, Iraq", JobTitle: "Translator & Interpreter",
+				},
+				Objective: "Professional Arabic-English translator with academic background in English literature",
+				Education: []models.Education{
+					{Degree: "B.A. English Language", Institution: "University of Kufa", Location: "Najaf, Iraq", StartDate: "2019-09", EndDate: "2023-06", GPA: "3.5/4.0"},
+				},
+				Skills: []models.Skill{
+					{Name: "Translation", Level: "advanced"}, {Name: "Interpretation", Level: "intermediate"},
+					{Name: "Proofreading", Level: "advanced"}, {Name: "CAT Tools", Level: "intermediate"},
+				},
+				Languages: []models.LangSkill{
+					{Name: "Arabic", Level: "native"}, {Name: "English", Level: "fluent"}, {Name: "French", Level: "basic"},
+				},
+			},
+		},
+		// Dr. Sarah - Arabic Academic CV (approved)
+		{
+			UserID: users[4].ID, Title: "السيرة الذاتية الأكاديمية", Language: "ar", Template: "academic",
+			Status: "approved", ShareToken: genToken(), IsShared: true, ViewCount: 89,
+			Data: models.CVData{
+				PersonalInfo: models.PersonalInfo{
+					FullName: "د. سارة خالد عمر", Email: "dr.sarah@demo.com", Phone: "07702223344",
+					Address: "النجف، العراق", Nationality: "عراقية",
+					JobTitle: "أستاذ مساعد - المحاسبة",
+				},
+				Objective: "أكاديمية وباحثة في مجال المحاسبة والتدقيق المالي مع خبرة تدريسية تزيد عن 8 سنوات",
+				Experiences: []models.Experience{
+					{Title: "أستاذ مساعد", Company: "جامعة الكوفة", Location: "النجف", StartDate: "2019-09", Current: true, Description: "تدريس مواد المحاسبة المالية والتدقيق، إشراف على رسائل الماجستير"},
+					{Title: "مدقق مالي", Company: "ديوان الرقابة المالية", Location: "بغداد", StartDate: "2014-01", EndDate: "2016-08", Description: "تدقيق الحسابات الحكومية وإعداد التقارير المالية"},
+				},
+				Education: []models.Education{
+					{Degree: "دكتوراه محاسبة", Institution: "جامعة بغداد", Location: "بغداد", StartDate: "2016-09", EndDate: "2019-06"},
+					{Degree: "ماجستير محاسبة", Institution: "جامعة الكوفة", Location: "النجف", StartDate: "2011-09", EndDate: "2013-06", GPA: "3.85/4.0"},
+					{Degree: "بكالوريوس محاسبة", Institution: "جامعة الكوفة", Location: "النجف", StartDate: "2007-09", EndDate: "2011-06", GPA: "3.7/4.0"},
+				},
+				Skills: []models.Skill{
+					{Name: "التدقيق المالي", Level: "expert"}, {Name: "المحاسبة الدولية IFRS", Level: "advanced"},
+					{Name: "SPSS", Level: "advanced"}, {Name: "البحث العلمي", Level: "expert"},
+				},
+				Languages: []models.LangSkill{
+					{Name: "العربية", Level: "native"}, {Name: "English", Level: "conversational"},
+				},
+				Links: []models.Link{
+					{Title: "Google Scholar", URL: "https://scholar.google.com", Type: "academic"},
+				},
+			},
+		},
+		// Omar - Arabic Modern CV (pending)
+		{
+			UserID: users[5].ID, Title: "سيرتي الذاتية - أمن سيبراني", Language: "ar", Template: "modern",
+			Status: "pending", ShareToken: genToken(),
+			Data: models.CVData{
+				PersonalInfo: models.PersonalInfo{
+					FullName: "عمر حيدر رشيد", Email: "omar@demo.com", Phone: "07706667788",
+					Address: "النجف، العراق", DateOfBirth: "2001-05-20", Nationality: "عراقي",
+					JobTitle: "متخصص أمن سيبراني",
+				},
+				Objective: "طالب متخصص في الأمن السيبراني مع شغف بأمن الشبكات واختبار الاختراق",
+				Education: []models.Education{
+					{Degree: "بكالوريوس علوم الأمن السيبراني", Institution: "جامعة الكوفة", Location: "النجف", StartDate: "2020-09", EndDate: "2024-06", GPA: "3.4/4.0"},
+				},
+				Skills: []models.Skill{
+					{Name: "Linux", Level: "advanced"}, {Name: "Network Security", Level: "intermediate"},
+					{Name: "Python", Level: "intermediate"}, {Name: "Penetration Testing", Level: "beginner"},
+					{Name: "Wireshark", Level: "intermediate"}, {Name: "Firewall Configuration", Level: "intermediate"},
+				},
+				Languages: []models.LangSkill{
+					{Name: "العربية", Level: "native"}, {Name: "English", Level: "conversational"},
+				},
+				Projects: []models.Project{
+					{Name: "نظام كشف التسلل", Description: "تطوير نظام كشف تسلل باستخدام التعلم الآلي", StartDate: "2023-09", EndDate: "2024-04"},
+				},
+				Certificates: []models.Certificate{
+					{Name: "CompTIA Security+", Issuer: "CompTIA", Date: "2024-01"},
+				},
+			},
+		},
+		// Omar - English CV (draft)
+		{
+			UserID: users[5].ID, Title: "Cybersecurity Specialist CV", Language: "en", Template: "professional",
+			Status: "draft", ShareToken: genToken(),
+			Data: models.CVData{
+				PersonalInfo: models.PersonalInfo{
+					FullName: "Omar Haider Rashid", Email: "omar@demo.com", Phone: "+964-770-666-7788",
+					Address: "Najaf, Iraq", JobTitle: "Cybersecurity Specialist",
+				},
+				Objective: "Cybersecurity student passionate about network security and ethical hacking",
+				Education: []models.Education{
+					{Degree: "B.Sc. Cybersecurity", Institution: "University of Kufa", Location: "Najaf, Iraq", StartDate: "2020-09", EndDate: "2024-06", GPA: "3.4/4.0"},
+				},
+				Skills: []models.Skill{
+					{Name: "Linux Administration", Level: "advanced"}, {Name: "Network Security", Level: "intermediate"},
+					{Name: "Python Scripting", Level: "intermediate"}, {Name: "Penetration Testing", Level: "beginner"},
+				},
+				Languages: []models.LangSkill{
+					{Name: "Arabic", Level: "native"}, {Name: "English", Level: "conversational"},
+				},
+			},
+		},
+	}
+
+	for i := range cvs {
+		cvs[i].QRCodeData = fmt.Sprintf("https://cvbuilder.example.com/shared/%s", cvs[i].ShareToken)
+		db.Create(&cvs[i])
+	}
+	log.Printf("Seeded %d demo CVs", len(cvs))
+
+	// --- Notifications ---
+	cvID1 := cvs[0].ID
+	cvID4 := cvs[4].ID
+	notifications := []models.Notification{
+		{UserID: users[0].ID, TitleAr: "تمت الموافقة على سيرتك الذاتية", TitleEn: "Your CV has been approved",
+			MessageAr: "تمت الموافقة على سيرتك الذاتية 'سيرتي الذاتية - تقنية المعلومات' من قبل المشرف",
+			MessageEn: "Your CV 'IT CV' has been approved by the supervisor", Type: "approval", IsRead: true, CVID: &cvID1},
+		{UserID: users[1].ID, TitleAr: "سيرتك الذاتية قيد المراجعة", TitleEn: "Your CV is under review",
+			MessageAr: "تم إرسال سيرتك الذاتية للمراجعة بنجاح", MessageEn: "Your CV has been submitted for review",
+			Type: "announcement", IsRead: false},
+		{UserID: users[3].ID, TitleAr: "تم رفض سيرتك الذاتية", TitleEn: "Your CV has been rejected",
+			MessageAr: "يرجى إضافة المزيد من التفاصيل حول الخبرات العملية والشهادات",
+			MessageEn: "Please add more details about work experience and certificates",
+			Type: "rejection", IsRead: false, CVID: &cvID4},
+		{UserID: users[0].ID, TitleAr: "إعلان: تحديث النظام", TitleEn: "Announcement: System Update",
+			MessageAr: "تم تحديث النظام وإضافة ميزات جديدة تشمل قوالب إضافية ودعم الذكاء الاصطناعي",
+			MessageEn: "System updated with new features including additional templates and AI support",
+			Type: "announcement", IsRead: false},
+		{UserID: users[2].ID, TitleAr: "تمت الموافقة على سيرتك الذاتية", TitleEn: "Your CV has been approved",
+			MessageAr: "تمت الموافقة على سيرتك الذاتية الأكاديمية", MessageEn: "Your academic CV has been approved",
+			Type: "approval", IsRead: true},
+		{UserID: users[4].ID, TitleAr: "تمت الموافقة على سيرتك الذاتية", TitleEn: "Your CV has been approved",
+			MessageAr: "تمت الموافقة على سيرتك الذاتية الأكاديمية", MessageEn: "Your academic CV has been approved",
+			Type: "approval", IsRead: false},
+		{UserID: users[5].ID, TitleAr: "سيرتك الذاتية قيد المراجعة", TitleEn: "Your CV is under review",
+			MessageAr: "تم إرسال سيرتك الذاتية للمراجعة", MessageEn: "Your CV has been submitted for review",
+			Type: "announcement", IsRead: false},
+	}
+
+	for i := range notifications {
+		db.Create(&notifications[i])
+	}
+	log.Printf("Seeded %d notifications", len(notifications))
+
+	// --- Activity Logs ---
+	logs := []models.ActivityLog{
+		{UserID: users[0].ID, Action: "register", IP: "192.168.1.10", UserAgent: "Mozilla/5.0"},
+		{UserID: users[0].ID, Action: "login", IP: "192.168.1.10", UserAgent: "Mozilla/5.0"},
+		{UserID: users[0].ID, Action: "create_cv", Details: fmt.Sprintf("CV ID: %d", cvs[0].ID), IP: "192.168.1.10"},
+		{UserID: users[0].ID, Action: "create_cv", Details: fmt.Sprintf("CV ID: %d", cvs[1].ID), IP: "192.168.1.10"},
+		{UserID: users[1].ID, Action: "register", IP: "192.168.1.20", UserAgent: "Mozilla/5.0"},
+		{UserID: users[1].ID, Action: "login", IP: "192.168.1.20", UserAgent: "Mozilla/5.0"},
+		{UserID: users[1].ID, Action: "create_cv", Details: fmt.Sprintf("CV ID: %d", cvs[2].ID), IP: "192.168.1.20"},
+		{UserID: users[2].ID, Action: "register", IP: "192.168.1.30", UserAgent: "Mozilla/5.0"},
+		{UserID: users[2].ID, Action: "login", IP: "192.168.1.30", UserAgent: "Mozilla/5.0"},
+		{UserID: users[2].ID, Action: "create_cv", Details: fmt.Sprintf("CV ID: %d", cvs[3].ID), IP: "192.168.1.30"},
+		{UserID: users[3].ID, Action: "register", IP: "192.168.1.40", UserAgent: "Mozilla/5.0"},
+		{UserID: users[3].ID, Action: "create_cv", Details: fmt.Sprintf("CV ID: %d", cvs[4].ID), IP: "192.168.1.40"},
+		{UserID: users[4].ID, Action: "login", IP: "192.168.1.50", UserAgent: "Mozilla/5.0"},
+		{UserID: users[4].ID, Action: "create_cv", Details: fmt.Sprintf("CV ID: %d", cvs[6].ID), IP: "192.168.1.50"},
+		{UserID: users[5].ID, Action: "register", IP: "192.168.1.60", UserAgent: "Mozilla/5.0"},
+		{UserID: users[5].ID, Action: "create_cv", Details: fmt.Sprintf("CV ID: %d", cvs[7].ID), IP: "192.168.1.60"},
+		{UserID: users[5].ID, Action: "view_cv", Details: fmt.Sprintf("CV ID: %d", cvs[0].ID), IP: "192.168.1.60"},
+	}
+
+	for i := range logs {
+		db.Create(&logs[i])
+	}
+	log.Printf("Seeded %d activity logs", len(logs))
+
+	// --- Branding Settings ---
+	var brandCount int64
+	db.Model(&models.BrandingSetting{}).Count(&brandCount)
+	if brandCount == 0 {
+		db.Create(&models.BrandingSetting{
+			Name:           "CV Builder - نظام بناء السيرة الذاتية",
+			PrimaryColor:   "#0d6efd",
+			SecondaryColor: "#6c757d",
+			AccentColor:    "#198754",
+		})
+		log.Println("Seeded branding settings")
+	}
+
+	log.Println("Demo data seeding completed successfully!")
 }
