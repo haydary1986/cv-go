@@ -35,9 +35,9 @@ ENV DB_PATH=/app/data/cvbuilder.db
 ENV GIN_MODE=release
 ENV TZ=Asia/Baghdad
 
-# Health check
+# Health check (use shell form so $PORT is expanded at runtime)
 HEALTHCHECK --interval=10s --timeout=5s --start-period=15s --retries=5 \
-  CMD curl -f http://127.0.0.1:8080/api/v1/stats || exit 1
+  CMD curl -f http://127.0.0.1:${PORT:-8080}/api/v1/stats || exit 1
 
 EXPOSE 8080
 
