@@ -1,8 +1,8 @@
-version: '3.8'
-
 services:
   cv-builder:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: cv-builder
     restart: unless-stopped
     ports:
@@ -20,7 +20,7 @@ services:
       - FRONTEND_URL=${FRONTEND_URL:-http://localhost:8080}
       - GIN_MODE=release
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/api/v1/stats"]
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/v1/stats"]
       interval: 30s
       timeout: 10s
       retries: 3

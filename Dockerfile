@@ -8,16 +8,16 @@ RUN npm run build
 
 # Stage 2: Build Backend
 FROM golang:1.23-alpine AS backend-builder
-RUN apk add --no-cache gcc musl-dev
+RUN apk add --no-cache gcc musl-dev sqlite-dev
 WORKDIR /app/backend
 COPY backend/go.mod backend/go.sum ./
 RUN go mod download
 COPY backend/ ./
-RUN CGO_ENABLED=1 GOOS=linux go build -o server .
+RUN CGO_ENABLED=1 GOOS=linux go build -ldflags="-s -w" -o server .
 
 # Stage 3: Production
-FROM alpine:3.19
-RUN apk add --no-cache ca-certificates sqlite-libs
+FROM alpine:3.20
+RUN apk add --no-cache ca-certificates sqlite-libs tzdata curl
 WORKDIR /app
 
 # Copy backend binary
@@ -33,6 +33,11 @@ RUN mkdir -p /app/data
 ENV PORT=8080
 ENV DB_PATH=/app/data/cvbuilder.db
 ENV GIN_MODE=release
+ENV TZ=Asia/Baghdad
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --retries=3 \
+  CMD curl -f http://localhost:8080/api/v1/stats || exit 1
 
 EXPOSE 8080
 
