@@ -75,9 +75,18 @@ func main() {
 	// Router
 	r := gin.Default()
 
-	// CORS
+	// CORS - allow same-origin and configured frontend URL
+	allowedOrigins := []string{cfg.FrontendURL}
 	r.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{cfg.FrontendURL},
+		AllowOriginFunc: func(origin string) bool {
+			for _, o := range allowedOrigins {
+				if o == origin {
+					return true
+				}
+			}
+			// Allow same-origin requests (no Origin header or empty)
+			return origin == ""
+		},
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization", "X-API-Key"},
 		ExposeHeaders:    []string{"Content-Length", "Content-Disposition"},
