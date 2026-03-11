@@ -7,16 +7,16 @@ COPY frontend/ ./
 RUN npm run build
 
 # Stage 2: Build Backend
-FROM golang:1.25-alpine AS backend-builder
+FROM golang:1.25-alpine3.22 AS backend-builder
 RUN apk add --no-cache gcc musl-dev sqlite-dev
 WORKDIR /app/backend
 COPY backend/go.mod backend/go.sum ./
 RUN go mod download
 COPY backend/ ./
-RUN CGO_ENABLED=1 GOOS=linux go build -ldflags="-s -w" -o server .
+RUN CGO_ENABLED=1 GOOS=linux go build -ldflags="-s -w -extldflags '-static'" -tags musl -o server .
 
-# Stage 3: Production
-FROM alpine:3.20
+# Stage 3: Production (same alpine version as builder)
+FROM alpine:3.22
 RUN apk add --no-cache ca-certificates sqlite-libs tzdata curl
 WORKDIR /app
 
@@ -35,9 +35,9 @@ ENV DB_PATH=/app/data/cvbuilder.db
 ENV GIN_MODE=release
 ENV TZ=Asia/Baghdad
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --retries=3 \
-  CMD curl -f http://localhost:8080/api/v1/stats || exit 1
+# Health check with longer start period
+HEALTHCHECK --interval=10s --timeout=5s --start-period=15s --retries=5 \
+  CMD curl -f http://127.0.0.1:8080/api/v1/stats || exit 1
 
 EXPOSE 8080
 
