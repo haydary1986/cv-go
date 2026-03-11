@@ -54,8 +54,9 @@ func main() {
 	}
 	log.Println("Migrations completed successfully")
 
-	// Seed admin user
+	// Seed admin user and initial data
 	seedAdmin(db)
+	seedFacultiesAndDepartments(db)
 
 	// Initialize handlers
 	loginRL := middleware.NewLoginRateLimiter()
@@ -241,4 +242,103 @@ func seedAdmin(db *gorm.DB) {
 		db.Create(&admin)
 		log.Println("Admin user created: admin@cvbuilder.com / admin123")
 	}
+}
+
+func seedFacultiesAndDepartments(db *gorm.DB) {
+	var count int64
+	db.Model(&models.Faculty{}).Count(&count)
+	if count > 0 {
+		return // Already seeded
+	}
+
+	type deptInfo struct {
+		NameAr string
+		NameEn string
+	}
+	type facultyInfo struct {
+		NameAr      string
+		NameEn      string
+		Departments []deptInfo
+	}
+
+	faculties := []facultyInfo{
+		{"كلية الصيدلة", "College of Pharmacy", []deptInfo{
+			{"كلية الصيدلة", "College of Pharmacy"},
+		}},
+		{"كلية طب الاسنان", "College of Dentistry", []deptInfo{
+			{"كلية طب الاسنان", "College of Dentistry"},
+		}},
+		{"كلية التمريض", "College of Nursing", []deptInfo{
+			{"كلية التمريض", "College of Nursing"},
+		}},
+		{"كلية التربية البدنية وعلوم الرياضة", "College of Physical Education and Sport Sciences", []deptInfo{
+			{"كلية التربية البدنية وعلوم الرياضة", "College of Physical Education and Sport Sciences"},
+		}},
+		{"كلية الادارة والاقتصاد", "College of Administration and Economics", []deptInfo{
+			{"المحاسبة", "Accounting"},
+			{"العلوم المالية والمصرفية", "Financial and Banking Sciences"},
+			{"ادارة الاعمال", "Business Administration"},
+			{"علوم السياحة", "Tourism Sciences"},
+		}},
+		{"كلية التقنيات الصحية والطبية", "College of Health and Medical Technologies", []deptInfo{
+			{"تقنيات الاشعة", "Radiology Technologies"},
+			{"تقنيات التخدير", "Anesthesia Technologies"},
+			{"تقنيات المختبرات الطبية", "Medical Laboratory Technologies"},
+			{"تقنيات صناعة الاسنان", "Dental Technologies"},
+			{"تقنيات البصريات", "Optics Technologies"},
+		}},
+		{"كلية القانون", "College of Law", []deptInfo{
+			{"كلية القانون", "College of Law"},
+		}},
+		{"كلية الاداب", "College of Arts", []deptInfo{
+			{"اللغة الانكليزية", "English Language"},
+			{"علم النفس السريري", "Clinical Psychology"},
+		}},
+		{"كلية العلوم", "College of Science", []deptInfo{
+			{"علوم الحاسبات", "Computer Science"},
+			{"علوم الادلة الجنائية", "Forensic Science"},
+			{"علوم الامن السيبراني", "Cybersecurity"},
+			{"علوم الحياة", "Life Sciences"},
+			{"علوم الذكاء الاصطناعي", "Artificial Intelligence"},
+			{"علوم الفيزياء الطبية", "Medical Physics"},
+		}},
+		{"كلية التربية", "College of Education", []deptInfo{
+			{"التربية الاسلامية", "Islamic Education"},
+			{"علوم التربوية والنفسية", "Educational and Psychological Sciences"},
+		}},
+		{"كلية الهندسة", "College of Engineering", []deptInfo{
+			{"هندسة الطب الحياتي", "Biomedical Engineering"},
+			{"هندسة تكرير النفط والغاز", "Oil and Gas Refining Engineering"},
+			{"هندسة الطائرات", "Aircraft Engineering"},
+			{"الهندسة المدنية", "Civil Engineering"},
+			{"الهندسة المعمارية", "Architectural Engineering"},
+		}},
+		{"الكلية التقنية الهندسية", "Technical Engineering College", []deptInfo{
+			{"هندسة تقنيات الحاسوب", "Computer Technologies Engineering"},
+		}},
+		{"كلية الاعلام", "College of Media", []deptInfo{
+			{"كلية الاعلام", "College of Media"},
+		}},
+		{"كلية الفنون", "College of Arts (Fine Arts)", []deptInfo{
+			{"التصميم", "Design"},
+		}},
+	}
+
+	for _, f := range faculties {
+		faculty := models.Faculty{
+			NameAr: f.NameAr,
+			NameEn: f.NameEn,
+		}
+		db.Create(&faculty)
+
+		for _, d := range f.Departments {
+			dept := models.Department{
+				FacultyID: faculty.ID,
+				NameAr:    d.NameAr,
+				NameEn:    d.NameEn,
+			}
+			db.Create(&dept)
+		}
+	}
+	log.Printf("Seeded %d faculties with departments", len(faculties))
 }
