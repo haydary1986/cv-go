@@ -6,27 +6,22 @@ RUN npm ci
 COPY frontend/ ./
 RUN npm run build
 
-# Stage 2: Build Backend (use same alpine base as runtime)
-FROM golang:1.25-alpine3.22 AS backend-builder
-RUN apk add --no-cache gcc musl-dev sqlite-dev
+# Stage 2: Build Backend (Pure Go, no CGO needed)
+FROM golang:1.25-alpine AS backend-builder
 WORKDIR /app/backend
 COPY backend/go.mod backend/go.sum ./
 RUN go mod download
 COPY backend/ ./
-RUN CGO_ENABLED=1 GOOS=linux go build -ldflags="-s -w" -o server .
-# Verify the binary works
-RUN ldd server || true
+RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o server .
 
-# Stage 3: Production (MUST match builder alpine version for shared libs)
+# Stage 3: Production
 FROM alpine:3.22
-RUN apk add --no-cache ca-certificates sqlite-libs tzdata curl
+RUN apk add --no-cache ca-certificates tzdata curl
 WORKDIR /app
 
 # Copy backend binary
 COPY --from=backend-builder /app/backend/server .
-
-# Verify binary can execute
-RUN chmod +x ./server && ldd ./server || true
+RUN chmod +x ./server
 
 # Copy frontend dist
 COPY --from=frontend-builder /app/frontend/dist ./static
@@ -41,10 +36,9 @@ ENV GIN_MODE=release
 ENV TZ=Asia/Baghdad
 
 # Health check
-HEALTHCHECK --interval=10s --timeout=5s --start-period=30s --retries=10 \
+HEALTHCHECK --interval=10s --timeout=5s --start-period=15s --retries=5 \
   CMD curl -f http://127.0.0.1:8080/api/v1/stats || exit 1
 
 EXPOSE 8080
 
-# Use shell form to capture crash output in logs
-CMD sh -c "./server 2>&1"
+CMD ["./server"]
