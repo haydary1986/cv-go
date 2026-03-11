@@ -1,0 +1,19 @@
+# Backend
+backend/cvbuilder.db
+backend/*.db
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+
+# Environment
+.env
+*.env.local
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
