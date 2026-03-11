@@ -51,6 +51,7 @@ export const cvAPI = {
   getShared: (token: string) => api.get(`/shared/${token}`),
   exportJSON: () => api.get('/cvs/export/json', { responseType: 'blob' }),
   exportCSV: () => api.get('/cvs/export/csv', { responseType: 'blob' }),
+  createGuest: (data: any) => api.post('/guest/cv', data),
 }
 
 // AI API

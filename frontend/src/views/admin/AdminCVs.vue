@@ -36,15 +36,25 @@
         <tbody>
           <tr v-for="cv in cvs" :key="cv.id">
             <td>{{ cv.id }}</td>
-            <td>{{ cv.title }}</td>
-            <td>{{ cv.user?.email }}</td>
+            <td>
+              {{ cv.title }}
+              <span v-if="cv.is_guest" class="badge bg-info ms-1">{{ t('cv.guestMode') }}</span>
+            </td>
+            <td>
+              <template v-if="cv.is_guest">
+                <span class="text-info">{{ cv.guest_name }}</span>
+                <br v-if="cv.guest_email" /><small class="text-muted">{{ cv.guest_email }}</small>
+                <br /><small class="text-muted">IP: {{ cv.guest_ip }}</small>
+              </template>
+              <template v-else>{{ cv.user?.email }}</template>
+            </td>
             <td>{{ cv.language }}</td>
             <td>{{ cv.template }}</td>
             <td><span :class="statusBadge(cv.status)" class="badge">{{ cv.status }}</span></td>
             <td>{{ new Date(cv.created_at).toLocaleDateString() }}</td>
             <td>
               <div class="btn-group btn-group-sm">
-                <router-link :to="`/cv/${cv.id}`" class="btn btn-outline-primary"><i class="fas fa-eye"></i></router-link>
+                <router-link :to="cv.is_guest ? `/shared/${cv.share_token}` : `/cv/${cv.id}`" class="btn btn-outline-primary"><i class="fas fa-eye"></i></router-link>
                 <button v-if="cv.status !== 'approved'" @click="approve(cv.id)" class="btn btn-outline-success"><i class="fas fa-check"></i></button>
                 <button @click="openReject(cv.id)" class="btn btn-outline-danger"><i class="fas fa-times"></i></button>
                 <button @click="openRevision(cv.id)" class="btn btn-outline-warning"><i class="fas fa-edit"></i></button>

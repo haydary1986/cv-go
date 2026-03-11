@@ -6,7 +6,7 @@
         <h1 class="display-4 fw-bold mb-3">{{ t('app.name') }}</h1>
         <p class="lead mb-4" v-if="locale === 'ar'">أنشئ سيرتك الذاتية الاحترافية بسهولة مع 14 قالب مميز ودعم الذكاء الاصطناعي</p>
         <p class="lead mb-4" v-else>Create your professional CV easily with 14 stunning templates and AI support</p>
-        <div class="d-flex gap-3 justify-content-center">
+        <div class="d-flex gap-3 justify-content-center flex-wrap">
           <router-link v-if="!authStore.isAuthenticated" to="/register" class="btn btn-light btn-lg px-4">
             {{ t('auth.registerBtn') }}
           </router-link>
@@ -19,6 +19,13 @@
           <router-link v-if="authStore.isAuthenticated" to="/dashboard" class="btn btn-outline-light btn-lg px-4">
             {{ t('app.dashboard') }}
           </router-link>
+        </div>
+        <!-- Guest CTA -->
+        <div v-if="!authStore.isAuthenticated" class="mt-4">
+          <router-link to="/cv/guest" class="btn btn-warning btn-lg px-4 shadow">
+            <i class="fas fa-bolt me-2"></i>{{ t('cv.createWithoutAccount') }}
+          </router-link>
+          <p class="mt-2 small opacity-75">{{ t('cv.createWithoutAccountDesc') }}</p>
         </div>
       </div>
     </section>

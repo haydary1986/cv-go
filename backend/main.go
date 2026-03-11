@@ -137,6 +137,9 @@ func main() {
 		// Shared CV (public)
 		api.GET("/shared/:token", cvHandler.GetSharedCV)
 
+		// Guest CV creation (public - no auth required)
+		api.POST("/guest/cv", cvHandler.CreateGuestCV)
+
 		// AI routes
 		aiRoutes := api.Group("/ai")
 		aiRoutes.Use(middleware.AuthMiddleware())

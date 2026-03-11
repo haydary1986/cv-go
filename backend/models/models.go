@@ -35,7 +35,7 @@ type User struct {
 // CV represents a curriculum vitae
 type CV struct {
 	ID          uint           `gorm:"primaryKey" json:"id"`
-	UserID      uint           `gorm:"not null;index" json:"user_id"`
+	UserID      uint           `gorm:"index" json:"user_id"`
 	User        User           `gorm:"foreignKey:UserID" json:"user,omitempty"`
 	Language    string         `gorm:"default:ar" json:"language"` // ar, en
 	Template    string         `gorm:"default:modern" json:"template"`
@@ -47,6 +47,10 @@ type CV struct {
 	IsShared    bool           `gorm:"default:false" json:"is_shared"`
 	ViewCount   int            `gorm:"default:0" json:"view_count"`
 	QRCodeData  string         `json:"qr_code_data"`
+	IsGuest     bool           `gorm:"default:false" json:"is_guest"`
+	GuestName   string         `json:"guest_name"`
+	GuestEmail  string         `json:"guest_email"`
+	GuestIP     string         `json:"guest_ip"`
 	CreatedAt   time.Time      `json:"created_at"`
 	UpdatedAt   time.Time      `json:"updated_at"`
 	DeletedAt   gorm.DeletedAt `gorm:"index" json:"-"`

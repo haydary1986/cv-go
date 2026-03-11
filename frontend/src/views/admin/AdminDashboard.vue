@@ -40,6 +40,15 @@
           </div>
         </div>
       </div>
+      <div class="col-md-3" v-if="stats.guest_cvs > 0">
+        <div class="card bg-secondary text-white">
+          <div class="card-body text-center">
+            <i class="fas fa-user-secret fa-2x mb-2"></i>
+            <h3>{{ stats.guest_cvs }}</h3>
+            <small>{{ t('cv.guestCVs') }}</small>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Charts -->
@@ -73,7 +82,7 @@ import { Chart, registerables } from 'chart.js'
 Chart.register(...registerables)
 
 const { t } = useI18n()
-const stats = ref<any>({ total_users: 0, total_cvs: 0, active_today: 0, pending_cvs: 0 })
+const stats = ref<any>({ total_users: 0, total_cvs: 0, active_today: 0, pending_cvs: 0, guest_cvs: 0 })
 const statusChart = ref<HTMLCanvasElement>()
 const trendChart = ref<HTMLCanvasElement>()
 

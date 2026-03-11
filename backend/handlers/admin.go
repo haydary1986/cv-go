@@ -21,11 +21,12 @@ type AdminHandler struct {
 }
 
 func (h *AdminHandler) GetDashboardStats(c *gin.Context) {
-	var totalUsers, totalCVs, pendingCVs, activeToday int64
+	var totalUsers, totalCVs, pendingCVs, activeToday, guestCVs int64
 
 	h.DB.Model(&models.User{}).Count(&totalUsers)
 	h.DB.Model(&models.CV{}).Count(&totalCVs)
 	h.DB.Model(&models.CV{}).Where("status = ?", "pending").Count(&pendingCVs)
+	h.DB.Model(&models.CV{}).Where("is_guest = ?", true).Count(&guestCVs)
 
 	today := time.Now().Truncate(24 * time.Hour)
 	h.DB.Model(&models.ActivityLog{}).Where("created_at >= ?", today).
@@ -43,6 +44,7 @@ func (h *AdminHandler) GetDashboardStats(c *gin.Context) {
 		"total_cvs":     totalCVs,
 		"pending_cvs":   pendingCVs,
 		"active_today":  activeToday,
+		"guest_cvs":     guestCVs,
 		"status_counts": statusCounts,
 	})
 }

@@ -25,6 +25,61 @@ type CreateCVInput struct {
 	Data     models.CVData `json:"data"`
 }
 
+type CreateGuestCVInput struct {
+	Title      string        `json:"title" binding:"required"`
+	Language   string        `json:"language" binding:"required"`
+	Template   string        `json:"template" binding:"required"`
+	Data       models.CVData `json:"data"`
+	GuestName  string        `json:"guest_name" binding:"required"`
+	GuestEmail string        `json:"guest_email"`
+}
+
+func (h *CVHandler) CreateGuestCV(c *gin.Context) {
+	var input CreateGuestCVInput
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	shareToken, err := utils.GenerateToken(32)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate share token"})
+		return
+	}
+
+	shareURL := fmt.Sprintf("%s/shared/%s", c.Request.Host, shareToken)
+
+	cv := models.CV{
+		UserID:     0,
+		Title:      input.Title,
+		Language:   input.Language,
+		Template:   input.Template,
+		Data:       input.Data,
+		Status:     "draft",
+		ShareToken: shareToken,
+		IsShared:   true,
+		QRCodeData: shareURL,
+		IsGuest:    true,
+		GuestName:  input.GuestName,
+		GuestEmail: input.GuestEmail,
+		GuestIP:    c.ClientIP(),
+	}
+
+	if err := h.DB.Create(&cv).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create CV"})
+		return
+	}
+
+	h.DB.Create(&models.ActivityLog{
+		UserID: 0, Action: "guest_create_cv",
+		Details:   fmt.Sprintf("CV ID: %d, Guest: %s (%s)", cv.ID, input.GuestName, input.GuestEmail),
+		IP:        c.ClientIP(),
+		UserAgent: c.Request.UserAgent(),
+	})
+
+	c.JSON(http.StatusCreated, gin.H{"cv": cv})
+}
+
 func (h *CVHandler) CreateCV(c *gin.Context) {
 	userID := c.GetUint("user_id")
 	var input CreateCVInput
