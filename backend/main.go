@@ -20,17 +20,23 @@ import (
 )
 
 func main() {
+	log.Println("Starting CV Builder Server...")
+
 	cfg := config.Load()
+	log.Printf("Config loaded. Port: %s, DB: %s", cfg.Port, cfg.DBPath)
 	middleware.SetJWTSecret(cfg.JWTSecret)
 
 	// Database
+	log.Println("Connecting to database...")
 	db, err := gorm.Open(sqlite.Open(cfg.DBPath), &gorm.Config{})
 	if err != nil {
 		log.Fatal("Failed to connect to database:", err)
 	}
+	log.Println("Database connected successfully")
 
 	// Auto migrate
-	db.AutoMigrate(
+	log.Println("Running migrations...")
+	err = db.AutoMigrate(
 		&models.User{},
 		&models.CV{},
 		&models.Faculty{},
@@ -43,6 +49,10 @@ func main() {
 		&models.BrandingSetting{},
 		&models.AISetting{},
 	)
+	if err != nil {
+		log.Fatal("Migration failed:", err)
+	}
+	log.Println("Migrations completed successfully")
 
 	// Seed admin user
 	seedAdmin(db)
