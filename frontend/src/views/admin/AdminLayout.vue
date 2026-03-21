@@ -61,8 +61,8 @@ function closeSidebarOnMobile() {
 </script>
 
 <style scoped>
-.admin-sidebar { width: 250px; min-height: calc(100vh - 60px); position: sticky; top: 60px; }
-.admin-content { min-height: calc(100vh - 60px); }
+.admin-sidebar { width: 250px; min-width: 250px; flex-shrink: 0; min-height: calc(100vh - 60px); position: sticky; top: 60px; }
+.admin-content { min-height: calc(100vh - 60px); overflow-x: hidden; min-width: 0; }
 .nav-link { padding: 8px 12px; margin: 2px 0; transition: all 0.2s; }
 .nav-link:hover { background: rgba(255,255,255,0.1); border-radius: 6px; }
 
