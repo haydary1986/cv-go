@@ -26,10 +26,17 @@ RUN chmod +x ./server
 # Copy frontend dist
 COPY --from=frontend-builder /app/frontend/dist ./static
 
-# Create data directory for SQLite
-RUN mkdir -p /app/data
+# Copy entrypoint script
+COPY entrypoint.sh .
+RUN chmod +x ./entrypoint.sh
 
-# Environment variables
+# Create data directory for SQLite and uploads
+RUN mkdir -p /app/data /app/data/uploads
+
+# Declare volume for persistent data (survives container rebuilds)
+VOLUME /app/data
+
+# Environment variables (defaults - can be overridden)
 ENV PORT=8080
 ENV DB_PATH=/app/data/cvbuilder.db
 ENV GIN_MODE=release
@@ -41,4 +48,4 @@ HEALTHCHECK --interval=10s --timeout=5s --start-period=15s --retries=5 \
 
 EXPOSE 8080
 
-CMD ["./server"]
+ENTRYPOINT ["./entrypoint.sh"]

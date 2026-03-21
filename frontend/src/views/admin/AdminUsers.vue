@@ -18,9 +18,9 @@
       <div class="col-md-3">
         <select class="form-select" v-model="roleFilter" @change="fetchUsers">
           <option value="">{{ t('app.filter') }}</option>
-          <option value="student">Student</option>
-          <option value="teacher">Teacher</option>
-          <option value="admin">Admin</option>
+          <option value="student">{{ t('admin.student') }}</option>
+          <option value="teacher">{{ t('admin.teacher') }}</option>
+          <option value="admin">{{ t('admin.adminRole') }}</option>
         </select>
       </div>
     </div>
@@ -28,8 +28,8 @@
     <!-- Empty State -->
     <div v-if="users.length === 0" class="text-center py-5">
       <i class="fas fa-users fa-4x text-muted mb-3 d-block"></i>
-      <h5 class="text-muted">No users found</h5>
-      <p class="text-muted">Try adjusting your search or filter criteria.</p>
+      <h5 class="text-muted">{{ t('admin.noUsersFound') }}</h5>
+      <p class="text-muted">{{ t('admin.noUsersFoundDesc') }}</p>
     </div>
 
     <div v-else class="table-responsive">
@@ -39,7 +39,7 @@
             <th>#</th>
             <th>{{ t('auth.fullNameAr') }}</th>
             <th>{{ t('auth.email') }}</th>
-            <th>Role</th>
+            <th>{{ t('admin.role') }}</th>
             <th>{{ t('auth.faculty') }}</th>
             <th>{{ t('ai.credits') }}</th>
             <th>{{ t('app.actions') }}</th>

@@ -293,7 +293,7 @@
                 <input type="text" class="form-control" :placeholder="t('cv.projectName')" v-model="proj.name" />
               </div>
               <div class="col-md-6">
-                <input type="url" class="form-control" placeholder="URL" v-model="proj.url" />
+                <input type="url" class="form-control" :placeholder="t('cv.url')" v-model="proj.url" />
               </div>
               <div class="col-md-3">
                 <input type="month" class="form-control" v-model="proj.start_date" />
@@ -331,10 +331,10 @@
                 <input type="month" class="form-control" :placeholder="t('cv.certDate')" v-model="cert.date" />
               </div>
               <div class="col-md-4">
-                <input type="text" class="form-control" placeholder="Credential ID" v-model="cert.credential_id" />
+                <input type="text" class="form-control" :placeholder="t('cv.credentialId')" v-model="cert.credential_id" />
               </div>
               <div class="col-md-4">
-                <input type="url" class="form-control" placeholder="URL" v-model="cert.url" />
+                <input type="url" class="form-control" :placeholder="t('cv.url')" v-model="cert.url" />
               </div>
             </div>
           </div>
@@ -401,11 +401,13 @@ import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useCVStore, getEmptyCVData } from '../stores/cv'
 import { aiAPI } from '../services/api'
+import { useToast } from '../composables/useToast'
 
 const { t } = useI18n()
 const route = useRoute()
 const router = useRouter()
 const cvStore = useCVStore()
+const toast = useToast()
 
 const isEdit = ref(false)
 const currentStep = ref(0)
@@ -470,12 +472,12 @@ function handlePhotoUpload(e: Event) {
   if (!file) return
   // Validate file size (max 2MB)
   if (file.size > 2 * 1024 * 1024) {
-    alert(t('cv.photoTooLarge') || 'Photo must be less than 2MB')
+    toast.warning(t('cv.photoTooLarge'))
     return
   }
   // Validate file type
   if (!file.type.startsWith('image/')) {
-    alert(t('cv.invalidPhotoType') || 'Please upload an image file')
+    toast.warning(t('cv.invalidPhotoType'))
     return
   }
   const reader = new FileReader()
@@ -526,15 +528,18 @@ async function handleSubmit() {
   }
   saving.value = true
   try {
+    let cvId: number
     if (isEdit.value) {
-      await cvStore.updateCV(Number(route.params.id), form)
+      const cv = await cvStore.updateCV(Number(route.params.id), form)
+      cvId = cv.id
     } else {
-      await cvStore.createCV(form)
+      const cv = await cvStore.createCV(form)
+      cvId = cv.id
       localStorage.removeItem('cv_draft')
     }
-    router.push('/dashboard')
-  } catch (err) {
-    console.error(err)
+    router.push(`/cv/${cvId}`)
+  } catch {
+    toast.error(t('app.error'))
   } finally {
     saving.value = false
   }

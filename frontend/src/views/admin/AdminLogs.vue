@@ -8,14 +8,14 @@
       </div>
       <div class="col-md-3">
         <select class="form-select" v-model="actionFilter" @change="fetchLogs">
-          <option value="">All Actions</option>
-          <option value="login">Login</option>
-          <option value="register">Register</option>
-          <option value="create_cv">Create CV</option>
-          <option value="edit_cv">Edit CV</option>
-          <option value="delete_cv">Delete CV</option>
-          <option value="view_cv">View CV</option>
-          <option value="download_cv">Download CV</option>
+          <option value="">{{ t('admin.allActions') }}</option>
+          <option value="login">{{ t('auth.loginBtn') }}</option>
+          <option value="register">{{ t('auth.registerBtn') }}</option>
+          <option value="create_cv">{{ t('app.createCV') }}</option>
+          <option value="edit_cv">{{ t('app.edit') }}</option>
+          <option value="delete_cv">{{ t('app.delete') }}</option>
+          <option value="view_cv">{{ t('app.view') }}</option>
+          <option value="download_cv">{{ t('app.download') }}</option>
         </select>
       </div>
     </div>
@@ -23,8 +23,8 @@
     <!-- Empty State -->
     <div v-if="logs.length === 0" class="text-center py-5">
       <i class="fas fa-history fa-4x text-muted mb-3 d-block"></i>
-      <h5 class="text-muted">No activity logs found</h5>
-      <p class="text-muted">There are no logs matching your current filters.</p>
+      <h5 class="text-muted">{{ t('admin.noLogsFound') }}</h5>
+      <p class="text-muted">{{ t('admin.noLogsFoundDesc') }}</p>
     </div>
 
     <div v-else class="table-responsive">
@@ -33,10 +33,10 @@
           <tr>
             <th>#</th>
             <th>{{ t('auth.email') }}</th>
-            <th>Action</th>
-            <th>Details</th>
-            <th>IP</th>
-            <th>Date</th>
+            <th>{{ t('admin.action') }}</th>
+            <th>{{ t('admin.details') }}</th>
+            <th>{{ t('admin.ip') }}</th>
+            <th>{{ t('admin.date') }}</th>
           </tr>
         </thead>
         <tbody>

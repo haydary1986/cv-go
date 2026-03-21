@@ -53,7 +53,7 @@
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
-            <h5>{{ editFaculty ? t('app.edit') : t('app.createCV') }}</h5>
+            <h5>{{ editFaculty ? t('app.edit') : t('admin.addFaculty') }}</h5>
             <button class="btn-close" @click="showFacultyModal = false"></button>
           </div>
           <div class="modal-body">
@@ -79,7 +79,7 @@
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
-            <h5>{{ editDept ? t('app.edit') : t('app.createCV') }}</h5>
+            <h5>{{ editDept ? t('app.edit') : t('admin.addDepartment') }}</h5>
             <button class="btn-close" @click="showDeptModal = false"></button>
           </div>
           <div class="modal-body">
@@ -155,7 +155,7 @@ async function saveFaculty() {
 }
 
 async function deleteFac(id: number) {
-  if (confirm('Delete?')) { await adminAPI.deleteFaculty(id); loadData() }
+  if (confirm(t('app.deleteConfirm'))) { await adminAPI.deleteFaculty(id); loadData() }
 }
 
 async function saveDept() {
@@ -169,7 +169,7 @@ async function saveDept() {
 }
 
 async function deleteDept(id: number) {
-  if (confirm('Delete?')) { await adminAPI.deleteDepartment(id); loadData() }
+  if (confirm(t('app.deleteConfirm'))) { await adminAPI.deleteDepartment(id); loadData() }
 }
 
 onMounted(loadData)

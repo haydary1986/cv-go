@@ -75,12 +75,12 @@
           </div>
           <div class="col-md-8">
             <label class="form-label">{{ t('admin.apiKey') }}</label>
-            <input type="password" class="form-control" v-model="aiForm.api_key" placeholder="Enter API key..." />
+            <input type="password" class="form-control" v-model="aiForm.api_key" :placeholder="t('admin.apiKey')" />
           </div>
           <div class="col-md-4 d-flex align-items-end">
             <div class="form-check form-switch">
               <input type="checkbox" class="form-check-input" v-model="aiForm.is_active" />
-              <label class="form-check-label">Active</label>
+              <label class="form-check-label">{{ t('app.active') }}</label>
             </div>
           </div>
         </div>
@@ -118,7 +118,7 @@
           <div class="col-md-4 d-flex align-items-end">
             <div class="form-check form-switch">
               <input type="checkbox" class="form-check-input" v-model="adSettings.is_active" />
-              <label class="form-check-label">Active</label>
+              <label class="form-check-label">{{ t('app.active') }}</label>
             </div>
           </div>
         </div>
@@ -139,19 +139,19 @@
             <input type="text" class="form-control" v-model="notifForm.title_en" />
           </div>
           <div class="col-md-6">
-            <label class="form-label">Message (AR)</label>
+            <label class="form-label">{{ t('admin.message') }} (AR)</label>
             <textarea class="form-control" rows="3" v-model="notifForm.message_ar"></textarea>
           </div>
           <div class="col-md-6">
-            <label class="form-label">Message (EN)</label>
+            <label class="form-label">{{ t('admin.message') }} (EN)</label>
             <textarea class="form-control" rows="3" v-model="notifForm.message_en"></textarea>
           </div>
           <div class="col-md-4">
-            <label class="form-label">Target</label>
+            <label class="form-label">{{ t('admin.target') }}</label>
             <select class="form-select" v-model="notifForm.target">
-              <option value="all">All Users</option>
-              <option value="faculty">By Faculty</option>
-              <option value="department">By Department</option>
+              <option value="all">{{ t('app.allUsers') }}</option>
+              <option value="faculty">{{ t('admin.byFaculty') }}</option>
+              <option value="department">{{ t('admin.byDepartment') }}</option>
             </select>
           </div>
         </div>
@@ -179,9 +179,14 @@ const notifForm = reactive({ title_ar: '', title_en: '', message_ar: '', message
 
 onMounted(async () => {
   try {
-    const [bRes, adRes] = await Promise.all([adminAPI.getBranding(), adminAPI.getAdSettings()])
-    Object.assign(branding, bRes.data.branding)
-    Object.assign(adSettings, adRes.data.settings)
+    const [bRes, aiRes, adRes] = await Promise.all([
+      adminAPI.getBranding(),
+      adminAPI.getAISettings(),
+      adminAPI.getAdSettings(),
+    ])
+    if (bRes.data.branding) Object.assign(branding, bRes.data.branding)
+    if (aiRes.data.settings) Object.assign(aiForm, aiRes.data.settings)
+    if (adRes.data.settings) Object.assign(adSettings, adRes.data.settings)
   } catch {}
 })
 

@@ -94,8 +94,8 @@
       <router-view />
     </main>
 
-    <!-- Footer -->
-    <footer class="bg-dark text-white text-center py-3 mt-5">
+    <!-- Footer (hidden on home page which has its own footer) -->
+    <footer v-if="route.name !== 'home'" class="bg-dark text-white text-center py-3 mt-5">
       <div class="container">
         <p class="mb-0">&copy; {{ new Date().getFullYear() }} {{ t('app.name') }}</p>
       </div>
@@ -106,8 +106,8 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, watch } from 'vue'
-import { useRouter } from 'vue-router'
+import { onMounted, onUnmounted, watch } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from './stores/auth'
 import { useNotificationStore } from './stores/notification'
@@ -115,8 +115,26 @@ import ToastNotification from './components/ToastNotification.vue'
 
 const { t, locale } = useI18n()
 const router = useRouter()
+const route = useRoute()
 const authStore = useAuthStore()
 const notifStore = useNotificationStore()
+
+let notifInterval: ReturnType<typeof setInterval> | null = null
+
+function startNotificationPolling() {
+  stopNotificationPolling()
+  notifStore.fetchUnreadCount()
+  notifInterval = setInterval(() => {
+    notifStore.fetchUnreadCount()
+  }, 60000)
+}
+
+function stopNotificationPolling() {
+  if (notifInterval) {
+    clearInterval(notifInterval)
+    notifInterval = null
+  }
+}
 
 function switchLocale(lang: string) {
   locale.value = lang
@@ -136,13 +154,19 @@ onMounted(async () => {
 
   if (authStore.isAuthenticated) {
     await authStore.fetchProfile()
-    notifStore.fetchUnreadCount()
+    startNotificationPolling()
   }
+})
+
+onUnmounted(() => {
+  stopNotificationPolling()
 })
 
 watch(() => authStore.isAuthenticated, (isAuth) => {
   if (isAuth) {
-    notifStore.fetchUnreadCount()
+    startNotificationPolling()
+  } else {
+    stopNotificationPolling()
   }
 })
 </script>

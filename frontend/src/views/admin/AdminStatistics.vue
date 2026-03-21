@@ -32,7 +32,7 @@
           <div class="card-header">{{ t('admin.topUsers') }}</div>
           <div class="card-body">
             <table class="table table-sm">
-              <thead><tr><th>{{ t('auth.email') }}</th><th>Name</th><th>CVs</th></tr></thead>
+              <thead><tr><th>{{ t('auth.email') }}</th><th>{{ t('admin.name') }}</th><th>{{ t('admin.cvCount') }}</th></tr></thead>
               <tbody>
                 <tr v-for="u in topUsers" :key="u.email">
                   <td>{{ u.email }}</td><td>{{ u.name }}</td><td><span class="badge bg-primary">{{ u.count }}</span></td>

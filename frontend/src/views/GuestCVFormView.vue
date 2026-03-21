@@ -324,8 +324,10 @@ import { ref, reactive } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { getEmptyCVData } from '../stores/cv'
 import { cvAPI } from '../services/api'
+import { useToast } from '../composables/useToast'
 
 const { t } = useI18n()
+const toast = useToast()
 
 const currentStep = ref(0)
 const saving = ref(false)
@@ -386,9 +388,8 @@ async function handleSubmit() {
     shareToken.value = cv.share_token
     shareLink.value = `${window.location.origin}/shared/${cv.share_token}`
     showSuccess.value = true
-  } catch (err) {
-    console.error(err)
-    alert(t('app.error'))
+  } catch {
+    toast.error(t('app.error'))
   } finally {
     saving.value = false
   }

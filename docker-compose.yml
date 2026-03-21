@@ -12,13 +12,17 @@ services:
     environment:
       - PORT=8080
       - DB_PATH=/app/data/cvbuilder.db
-      - JWT_SECRET=${JWT_SECRET:-change-this-secret-in-production}
-      - AES_KEY=${AES_KEY:-0123456789abcdef0123456789abcdef}
+      - GIN_MODE=release
+      # JWT_SECRET and AES_KEY are auto-generated on first run
+      # and saved in /app/data/.env (persistent volume)
+      # Override them here ONLY if you want custom values:
+      # - JWT_SECRET=your-custom-secret
+      # - AES_KEY=your-custom-32char-key
+      # Google OAuth (optional):
       - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID:-}
       - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET:-}
       - GOOGLE_REDIRECT_URL=${GOOGLE_REDIRECT_URL:-}
       - FRONTEND_URL=${FRONTEND_URL:-http://localhost:8080}
-      - GIN_MODE=release
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/api/v1/stats"]
       interval: 30s
