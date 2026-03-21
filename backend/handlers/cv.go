@@ -19,19 +19,25 @@ type CVHandler struct {
 }
 
 type CreateCVInput struct {
-	Title    string        `json:"title" binding:"required"`
-	Language string        `json:"language" binding:"required"`
-	Template string        `json:"template" binding:"required"`
-	Data     models.CVData `json:"data"`
+	Title              string        `json:"title" binding:"required"`
+	Language           string        `json:"language" binding:"required"`
+	Template           string        `json:"template" binding:"required"`
+	Data               models.CVData `json:"data"`
+	IsUniversityMember bool          `json:"is_university_member"`
+	FacultyID          *uint         `json:"faculty_id"`
+	DepartmentID       *uint         `json:"department_id"`
 }
 
 type CreateGuestCVInput struct {
-	Title      string        `json:"title" binding:"required"`
-	Language   string        `json:"language" binding:"required"`
-	Template   string        `json:"template" binding:"required"`
-	Data       models.CVData `json:"data"`
-	GuestName  string        `json:"guest_name" binding:"required"`
-	GuestEmail string        `json:"guest_email"`
+	Title              string        `json:"title" binding:"required"`
+	Language           string        `json:"language" binding:"required"`
+	Template           string        `json:"template" binding:"required"`
+	Data               models.CVData `json:"data"`
+	GuestName          string        `json:"guest_name" binding:"required"`
+	GuestEmail         string        `json:"guest_email"`
+	IsUniversityMember bool          `json:"is_university_member"`
+	FacultyID          *uint         `json:"faculty_id"`
+	DepartmentID       *uint         `json:"department_id"`
 }
 
 func (h *CVHandler) CreateGuestCV(c *gin.Context) {
@@ -50,19 +56,22 @@ func (h *CVHandler) CreateGuestCV(c *gin.Context) {
 	shareURL := fmt.Sprintf("%s/shared/%s", c.Request.Host, shareToken)
 
 	cv := models.CV{
-		UserID:     0,
-		Title:      input.Title,
-		Language:   input.Language,
-		Template:   input.Template,
-		Data:       input.Data,
-		Status:     "draft",
-		ShareToken: shareToken,
-		IsShared:   true,
-		QRCodeData: shareURL,
-		IsGuest:    true,
-		GuestName:  input.GuestName,
-		GuestEmail: input.GuestEmail,
-		GuestIP:    c.ClientIP(),
+		UserID:             0,
+		Title:              input.Title,
+		Language:           input.Language,
+		Template:           input.Template,
+		Data:               input.Data,
+		Status:             "draft",
+		ShareToken:         shareToken,
+		IsShared:           true,
+		QRCodeData:         shareURL,
+		IsGuest:            true,
+		GuestName:          input.GuestName,
+		GuestEmail:         input.GuestEmail,
+		GuestIP:            c.ClientIP(),
+		IsUniversityMember: input.IsUniversityMember,
+		FacultyID:          input.FacultyID,
+		DepartmentID:       input.DepartmentID,
 	}
 
 	if err := h.DB.Create(&cv).Error; err != nil {
@@ -98,14 +107,17 @@ func (h *CVHandler) CreateCV(c *gin.Context) {
 	shareURL := fmt.Sprintf("%s/shared/%s", c.Request.Host, shareToken)
 
 	cv := models.CV{
-		UserID:     userID,
-		Title:      input.Title,
-		Language:   input.Language,
-		Template:   input.Template,
-		Data:       input.Data,
-		Status:     "draft",
-		ShareToken: shareToken,
-		QRCodeData: shareURL,
+		UserID:             userID,
+		Title:              input.Title,
+		Language:           input.Language,
+		Template:           input.Template,
+		Data:               input.Data,
+		Status:             "draft",
+		ShareToken:         shareToken,
+		QRCodeData:         shareURL,
+		IsUniversityMember: input.IsUniversityMember,
+		FacultyID:          input.FacultyID,
+		DepartmentID:       input.DepartmentID,
 	}
 
 	if err := h.DB.Create(&cv).Error; err != nil {
@@ -139,7 +151,8 @@ func (h *CVHandler) ListCVs(c *gin.Context) {
 	var total int64
 
 	h.DB.Model(&models.CV{}).Where("user_id = ?", userID).Count(&total)
-	h.DB.Where("user_id = ?", userID).
+	h.DB.Preload("Faculty").Preload("Department").
+		Where("user_id = ?", userID).
 		Order("created_at DESC").
 		Offset(offset).Limit(limit).
 		Find(&cvs)
@@ -163,7 +176,7 @@ func (h *CVHandler) GetCV(c *gin.Context) {
 	cvID, _ := strconv.ParseUint(c.Param("id"), 10, 32)
 
 	var cv models.CV
-	if err := h.DB.First(&cv, cvID).Error; err != nil {
+	if err := h.DB.Preload("Faculty").Preload("Department").First(&cv, cvID).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "CV not found"})
 		return
 	}

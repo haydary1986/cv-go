@@ -47,13 +47,18 @@ type CV struct {
 	IsShared    bool           `gorm:"default:false" json:"is_shared"`
 	ViewCount   int            `gorm:"default:0" json:"view_count"`
 	QRCodeData  string         `json:"qr_code_data"`
-	IsGuest     bool           `gorm:"default:false" json:"is_guest"`
-	GuestName   string         `json:"guest_name"`
-	GuestEmail  string         `json:"guest_email"`
-	GuestIP     string         `json:"guest_ip"`
-	CreatedAt   time.Time      `json:"created_at"`
-	UpdatedAt   time.Time      `json:"updated_at"`
-	DeletedAt   gorm.DeletedAt `gorm:"index" json:"-"`
+	IsGuest            bool           `gorm:"default:false" json:"is_guest"`
+	GuestName          string         `json:"guest_name"`
+	GuestEmail         string         `json:"guest_email"`
+	GuestIP            string         `json:"guest_ip"`
+	IsUniversityMember bool           `gorm:"default:false" json:"is_university_member"`
+	FacultyID          *uint          `json:"faculty_id"`
+	DepartmentID       *uint          `json:"department_id"`
+	Faculty            Faculty        `gorm:"foreignKey:FacultyID" json:"faculty,omitempty"`
+	Department         Department     `gorm:"foreignKey:DepartmentID" json:"department,omitempty"`
+	CreatedAt          time.Time      `json:"created_at"`
+	UpdatedAt          time.Time      `json:"updated_at"`
+	DeletedAt          gorm.DeletedAt `gorm:"index" json:"-"`
 }
 
 // CVData holds all CV content

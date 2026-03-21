@@ -28,6 +28,9 @@ func (h *AdminHandler) GetDashboardStats(c *gin.Context) {
 	h.DB.Model(&models.CV{}).Where("status = ?", "pending").Count(&pendingCVs)
 	h.DB.Model(&models.CV{}).Where("is_guest = ?", true).Count(&guestCVs)
 
+	var universityMemberCVs int64
+	h.DB.Model(&models.CV{}).Where("is_university_member = ?", true).Count(&universityMemberCVs)
+
 	today := time.Now().Truncate(24 * time.Hour)
 	h.DB.Model(&models.ActivityLog{}).Where("created_at >= ?", today).
 		Distinct("user_id").Count(&activeToday)
@@ -40,12 +43,13 @@ func (h *AdminHandler) GetDashboardStats(c *gin.Context) {
 	h.DB.Model(&models.CV{}).Select("status, count(*) as count").Group("status").Find(&statusCounts)
 
 	c.JSON(http.StatusOK, gin.H{
-		"total_users":   totalUsers,
-		"total_cvs":     totalCVs,
-		"pending_cvs":   pendingCVs,
-		"active_today":  activeToday,
-		"guest_cvs":     guestCVs,
-		"status_counts": statusCounts,
+		"total_users":          totalUsers,
+		"total_cvs":            totalCVs,
+		"pending_cvs":          pendingCVs,
+		"active_today":         activeToday,
+		"guest_cvs":            guestCVs,
+		"university_member_cvs": universityMemberCVs,
+		"status_counts":        statusCounts,
 	})
 }
 
@@ -556,8 +560,21 @@ func (h *AdminHandler) GetStats(c *gin.Context) {
 		FROM users u JOIN cvs c ON c.user_id = u.id
 		WHERE c.deleted_at IS NULL GROUP BY u.id ORDER BY count DESC LIMIT 10`).Scan(&topUsers)
 
+	// By department
+	var byDepartment []struct {
+		Name  string `json:"name"`
+		Count int64  `json:"count"`
+	}
+	h.DB.Raw(`SELECT d.name_ar as name, COUNT(c.id) as count
+		FROM cvs c
+		JOIN departments d ON c.department_id = d.id
+		WHERE c.department_id IS NOT NULL
+		GROUP BY c.department_id, d.name_ar
+		ORDER BY count DESC`).Scan(&byDepartment)
+
 	c.JSON(http.StatusOK, gin.H{
 		"by_faculty":     byFaculty,
+		"by_department":  byDepartment,
 		"by_language":    byLanguage,
 		"by_status":      byStatus,
 		"monthly_trends": monthlyTrends,

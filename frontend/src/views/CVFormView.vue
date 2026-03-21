@@ -49,8 +49,60 @@
           </div>
         </div>
 
-        <!-- Step 1: Personal Info -->
+        <!-- Step 1: University Affiliation -->
         <div v-show="currentStep === 1">
+          <h5 class="mb-3">{{ t('cv.areYouMember') }}</h5>
+          <div class="row g-3 justify-content-center">
+            <div class="col-md-5">
+              <div
+                class="card h-100 text-center p-4"
+                :class="isUniversityMember ? 'border-primary shadow-sm bg-primary bg-opacity-10' : 'border'"
+                style="cursor: pointer; transition: all 0.2s;"
+                @click="isUniversityMember = true"
+              >
+                <div class="card-body">
+                  <i class="fas fa-university fa-3x mb-3" :class="isUniversityMember ? 'text-primary' : 'text-muted'"></i>
+                  <h5 class="card-title">{{ t('cv.yesMember') }}</h5>
+                  <p class="card-text text-muted">{{ t('cv.memberDescription') }}</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-5">
+              <div
+                class="card h-100 text-center p-4"
+                :class="!isUniversityMember ? 'border-primary shadow-sm bg-primary bg-opacity-10' : 'border'"
+                style="cursor: pointer; transition: all 0.2s;"
+                @click="isUniversityMember = false; selectedFacultyId = null; selectedDepartmentId = null"
+              >
+                <div class="card-body">
+                  <i class="fas fa-user-tie fa-3x mb-3" :class="!isUniversityMember ? 'text-primary' : 'text-muted'"></i>
+                  <h5 class="card-title">{{ t('cv.noExternal') }}</h5>
+                  <p class="card-text text-muted">{{ t('cv.externalDescription') }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Faculty & Department dropdowns when member -->
+          <div v-if="isUniversityMember" class="row g-3 mt-3">
+            <div class="col-md-6">
+              <label class="form-label">{{ t('cv.selectFaculty') }} *</label>
+              <select class="form-select" v-model="selectedFacultyId">
+                <option :value="null" disabled>{{ t('cv.selectFaculty') }}</option>
+                <option v-for="fac in faculties" :key="fac.id" :value="fac.id">{{ fac.name }}</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">{{ t('cv.selectDepartment') }} *</label>
+              <select class="form-select" v-model="selectedDepartmentId" :disabled="!selectedFacultyId">
+                <option :value="null" disabled>{{ t('cv.selectDepartment') }}</option>
+                <option v-for="dept in departments" :key="dept.id" :value="dept.id">{{ dept.name }}</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 2: Personal Info -->
+        <div v-show="currentStep === 2">
           <div class="row g-3">
             <div class="col-md-6">
               <label class="form-label">{{ t('cv.fullName') }} *</label>
@@ -95,8 +147,8 @@
           </div>
         </div>
 
-        <!-- Step 2: Photo -->
-        <div v-show="currentStep === 2">
+        <!-- Step 3: Photo -->
+        <div v-show="currentStep === 3">
           <div class="text-center">
             <div v-if="form.data.photo" class="mb-3">
               <img :src="form.data.photo" class="rounded-circle" style="width:150px;height:150px;object-fit:cover" />
@@ -114,8 +166,8 @@
           </div>
         </div>
 
-        <!-- Step 3: Objective -->
-        <div v-show="currentStep === 3">
+        <!-- Step 4: Objective -->
+        <div v-show="currentStep === 4">
           <label class="form-label">{{ t('cv.objective') }}</label>
           <textarea class="form-control" rows="5" v-model="form.data.objective"></textarea>
           <button @click="improveText('objective')" class="btn btn-sm btn-outline-info mt-2" :disabled="aiLoading">
@@ -123,8 +175,8 @@
           </button>
         </div>
 
-        <!-- Step 4: Experience -->
-        <div v-show="currentStep === 4">
+        <!-- Step 5: Experience -->
+        <div v-show="currentStep === 5">
           <div v-for="(exp, idx) in form.data.experiences" :key="idx" class="border rounded p-3 mb-3">
             <div class="d-flex justify-content-between mb-2">
               <h6>{{ t('cv.experience') }} {{ idx + 1 }}</h6>
@@ -164,8 +216,8 @@
           </button>
         </div>
 
-        <!-- Step 5: Education -->
-        <div v-show="currentStep === 5">
+        <!-- Step 6: Education -->
+        <div v-show="currentStep === 6">
           <div v-for="(edu, idx) in form.data.education" :key="idx" class="border rounded p-3 mb-3">
             <div class="d-flex justify-content-between mb-2">
               <h6>{{ t('cv.education') }} {{ idx + 1 }}</h6>
@@ -202,8 +254,8 @@
           </button>
         </div>
 
-        <!-- Step 6: Skills -->
-        <div v-show="currentStep === 6">
+        <!-- Step 7: Skills -->
+        <div v-show="currentStep === 7">
           <div v-for="(skill, idx) in form.data.skills" :key="idx" class="row g-2 mb-2">
             <div class="col-md-6">
               <input type="text" class="form-control" :placeholder="t('cv.skillName')" v-model="skill.name" />
@@ -227,8 +279,8 @@
           </button>
         </div>
 
-        <!-- Step 7: Languages -->
-        <div v-show="currentStep === 7">
+        <!-- Step 8: Languages -->
+        <div v-show="currentStep === 8">
           <div v-for="(lang, idx) in form.data.languages" :key="idx" class="row g-2 mb-2">
             <div class="col-md-6">
               <input type="text" class="form-control" :placeholder="t('cv.languageName')" v-model="lang.name" />
@@ -252,8 +304,8 @@
           </button>
         </div>
 
-        <!-- Step 8: Links -->
-        <div v-show="currentStep === 8">
+        <!-- Step 9: Links -->
+        <div v-show="currentStep === 9">
           <div v-for="(link, idx) in form.data.links" :key="idx" class="row g-2 mb-2">
             <div class="col-md-4">
               <input type="text" class="form-control" :placeholder="t('cv.linkTitle')" v-model="link.title" />
@@ -279,8 +331,8 @@
           </button>
         </div>
 
-        <!-- Step 9: Projects -->
-        <div v-show="currentStep === 9">
+        <!-- Step 10: Projects -->
+        <div v-show="currentStep === 10">
           <div v-for="(proj, idx) in form.data.projects" :key="idx" class="border rounded p-3 mb-3">
             <div class="d-flex justify-content-between mb-2">
               <h6>{{ t('cv.projects') }} {{ idx + 1 }}</h6>
@@ -311,8 +363,8 @@
           </button>
         </div>
 
-        <!-- Step 10: Certificates -->
-        <div v-show="currentStep === 10">
+        <!-- Step 11: Certificates -->
+        <div v-show="currentStep === 11">
           <div v-for="(cert, idx) in form.data.certificates" :key="idx" class="border rounded p-3 mb-3">
             <div class="d-flex justify-content-between mb-2">
               <h6>{{ t('cv.certificates') }} {{ idx + 1 }}</h6>
@@ -343,8 +395,8 @@
           </button>
         </div>
 
-        <!-- Step 11: References -->
-        <div v-show="currentStep === 11">
+        <!-- Step 12: References -->
+        <div v-show="currentStep === 12">
           <div v-for="(ref, idx) in form.data.references" :key="idx" class="border rounded p-3 mb-3">
             <div class="d-flex justify-content-between mb-2">
               <h6>{{ t('cv.references') }} {{ idx + 1 }}</h6>
@@ -373,6 +425,24 @@
           <button @click="addReference" class="btn btn-outline-primary">
             <i class="fas fa-plus me-1"></i>{{ t('cv.addReference') }}
           </button>
+
+          <!-- Legal Disclaimer -->
+          <div class="card mt-4 border-warning" style="background-color: #fff9e6;">
+            <div class="card-body">
+              <div class="d-flex align-items-start">
+                <i class="fas fa-exclamation-triangle text-warning fa-2x me-3 mt-1"></i>
+                <div class="form-check">
+                  <input type="checkbox" class="form-check-input" id="disclaimerCheck" v-model="agreedToTerms" />
+                  <label class="form-check-label" for="disclaimerCheck">
+                    {{ t('cv.disclaimer') }}
+                  </label>
+                </div>
+              </div>
+              <div v-if="!agreedToTerms" class="text-danger small mt-2 ms-5">
+                <i class="fas fa-info-circle me-1"></i>{{ t('cv.mustAgree') }}
+              </div>
+            </div>
+          </div>
         </div>
 
         <!-- Navigation -->
@@ -384,7 +454,7 @@
             <button v-if="currentStep < steps.length - 1" @click="currentStep++" class="btn btn-primary">
               {{ t('app.next') }} <i class="fas fa-arrow-right ms-1"></i>
             </button>
-            <button v-else @click="handleSubmit" class="btn btn-success" :disabled="saving">
+            <button v-else @click="handleSubmit" class="btn btn-success" :disabled="saving || !agreedToTerms">
               <span v-if="saving" class="spinner-border spinner-border-sm me-1"></span>
               <i v-else class="fas fa-save me-1"></i>{{ t('app.save') }}
             </button>
@@ -400,7 +470,7 @@ import { ref, reactive, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useCVStore, getEmptyCVData } from '../stores/cv'
-import { aiAPI } from '../services/api'
+import { aiAPI, publicAPI } from '../services/api'
 import { useToast } from '../composables/useToast'
 
 const { t } = useI18n()
@@ -414,6 +484,16 @@ const currentStep = ref(0)
 const saving = ref(false)
 const aiLoading = ref(false)
 
+// University affiliation
+const isUniversityMember = ref(false)
+const selectedFacultyId = ref<number | null>(null)
+const selectedDepartmentId = ref<number | null>(null)
+const faculties = ref<any[]>([])
+const departments = ref<any[]>([])
+
+// Legal disclaimer
+const agreedToTerms = ref(false)
+
 const templates = [
   'academic', 'ats', 'compact', 'creative', 'designer', 'elegant', 'engineer',
   'executive', 'lawyer', 'medical', 'minimalist', 'modern', 'professional',
@@ -421,7 +501,7 @@ const templates = [
 ]
 
 const steps = [
-  t('cv.template'), t('cv.personalInfo'), t('cv.photo'), t('cv.objective'),
+  t('cv.template'), t('cv.universityAffiliation'), t('cv.personalInfo'), t('cv.photo'), t('cv.objective'),
   t('cv.experience'), t('cv.education'), t('cv.skills'), t('cv.languages'),
   t('cv.links'), t('cv.projects'), t('cv.certificates'), t('cv.references')
 ]
@@ -433,7 +513,32 @@ const form = reactive({
   data: getEmptyCVData(),
 })
 
+async function fetchFaculties() {
+  try {
+    const res = await publicAPI.getFaculties()
+    faculties.value = res.data.faculties || []
+  } catch {}
+}
+
+async function fetchDepartments(facultyId: number) {
+  try {
+    const res = await publicAPI.getDepartments(facultyId)
+    departments.value = res.data.departments || []
+  } catch {}
+}
+
+watch(selectedFacultyId, (newVal) => {
+  selectedDepartmentId.value = null
+  departments.value = []
+  if (newVal) {
+    fetchDepartments(newVal)
+  }
+})
+
 onMounted(async () => {
+  // Fetch faculties for the university affiliation step
+  fetchFaculties()
+
   const id = route.params.id
   if (id) {
     isEdit.value = true
@@ -443,6 +548,12 @@ onMounted(async () => {
       form.language = cv.language
       form.template = cv.template
       Object.assign(form.data, cv.data)
+      // Load existing affiliation data
+      if (cv.is_university_member) {
+        isUniversityMember.value = true
+        selectedFacultyId.value = cv.faculty_id || null
+        selectedDepartmentId.value = cv.department_id || null
+      }
     }
   } else {
     // Restore from localStorage
@@ -526,14 +637,24 @@ async function handleSubmit() {
     currentStep.value = 0
     return
   }
+  if (!agreedToTerms.value) {
+    toast.warning(t('cv.mustAgree'))
+    return
+  }
   saving.value = true
   try {
+    const payload = {
+      ...form,
+      is_university_member: isUniversityMember.value,
+      faculty_id: isUniversityMember.value ? selectedFacultyId.value : null,
+      department_id: isUniversityMember.value ? selectedDepartmentId.value : null,
+    }
     let cvId: number
     if (isEdit.value) {
-      const cv = await cvStore.updateCV(Number(route.params.id), form)
+      const cv = await cvStore.updateCV(Number(route.params.id), payload)
       cvId = cv.id
     } else {
-      const cv = await cvStore.createCV(form)
+      const cv = await cvStore.createCV(payload)
       cvId = cv.id
       localStorage.removeItem('cv_draft')
     }

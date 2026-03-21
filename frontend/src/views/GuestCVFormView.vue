@@ -71,6 +71,69 @@
                 </div>
               </div>
             </div>
+
+            <!-- University Affiliation Section -->
+            <div class="col-12">
+              <hr />
+              <h5 class="mb-3">
+                <i class="fas fa-university me-2 text-primary"></i>
+                {{ t('cv.universityAffiliation') }}
+              </h5>
+              <p class="text-muted mb-3">{{ t('cv.areYouMember') }}</p>
+
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <div
+                    class="card h-100"
+                    :class="isUniversityMember ? 'border-primary shadow' : 'border'"
+                    style="cursor: pointer"
+                    @click="isUniversityMember = true"
+                  >
+                    <div class="card-body text-center py-4">
+                      <i class="fas fa-university fa-3x mb-3" :class="isUniversityMember ? 'text-primary' : 'text-muted'"></i>
+                      <h6 :class="isUniversityMember ? 'text-primary' : ''">{{ t('cv.yesMember') }}</h6>
+                      <small class="text-muted">{{ t('cv.memberDescription') }}</small>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div
+                    class="card h-100"
+                    :class="!isUniversityMember ? 'border-primary shadow' : 'border'"
+                    style="cursor: pointer"
+                    @click="isUniversityMember = false; selectedFacultyId = null; selectedDepartmentId = null"
+                  >
+                    <div class="card-body text-center py-4">
+                      <i class="fas fa-user-tie fa-3x mb-3" :class="!isUniversityMember ? 'text-primary' : 'text-muted'"></i>
+                      <h6 :class="!isUniversityMember ? 'text-primary' : ''">{{ t('cv.noExternal') }}</h6>
+                      <small class="text-muted">{{ t('cv.externalDescription') }}</small>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Faculty & Department Dropdowns (shown when university member) -->
+              <div v-if="isUniversityMember" class="row g-3 mt-2">
+                <div class="col-md-6">
+                  <label class="form-label">{{ t('cv.selectFaculty') }} *</label>
+                  <select class="form-select" v-model="selectedFacultyId">
+                    <option :value="null" disabled>{{ t('cv.selectFaculty') }}</option>
+                    <option v-for="fac in faculties" :key="fac.id" :value="fac.id">
+                      {{ fac.name_ar || fac.name_en || fac.name }}
+                    </option>
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">{{ t('cv.selectDepartment') }}</label>
+                  <select class="form-select" v-model="selectedDepartmentId" :disabled="!selectedFacultyId">
+                    <option :value="null" disabled>{{ t('cv.selectDepartment') }}</option>
+                    <option v-for="dept in departments" :key="dept.id" :value="dept.id">
+                      {{ dept.name_ar || dept.name_en || dept.name }}
+                    </option>
+                  </select>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -268,6 +331,31 @@
           <button @click="form.data.certificates.push({ name: '', issuer: '', date: '', expiry_date: '', credential_id: '', url: '' })" class="btn btn-outline-primary">
             <i class="fas fa-plus me-1"></i>{{ t('cv.addCertificate') }}
           </button>
+
+          <!-- Legal Disclaimer -->
+          <div class="card mt-4 border-warning" style="background-color: #fff9e6;">
+            <div class="card-body">
+              <div class="d-flex align-items-start">
+                <i class="fas fa-exclamation-triangle text-warning fa-lg me-3 mt-1"></i>
+                <div>
+                  <div class="form-check">
+                    <input
+                      type="checkbox"
+                      class="form-check-input"
+                      id="disclaimerCheck"
+                      v-model="agreedToTerms"
+                    />
+                    <label class="form-check-label" for="disclaimerCheck">
+                      {{ t('cv.disclaimer') }}
+                    </label>
+                  </div>
+                  <small v-if="!agreedToTerms" class="text-danger mt-1 d-block">
+                    {{ t('cv.mustAgree') }}
+                  </small>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         <!-- Navigation -->
@@ -279,7 +367,7 @@
             <button v-if="currentStep < steps.length - 1" @click="currentStep++" class="btn btn-primary">
               {{ t('app.next') }} <i class="fas fa-arrow-right ms-1"></i>
             </button>
-            <button v-else @click="handleSubmit" class="btn btn-success" :disabled="saving">
+            <button v-else @click="handleSubmit" class="btn btn-success" :disabled="saving || !agreedToTerms">
               <span v-if="saving" class="spinner-border spinner-border-sm me-1"></span>
               <i v-else class="fas fa-save me-1"></i>{{ t('app.save') }}
             </button>
@@ -320,10 +408,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
+import { ref, reactive, watch, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { getEmptyCVData } from '../stores/cv'
-import { cvAPI } from '../services/api'
+import { cvAPI, publicAPI } from '../services/api'
 import { useToast } from '../composables/useToast'
 
 const { t } = useI18n()
@@ -336,6 +424,12 @@ const shareLink = ref('')
 const shareToken = ref('')
 const guestName = ref('')
 const guestEmail = ref('')
+const isUniversityMember = ref(false)
+const selectedFacultyId = ref<number | null>(null)
+const selectedDepartmentId = ref<number | null>(null)
+const faculties = ref<any[]>([])
+const departments = ref<any[]>([])
+const agreedToTerms = ref(false)
 
 const templates = [
   'academic', 'ats', 'compact', 'creative', 'designer', 'elegant', 'engineer',
@@ -368,6 +462,36 @@ function addEducation() {
   })
 }
 
+async function fetchFaculties() {
+  try {
+    const res = await publicAPI.getFaculties()
+    faculties.value = res.data.faculties || res.data || []
+  } catch {
+    faculties.value = []
+  }
+}
+
+async function fetchDepartments(facultyId: number) {
+  try {
+    const res = await publicAPI.getDepartments(facultyId)
+    departments.value = res.data.departments || res.data || []
+  } catch {
+    departments.value = []
+  }
+}
+
+watch(selectedFacultyId, (newVal) => {
+  selectedDepartmentId.value = null
+  departments.value = []
+  if (newVal) {
+    fetchDepartments(newVal)
+  }
+})
+
+onMounted(() => {
+  fetchFaculties()
+})
+
 function copyLink() {
   navigator.clipboard.writeText(shareLink.value)
 }
@@ -379,11 +503,18 @@ async function handleSubmit() {
   }
   saving.value = true
   try {
-    const res = await cvAPI.createGuest({
-      ...form,
+    const payload = {
+      title: form.title,
+      language: form.language,
+      template: form.template,
+      data: form.data,
       guest_name: guestName.value,
       guest_email: guestEmail.value,
-    })
+      is_university_member: isUniversityMember.value,
+      faculty_id: isUniversityMember.value ? selectedFacultyId.value : null,
+      department_id: isUniversityMember.value ? selectedDepartmentId.value : null,
+    }
+    const res = await cvAPI.createGuest(payload)
     const cv = res.data.cv
     shareToken.value = cv.share_token
     shareLink.value = `${window.location.origin}/shared/${cv.share_token}`
