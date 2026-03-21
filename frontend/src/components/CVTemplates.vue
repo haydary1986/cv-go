@@ -184,13 +184,32 @@
 </template>
 
 <script setup lang="ts">
-import type { CVData } from '../stores/cv'
+import { computed } from 'vue'
+import { getEmptyCVData, type CVData } from '../stores/cv'
 
-defineProps<{
+const props = defineProps<{
   data: CVData
   template: string
   language: string
 }>()
+
+// Normalize data to prevent null array errors
+const data = computed(() => {
+  const empty = getEmptyCVData()
+  const d = props.data || empty
+  return {
+    ...d,
+    personal_info: d.personal_info || empty.personal_info,
+    experiences: d.experiences || [],
+    education: d.education || [],
+    skills: d.skills || [],
+    languages: d.languages || [],
+    links: d.links || [],
+    projects: d.projects || [],
+    certificates: d.certificates || [],
+    references: d.references || [],
+  }
+})
 
 function skillPercent(level: string): string {
   const map: Record<string, string> = {

@@ -12,6 +12,17 @@
         </div>
       </div>
 
+      <!-- Error State -->
+      <div v-else-if="error" class="text-center py-5">
+        <div class="mb-3">
+          <i class="fas fa-exclamation-circle fa-3x text-danger"></i>
+        </div>
+        <h5 class="text-muted mb-3">{{ t('app.error') }}</h5>
+        <router-link to="/dashboard" class="btn btn-primary">
+          <i class="fas fa-arrow-left me-2"></i>{{ t('app.back') }}
+        </router-link>
+      </div>
+
       <div v-else-if="cv">
         <!-- Toolbar -->
         <div class="preview-toolbar mb-4">
@@ -276,6 +287,7 @@ const route = useRoute()
 const cvStore = useCVStore()
 
 const loading = ref(true)
+const error = ref(false)
 const exporting = ref(false)
 const cv = ref<any>(null)
 const cvContainer = ref<HTMLElement>()
@@ -294,9 +306,14 @@ const shareUrl = computed(() => {
 })
 
 onMounted(async () => {
-  const id = Number(route.params.id)
-  cv.value = await cvStore.fetchCV(id)
-  loading.value = false
+  try {
+    const id = Number(route.params.id)
+    cv.value = await cvStore.fetchCV(id)
+  } catch {
+    error.value = true
+  } finally {
+    loading.value = false
+  }
 })
 
 function statusIcon(status: string) {
