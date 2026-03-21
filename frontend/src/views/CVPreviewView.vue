@@ -158,18 +158,16 @@
               </div>
               <div class="modal-body">
                 <div class="share-toggle-area text-center mb-4">
-                  <div class="form-check form-switch d-inline-flex align-items-center gap-2">
-                    <input
-                      class="form-check-input share-toggle"
-                      type="checkbox"
-                      :checked="cv.is_shared"
-                      @change="toggleShare"
-                      id="previewShareToggle"
-                    />
-                    <label class="form-check-label fw-medium" for="previewShareToggle">
-                      {{ cv.is_shared ? t('cv.disableShare') : t('cv.enableShare') }}
-                    </label>
-                  </div>
+                  <button
+                    class="btn btn-lg px-4"
+                    :class="cv.is_shared ? 'btn-danger' : 'btn-success'"
+                    :disabled="sharingLoading"
+                    @click="toggleShare"
+                  >
+                    <span v-if="sharingLoading" class="spinner-border spinner-border-sm me-2"></span>
+                    <i v-else :class="cv.is_shared ? 'fas fa-lock' : 'fas fa-share-alt'" class="me-2"></i>
+                    {{ cv.is_shared ? t('cv.disableShare') : t('cv.enableShare') }}
+                  </button>
                 </div>
 
                 <div v-if="cv.is_shared">
@@ -184,10 +182,10 @@
                     </div>
                   </div>
 
-                  <div class="text-center mb-3" v-if="cv.qr_code_data">
+                  <div class="text-center mb-3" v-if="qrCodeImage">
                     <label class="form-label text-muted small text-uppercase fw-bold d-block">{{ t('cv.qrCode') }}</label>
                     <div class="qr-code-box">
-                      <img :src="cv.qr_code_data" alt="QR Code" class="img-fluid" />
+                      <img :src="qrCodeImage" alt="QR Code" class="img-fluid" />
                     </div>
                   </div>
 
@@ -275,12 +273,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, computed } from 'vue'
+import { ref, reactive, onMounted, computed, watch, nextTick } from 'vue'
 import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useCVStore } from '../stores/cv'
 import { aiAPI } from '../services/api'
 import CVTemplates from '../components/CVTemplates.vue'
+import QRCode from 'qrcode'
 
 const { t } = useI18n()
 const route = useRoute()
@@ -298,12 +297,25 @@ const aiResult = ref('')
 const showCoverLetterModal = ref(false)
 const coverLetterForm = reactive({ job_title: '', company: '' })
 const copied = ref(false)
+const qrCodeImage = ref('')
+const sharingLoading = ref(false)
 let bsModal: any = null
 
 const shareUrl = computed(() => {
   if (!cv.value) return ''
   return `${window.location.origin}/shared/${cv.value.share_token}`
 })
+
+// Generate QR code whenever share URL changes
+watch(shareUrl, async (url) => {
+  if (url) {
+    try {
+      qrCodeImage.value = await QRCode.toDataURL(url, { width: 200, margin: 2 })
+    } catch {
+      qrCodeImage.value = ''
+    }
+  }
+}, { immediate: true })
 
 onMounted(async () => {
   try {
@@ -346,9 +358,16 @@ function copyShareLink() {
 }
 
 async function toggleShare() {
-  if (!cv.value) return
-  const updated = await cvStore.toggleShare(cv.value.id)
-  cv.value = updated
+  if (!cv.value || sharingLoading.value) return
+  sharingLoading.value = true
+  try {
+    const updated = await cvStore.toggleShare(cv.value.id)
+    cv.value = { ...cv.value, is_shared: updated.is_shared, share_token: updated.share_token }
+  } catch {
+    // Revert checkbox visual state on error
+  } finally {
+    sharingLoading.value = false
+  }
 }
 
 async function exportPDF() {
