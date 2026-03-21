@@ -140,6 +140,9 @@ func main() {
 		// Guest CV creation (public - no auth required)
 		api.POST("/guest/cv", cvHandler.CreateGuestCV)
 
+		// Public branding (no auth required)
+		api.GET("/branding", adminHandler.GetPublicBranding)
+
 		// AI routes
 		aiRoutes := api.Group("/ai")
 		aiRoutes.Use(middleware.AuthMiddleware())
@@ -184,6 +187,7 @@ func main() {
 			adminRoutes.DELETE("/departments/:id", adminHandler.DeleteDepartment)
 			adminRoutes.GET("/branding", adminHandler.GetBranding)
 			adminRoutes.PUT("/branding", adminHandler.UpdateBranding)
+			adminRoutes.POST("/branding/logo", adminHandler.UploadLogo)
 			adminRoutes.GET("/ai-settings", adminHandler.GetAISettings)
 			adminRoutes.PUT("/ai-settings", adminHandler.UpdateAISettings)
 			adminRoutes.GET("/ad-settings", adminHandler.GetAdSettings)
@@ -211,6 +215,9 @@ func main() {
 			})
 		}
 	}
+
+	// Serve uploaded files (logos, etc.)
+	r.Static("/uploads", "/app/data/uploads")
 
 	// Serve frontend static files
 	if _, err := os.Stat("./static"); err == nil {

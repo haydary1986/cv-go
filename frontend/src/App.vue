@@ -1,10 +1,13 @@
 <template>
   <div :dir="locale === 'ar' ? 'rtl' : 'ltr'" :class="{ 'rtl': locale === 'ar' }">
     <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top shadow-sm">
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top shadow-sm"
+         :style="{ backgroundColor: brandingStore.branding.primary_color || '#0d6efd' }">
       <div class="container">
-        <router-link to="/" class="navbar-brand fw-bold">
-          <i class="fas fa-file-alt me-2"></i>{{ t('app.name') }}
+        <router-link class="navbar-brand d-flex align-items-center fw-bold" to="/">
+          <img v-if="brandingStore.logoUrl" :src="brandingStore.logoUrl" alt="Logo" class="navbar-logo me-2" />
+          <i v-else class="fas fa-file-alt me-2"></i>
+          {{ brandingStore.systemName }}
         </router-link>
 
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -97,7 +100,7 @@
     <!-- Footer (hidden on home page which has its own footer) -->
     <footer v-if="route.name !== 'home'" class="bg-dark text-white text-center py-3 mt-5">
       <div class="container">
-        <p class="mb-0">&copy; {{ new Date().getFullYear() }} {{ t('app.name') }}</p>
+        <p class="mb-0">&copy; {{ new Date().getFullYear() }} {{ brandingStore.systemName }}</p>
       </div>
     </footer>
 
@@ -111,6 +114,7 @@ import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from './stores/auth'
 import { useNotificationStore } from './stores/notification'
+import { useBrandingStore } from './stores/branding'
 import ToastNotification from './components/ToastNotification.vue'
 
 const { t, locale } = useI18n()
@@ -118,6 +122,7 @@ const router = useRouter()
 const route = useRoute()
 const authStore = useAuthStore()
 const notifStore = useNotificationStore()
+const brandingStore = useBrandingStore()
 
 let notifInterval: ReturnType<typeof setInterval> | null = null
 
@@ -151,6 +156,9 @@ function handleLogout() {
 onMounted(async () => {
   const savedLocale = localStorage.getItem('locale') || 'ar'
   switchLocale(savedLocale)
+
+  await brandingStore.fetchBranding()
+  document.title = brandingStore.systemName
 
   if (authStore.isAuthenticated) {
     await authStore.fetchProfile()
@@ -193,6 +201,12 @@ body {
 .rtl .me-2 { margin-right: 0 !important; margin-left: 0.5rem !important; }
 .rtl .ms-2 { margin-left: 0 !important; margin-right: 0.5rem !important; }
 .rtl .dropdown-menu-end { left: 0; right: auto; }
+
+.navbar-logo {
+  height: 32px;
+  width: auto;
+  object-fit: contain;
+}
 
 @media print {
   .navbar, footer, .btn { display: none !important; }

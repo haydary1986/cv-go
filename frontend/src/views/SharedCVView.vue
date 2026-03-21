@@ -4,10 +4,13 @@
     <nav class="navbar navbar-expand navbar-light bg-white shadow-sm sticky-top">
       <div class="container-fluid px-3 px-md-4">
         <router-link to="/" class="navbar-brand d-flex align-items-center gap-2 fw-bold">
-          <div class="nav-brand-icon">
+          <template v-if="brandingStore.logoUrl">
+            <img :src="brandingStore.logoUrl" alt="Logo" class="nav-brand-logo" />
+          </template>
+          <div v-else class="nav-brand-icon">
             <i class="fas fa-file-alt"></i>
           </div>
-          <span class="brand-text">CV Builder</span>
+          <span class="brand-text">{{ brandingStore.systemName }}</span>
         </router-link>
         <div class="d-flex align-items-center gap-2">
           <button @click="printCV" class="btn btn-outline-secondary btn-sm d-none d-sm-inline-flex align-items-center" :disabled="!cv">
@@ -86,10 +89,12 @@ import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { cvAPI } from '../services/api'
+import { useBrandingStore } from '../stores/branding'
 import CVTemplates from '../components/CVTemplates.vue'
 
 const { t } = useI18n()
 const route = useRoute()
+const brandingStore = useBrandingStore()
 const loading = ref(true)
 const cv = ref<any>(null)
 const error = ref('')
@@ -167,6 +172,12 @@ async function exportPDF() {
   justify-content: center;
   color: #fff;
   font-size: 16px;
+}
+
+.nav-brand-logo {
+  height: 32px;
+  width: auto;
+  object-fit: contain;
 }
 
 .brand-text {

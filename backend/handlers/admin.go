@@ -5,7 +5,10 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"os"
+	"path/filepath"
 	"strconv"
+	"strings"
 	"time"
 
 	"cv-go/models"
@@ -655,4 +658,52 @@ func (h *AdminHandler) ImportUsersCSV(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": fmt.Sprintf("Imported %d users", imported)})
+}
+
+// UploadLogo handles logo file upload for branding
+func (h *AdminHandler) UploadLogo(c *gin.Context) {
+	file, err := c.FormFile("logo")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "No file uploaded"})
+		return
+	}
+
+	// Validate size (2MB max)
+	if file.Size > 2*1024*1024 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "File too large (max 2MB)"})
+		return
+	}
+
+	// Validate extension
+	ext := strings.ToLower(filepath.Ext(file.Filename))
+	allowed := map[string]bool{".jpg": true, ".jpeg": true, ".png": true, ".gif": true, ".svg": true, ".webp": true}
+	if !allowed[ext] {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid file type"})
+		return
+	}
+
+	// Save file
+	uploadDir := "/app/data/uploads"
+	os.MkdirAll(uploadDir, 0755)
+	filename := fmt.Sprintf("logo_%d%s", time.Now().UnixNano(), ext)
+	dst := filepath.Join(uploadDir, filename)
+
+	if err := c.SaveUploadedFile(file, dst); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save file"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"url": "/uploads/" + filename})
+}
+
+// GetPublicBranding returns branding settings without authentication
+func (h *AdminHandler) GetPublicBranding(c *gin.Context) {
+	var branding models.BrandingSetting
+	h.DB.FirstOrCreate(&branding, models.BrandingSetting{
+		Name:           "CV Builder",
+		PrimaryColor:   "#0d6efd",
+		SecondaryColor: "#6c757d",
+		AccentColor:    "#198754",
+	})
+	c.JSON(http.StatusOK, gin.H{"branding": branding})
 }

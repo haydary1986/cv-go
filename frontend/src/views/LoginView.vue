@@ -6,9 +6,10 @@
           <!-- Branding -->
           <div class="text-center mb-4">
             <div class="brand-icon mb-3">
-              <i class="fas fa-file-alt"></i>
+              <img v-if="brandingStore.logoUrl" :src="brandingStore.logoUrl" alt="Logo" class="brand-logo" />
+              <i v-else class="fas fa-file-alt"></i>
             </div>
-            <h2 class="fw-bold text-white mb-1">CV Builder</h2>
+            <h2 class="fw-bold text-white mb-1">{{ brandingStore.systemName }}</h2>
             <p class="text-white-50">{{ t('auth.loginSubtitle') }}</p>
           </div>
 
@@ -107,12 +108,14 @@ import { ref, reactive } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '../stores/auth'
+import { useBrandingStore } from '../stores/branding'
 import { authAPI } from '../services/api'
 
 const { t } = useI18n()
 const router = useRouter()
 const route = useRoute()
 const authStore = useAuthStore()
+const brandingStore = useBrandingStore()
 
 const loading = ref(false)
 const error = ref('')
@@ -157,6 +160,12 @@ function handleGoogleLogin() {
   backdrop-filter: blur(10px);
   font-size: 32px;
   color: #fff;
+}
+
+.brand-logo {
+  height: 48px;
+  width: auto;
+  object-fit: contain;
 }
 
 .login-card {

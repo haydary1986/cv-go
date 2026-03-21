@@ -99,6 +99,9 @@ export const adminAPI = {
   updateAISettings: (data: any) => api.put('/admin/ai-settings', data),
   getAdSettings: () => api.get('/admin/ad-settings'),
   updateAdSettings: (data: any) => api.put('/admin/ad-settings', data),
+  uploadLogo: (formData: FormData) => api.post('/admin/branding/logo', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  }),
   sendNotification: (data: any) => api.post('/admin/notifications', data),
   getActivityLogs: (params?: any) => api.get('/admin/activity-logs', { params }),
   getStats: () => api.get('/admin/stats'),
@@ -117,6 +120,7 @@ export const publicAPI = {
   getFaculties: () => api.get('/v1/faculties'),
   getDepartments: (facultyId?: number) =>
     api.get('/v1/departments', { params: { faculty_id: facultyId } }),
+  getBranding: () => api.get('/branding'),
 }
 
 export default api

@@ -251,8 +251,9 @@
         <div class="row g-4">
           <div class="col-lg-4 mb-3">
             <div class="d-flex align-items-center mb-3">
-              <i class="fas fa-file-alt fa-2x text-primary me-2"></i>
-              <h5 class="fw-bold mb-0">{{ t('app.name') }}</h5>
+              <img v-if="brandingStore.logoUrl" :src="brandingStore.logoUrl" alt="Logo" class="footer-logo me-2" />
+              <i v-else class="fas fa-file-alt fa-2x text-primary me-2"></i>
+              <h5 class="fw-bold mb-0">{{ brandingStore.systemName }}</h5>
             </div>
             <p class="text-muted small">{{ t('home.footerDesc') }}</p>
           </div>
@@ -302,7 +303,7 @@
         <hr class="my-4 opacity-25" />
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-center">
           <p class="text-muted small mb-2 mb-md-0">
-            &copy; {{ new Date().getFullYear() }} {{ t('app.name') }}. {{ t('home.footerRights') }}
+            &copy; {{ new Date().getFullYear() }} {{ brandingStore.systemName }}. {{ t('home.footerRights') }}
           </p>
           <div class="d-flex gap-3">
             <a href="#" class="footer-social-link"><i class="fab fa-github"></i></a>
@@ -318,10 +319,12 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '../stores/auth'
+import { useBrandingStore } from '../stores/branding'
 import { onMounted } from 'vue'
 
 const { t } = useI18n()
 const authStore = useAuthStore()
+const brandingStore = useBrandingStore()
 
 const features = [
   {
@@ -1032,5 +1035,11 @@ onMounted(() => {
 :deep([dir="rtl"]) .floating-badge-pdf {
   left: auto;
   right: 0;
+}
+
+.footer-logo {
+  height: 32px;
+  width: auto;
+  object-fit: contain;
 }
 </style>
