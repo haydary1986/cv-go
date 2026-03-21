@@ -219,6 +219,7 @@ export default {
     optionalSection: 'These sections are optional — add only what applies to you',
     reviewAndSave: 'Review & Save',
     step: 'Step',
+    untitled: 'My CV',
   },
   templates: {
     academic: 'Academic',

@@ -29,11 +29,6 @@
               <h4>{{ t('cv.template') }}</h4>
             </div>
 
-            <div class="mb-4">
-              <label class="form-label fw-semibold">{{ t('cv.title') }} <span class="text-danger">*</span></label>
-              <input type="text" class="form-control form-control-lg" v-model="form.title" :placeholder="t('cv.title')" />
-            </div>
-
             <div class="row g-3 mb-4">
               <div class="col-md-6">
                 <label class="form-label fw-semibold">{{ t('cv.language') }}</label>
@@ -594,7 +589,8 @@ async function improveText(field: string) {
 }
 
 async function handleSubmit() {
-  if (!form.title) { currentStep.value = 0; toast.warning(t('cv.title')); return }
+  // Set title from person's name automatically
+  form.title = form.data.personal_info.full_name || t('cv.untitled')
   if (!agreedToTerms.value) { toast.warning(t('cv.mustAgree')); return }
   saving.value = true
   try {

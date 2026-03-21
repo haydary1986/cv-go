@@ -219,6 +219,7 @@ export default {
     optionalSection: 'هذه الأقسام اختيارية — أضف فقط ما ينطبق عليك',
     reviewAndSave: 'مراجعة وحفظ',
     step: 'الخطوة',
+    untitled: 'سيرتي الذاتية',
   },
   templates: {
     academic: 'أكاديمي',

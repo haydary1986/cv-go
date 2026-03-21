@@ -43,10 +43,6 @@
               <input type="email" class="form-control" v-model="guestEmail" />
             </div>
             <hr />
-            <div class="col-md-12">
-              <label class="form-label">{{ t('cv.title') }} *</label>
-              <input type="text" class="form-control" v-model="form.title" required />
-            </div>
             <div class="col-md-6">
               <label class="form-label">{{ t('cv.language') }}</label>
               <select class="form-select" v-model="form.language">
@@ -497,10 +493,12 @@ function copyLink() {
 }
 
 async function handleSubmit() {
-  if (!form.title || !guestName.value) {
+  if (!guestName.value) {
     currentStep.value = 0
     return
   }
+  // Set title from guest name or personal info name
+  form.title = form.data.personal_info.full_name || guestName.value
   saving.value = true
   try {
     const payload = {
