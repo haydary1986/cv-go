@@ -913,13 +913,17 @@ onMounted(() => {
 
 /* ===== Footer ===== */
 .home-footer {
-  background: #0a1628;
-  color: #a0aec0;
+  background: #1a2332;
+  color: #cbd5e1;
 }
 
 .home-footer h5,
 .home-footer h6 {
-  color: white;
+  color: #f1f5f9;
+}
+
+.home-footer p.text-muted {
+  color: #94a3b8 !important;
 }
 
 .footer-links li {
@@ -927,32 +931,77 @@ onMounted(() => {
 }
 
 .footer-links a {
-  color: #a0aec0;
+  color: #cbd5e1;
   text-decoration: none;
   font-size: 0.875rem;
   transition: color 0.2s ease;
 }
 
 .footer-links a:hover {
-  color: #4da3ff;
+  color: #c0982b;
+}
+
+.home-footer .badge {
+  font-size: 0.8rem;
+}
+
+.home-footer .text-primary {
+  color: #7ab3e0 !important;
+}
+
+.home-footer .text-success {
+  color: #6ee7b7 !important;
+}
+
+.home-footer .text-info {
+  color: #67e8f9 !important;
+}
+
+.home-footer .text-warning {
+  color: #fbbf24 !important;
+}
+
+.home-footer .bg-primary {
+  background-color: rgba(122, 179, 224, 0.15) !important;
+}
+
+.home-footer .bg-success {
+  background-color: rgba(110, 231, 183, 0.15) !important;
+}
+
+.home-footer .bg-info {
+  background-color: rgba(103, 232, 249, 0.15) !important;
+}
+
+.home-footer .bg-warning {
+  background-color: rgba(251, 191, 36, 0.15) !important;
+}
+
+.home-footer hr {
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.home-footer .small,
+.home-footer small {
+  color: #94a3b8;
 }
 
 .footer-social-link {
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.1);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #a0aec0;
+  color: #cbd5e1;
   text-decoration: none;
   transition: all 0.3s ease;
   font-size: 1rem;
 }
 
 .footer-social-link:hover {
-  background: #0d6efd;
+  background: #c0982b;
   color: white;
   transform: translateY(-2px);
 }
