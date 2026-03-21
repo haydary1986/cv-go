@@ -82,6 +82,9 @@ export const adminAPI = {
   rejectCV: (id: number, reason: string) => api.post(`/admin/cvs/${id}/reject`, { reason }),
   requestRevision: (id: number, note: string) => api.post(`/admin/cvs/${id}/revision`, { note }),
   listUsers: (params?: any) => api.get('/admin/users', { params }),
+  createUser: (data: any) => api.post('/admin/users', data),
+  updateUser: (id: number, data: any) => api.put(`/admin/users/${id}`, data),
+  deleteUser: (id: number) => api.delete(`/admin/users/${id}`),
   updateCredits: (userId: number, credits: number) =>
     api.put(`/admin/users/${userId}/credits`, { credits }),
   listFaculties: () => api.get('/admin/faculties'),

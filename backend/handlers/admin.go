@@ -251,6 +251,128 @@ func (h *AdminHandler) UpdateUserCredits(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Credits updated"})
 }
 
+func (h *AdminHandler) CreateUser(c *gin.Context) {
+	var input struct {
+		Email        string `json:"email" binding:"required"`
+		Password     string `json:"password" binding:"required"`
+		FullNameAr   string `json:"full_name_ar"`
+		FullNameEn   string `json:"full_name_en"`
+		Phone        string `json:"phone"`
+		Role         string `json:"role"`
+		FacultyID    *uint  `json:"faculty_id"`
+		DepartmentID *uint  `json:"department_id"`
+	}
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Check if email already exists
+	var existingCount int64
+	h.DB.Model(&models.User{}).Where("email = ?", input.Email).Count(&existingCount)
+	if existingCount > 0 {
+		c.JSON(http.StatusConflict, gin.H{"error": "Email already exists"})
+		return
+	}
+
+	hashedPassword, err := utils.HashPassword(input.Password)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to hash password"})
+		return
+	}
+
+	role := input.Role
+	if role == "" {
+		role = "student"
+	}
+
+	user := models.User{
+		Email:        input.Email,
+		Password:     hashedPassword,
+		FullNameAr:   input.FullNameAr,
+		FullNameEn:   input.FullNameEn,
+		Phone:        input.Phone,
+		Role:         role,
+		FacultyID:    input.FacultyID,
+		DepartmentID: input.DepartmentID,
+		IsActive:     true,
+		AICredits:    10,
+	}
+
+	if err := h.DB.Create(&user).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user"})
+		return
+	}
+
+	c.JSON(http.StatusCreated, gin.H{"user": user})
+}
+
+func (h *AdminHandler) UpdateUser(c *gin.Context) {
+	userID, _ := strconv.ParseUint(c.Param("id"), 10, 32)
+	var user models.User
+	if err := h.DB.First(&user, userID).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+		return
+	}
+
+	var input struct {
+		FullNameAr   *string `json:"full_name_ar"`
+		FullNameEn   *string `json:"full_name_en"`
+		Phone        *string `json:"phone"`
+		Role         *string `json:"role"`
+		IsActive     *bool   `json:"is_active"`
+		FacultyID    *uint   `json:"faculty_id"`
+		DepartmentID *uint   `json:"department_id"`
+	}
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	updates := map[string]interface{}{}
+	if input.FullNameAr != nil {
+		updates["full_name_ar"] = *input.FullNameAr
+	}
+	if input.FullNameEn != nil {
+		updates["full_name_en"] = *input.FullNameEn
+	}
+	if input.Phone != nil {
+		updates["phone"] = *input.Phone
+	}
+	if input.Role != nil {
+		updates["role"] = *input.Role
+	}
+	if input.IsActive != nil {
+		updates["is_active"] = *input.IsActive
+	}
+	if input.FacultyID != nil {
+		updates["faculty_id"] = *input.FacultyID
+	}
+	if input.DepartmentID != nil {
+		updates["department_id"] = *input.DepartmentID
+	}
+
+	h.DB.Model(&user).Updates(updates)
+	h.DB.Preload("Faculty").Preload("Department").First(&user, userID)
+
+	c.JSON(http.StatusOK, gin.H{"user": user})
+}
+
+func (h *AdminHandler) DeleteUser(c *gin.Context) {
+	userID, _ := strconv.ParseUint(c.Param("id"), 10, 32)
+	var user models.User
+	if err := h.DB.First(&user, userID).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+		return
+	}
+	if user.Role == "admin" {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Cannot delete admin user"})
+		return
+	}
+	h.DB.Delete(&user)
+	c.JSON(http.StatusOK, gin.H{"message": "User deleted"})
+}
+
 // Faculty CRUD
 func (h *AdminHandler) ListFaculties(c *gin.Context) {
 	var faculties []models.Faculty
