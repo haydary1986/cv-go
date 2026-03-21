@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CV Builder System | نظام إنشاء السيرة الذاتية</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #00ADD8;
+            --primary-dark: #0090b5;
+            --secondary: #4FC08D;
+            --accent: #7952B3;
+            --dark: #1a1a2e;
+            --darker: #16213e;
+            --light: #f8f9fa;
+            --gray: #6c757d;
+            --card-bg: #ffffff;
+            --shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: Inter, Cairo, sans-serif;
+            background: var(--light);
+            color: #333;
+            line-height: 1.7;
+        }
+        .hero {
+            background: linear-gradient(135deg, var(--dark) 0%, var(--darker) 50%, #0a3d62 100%);
+            color: white;
+            padding: 80px 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero::before {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(0,173,216,0.1) 0%, transparent 50%);
+            animation: pulse 8s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        .hero-content { position: relative; z-index: 1; max-width: 800px; margin: 0 auto; }
+        .hero h1 { font-size: 2.8em; margin-bottom: 10px; font-weight: 700; }
+        .hero .subtitle { font-family: Cairo; font-size: 1.4em; opacity: 0.9; margin-bottom: 30px; direction: rtl; }
+        .badges { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin: 30px 0; }
+        .badges img { height: 28px; }
+        .btn-group { display: flex; justify-content: center; gap: 15px; margin-top: 30px; flex-wrap: wrap; }
+        .btn {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 12px 28px; border-radius: 8px; text-decoration: none;
+            font-weight: 600; font-size: 1em; transition: all 0.3s;
+        }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-dark); transform: translateY(-2px); }
+        .btn-outline { border: 2px solid rgba(255,255,255,0.4); color: white; }
+        .btn-outline:hover { border-color: white; background: rgba(255,255,255,0.1); }
+        .container { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
+        section { padding: 70px 0; }
+        .section-title {
+            text-align: center; font-size: 2em; margin-bottom: 15px; color: var(--dark);
+        }
+        .section-desc {
+            text-align: center; color: var(--gray); font-size: 1.1em; margin-bottom: 50px; max-width: 600px; margin-left: auto; margin-right: auto;
+        }
+        .features-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+        }
+        .feature-card {
+            background: var(--card-bg); border-radius: 12px; padding: 30px;
+            box-shadow: var(--shadow); transition: transform 0.3s, box-shadow 0.3s;
+            border: 1px solid #eee;
+        }
+        .feature-card:hover { transform: translateY(-5px); box-shadow: 0 8px 30px rgba(0,0,0,0.12); }
+        .feature-icon { font-size: 2.5em; margin-bottom: 15px; }
+        .feature-card h3 { font-size: 1.2em; margin-bottom: 10px; color: var(--dark); }
+        .feature-card p { color: var(--gray); font-size: 0.95em; }
+        .stats-section { background: var(--dark); color: white; }
+        .stats-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 30px; text-align: center;
+        }
+        .stat-item h3 { font-size: 2.5em; color: var(--primary); font-weight: 700; }
+        .stat-item p { opacity: 0.8; margin-top: 5px; font-size: 0.95em; }
+        .tech-section { background: #fff; }
+        .tech-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 20px; text-align: center;
+        }
+        .tech-item {
+            padding: 25px 15px; border-radius: 10px; background: var(--light);
+            transition: transform 0.3s;
+        }
+        .tech-item:hover { transform: translateY(-3px); }
+        .tech-item .tech-icon { font-size: 2.2em; margin-bottom: 10px; }
+        .tech-item span { font-weight: 600; color: var(--dark); font-size: 0.9em; }
+        .templates-section { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .templates-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 12px;
+        }
+        .template-tag {
+            background: rgba(255,255,255,0.15); backdrop-filter: blur(10px);
+            padding: 12px 16px; border-radius: 8px; text-align: center;
+            font-weight: 500; font-size: 0.9em; border: 1px solid rgba(255,255,255,0.2);
+            transition: background 0.3s;
+        }
+        .template-tag:hover { background: rgba(255,255,255,0.25); }
+        .ai-section { background: var(--light); }
+        .ai-providers {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+        }
+        .ai-card {
+            background: white; border-radius: 12px; padding: 30px;
+            box-shadow: var(--shadow); border-top: 4px solid var(--primary);
+        }
+        .ai-card h3 { margin-bottom: 12px; color: var(--dark); }
+        .ai-card ul { list-style: none; }
+        .ai-card li { padding: 5px 0; color: var(--gray); }
+        .ai-card li::before { content: "✓ "; color: var(--secondary); font-weight: bold; }
+        footer {
+            background: var(--dark); color: rgba(255,255,255,0.7);
+            text-align: center; padding: 30px 20px;
+        }
+        footer a { color: var(--primary); text-decoration: none; }
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 1.8em; }
+            .hero .subtitle { font-size: 1.1em; }
+            .section-title { font-size: 1.5em; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="hero">
+    <div class="hero-content">
+        <h1>CV Builder System</h1>
+        <p class="subtitle">نظام إنشاء السيرة الذاتية الاحترافية</p>
+        <div class="badges">
+            <img src="https://img.shields.io/badge/Go-1.23-00ADD8?style=for-the-badge&logo=go" alt="Go">
+            <img src="https://img.shields.io/badge/Vue.js-3-4FC08D?style=for-the-badge&logo=vuedotjs" alt="Vue.js">
+            <img src="https://img.shields.io/badge/TypeScript-5-3178C6?style=for-the-badge&logo=typescript" alt="TypeScript">
+            <img src="https://img.shields.io/badge/SQLite-3-003B57?style=for-the-badge&logo=sqlite" alt="SQLite">
+            <img src="https://img.shields.io/badge/Docker-Ready-2496ED?style=for-the-badge&logo=docker" alt="Docker">
+            <img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" alt="License">
+        </div>
+        <p style="opacity:0.85; max-width:600px; margin:0 auto;">A comprehensive CV builder system with AI support, designed for academics and students</p>
+        <div class="btn-group">
+            <a href="https://github.com/haydary1986/cv-go" class="btn btn-primary">
+                <svg width="20" height="20" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+                GitHub
+            </a>
+            <a href="https://github.com/haydary1986/cv-go/releases" class="btn btn-outline">Releases</a>
+        </div>
+    </div>
+</div>
+
+<section>
+    <div class="container">
+        <h2 class="section-title">Features</h2>
+        <p class="section-desc">Everything you need to build professional CVs with AI-powered assistance</p>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">📝</div>
+                <h3>CV Creation</h3>
+                <p>Comprehensive forms covering personal data, experience, education, skills, languages, and academic links with auto-save support.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🎨</div>
+                <h3>16 Templates</h3>
+                <p>Professional templates including Academic, ATS, Creative, Designer, Medical, Minimalist, Modern, Tech, and more.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🤖</div>
+                <h3>AI Integration</h3>
+                <p>3 AI providers (OpenAI, Gemini, DeepSeek) for text improvement, ATS scoring, cover letters, and job suggestions.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🌐</div>
+                <h3>Bilingual Support</h3>
+                <p>Full Arabic (RTL) and English (LTR) support with dynamic switching and custom fonts (Cairo & Inter).</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📄</div>
+                <h3>PDF Export</h3>
+                <p>High-quality PDF export with automatic multi-page support and custom filenames.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🔗</div>
+                <h3>CV Sharing</h3>
+                <p>Unique share links with auto-generated QR codes and view count tracking.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="stats-section">
+    <div class="container">
+        <div class="stats-grid">
+            <div class="stat-item"><h3>16</h3><p>CV Templates</p></div>
+            <div class="stat-item"><h3>3</h3><p>AI Providers</p></div>
+            <div class="stat-item"><h3>8+</h3><p>AI Models</p></div>
+            <div class="stat-item"><h3>30+</h3><p>API Endpoints</p></div>
+            <div class="stat-item"><h3>11</h3><p>Database Tables</p></div>
+            <div class="stat-item"><h3>3</h3><p>User Roles</p></div>
+        </div>
+    </div>
+</section>
+
+<section class="tech-section">
+    <div class="container">
+        <h2 class="section-title">Tech Stack</h2>
+        <p class="section-desc">Built with modern, production-ready technologies</p>
+        <div class="tech-grid">
+            <div class="tech-item"><div class="tech-icon">🔵</div><span>Go 1.23</span></div>
+            <div class="tech-item"><div class="tech-icon">💚</div><span>Vue.js 3</span></div>
+            <div class="tech-item"><div class="tech-icon">🔷</div><span>TypeScript</span></div>
+            <div class="tech-item"><div class="tech-icon">🟣</div><span>Bootstrap 5</span></div>
+            <div class="tech-item"><div class="tech-icon">🗄️</div><span>SQLite</span></div>
+            <div class="tech-item"><div class="tech-icon">🐳</div><span>Docker</span></div>
+            <div class="tech-item"><div class="tech-icon">🔐</div><span>JWT & AES</span></div>
+            <div class="tech-item"><div class="tech-icon">🌍</div><span>i18n</span></div>
+        </div>
+    </div>
+</section>
+
+<section class="templates-section">
+    <div class="container">
+        <h2 class="section-title" style="color:white">16 Professional Templates</h2>
+        <p class="section-desc" style="color:rgba(255,255,255,0.8)">Choose from a wide variety of professionally designed templates</p>
+        <div class="templates-grid">
+            <div class="template-tag">Academic</div>
+            <div class="template-tag">ATS</div>
+            <div class="template-tag">Compact</div>
+            <div class="template-tag">Creative</div>
+            <div class="template-tag">Designer</div>
+            <div class="template-tag">Elegant</div>
+            <div class="template-tag">Engineer</div>
+            <div class="template-tag">Executive</div>
+            <div class="template-tag">Lawyer</div>
+            <div class="template-tag">Medical</div>
+            <div class="template-tag">Minimalist</div>
+            <div class="template-tag">Modern</div>
+            <div class="template-tag">Professional</div>
+            <div class="template-tag">Standard</div>
+            <div class="template-tag">Teacher</div>
+            <div class="template-tag">Tech</div>
+        </div>
+    </div>
+</section>
+
+<section class="ai-section">
+    <div class="container">
+        <h2 class="section-title">AI-Powered Features</h2>
+        <p class="section-desc">Leverage artificial intelligence to create the perfect CV</p>
+        <div class="ai-providers">
+            <div class="ai-card">
+                <h3>OpenAI</h3>
+                <ul>
+                    <li>GPT-4o & GPT-4o-mini</li>
+                    <li>GPT-4 Turbo</li>
+                    <li>GPT-3.5 Turbo</li>
+                </ul>
+            </div>
+            <div class="ai-card" style="border-top-color: var(--secondary);">
+                <h3>Google Gemini</h3>
+                <ul>
+                    <li>Gemini 1.5 Pro</li>
+                    <li>Gemini 1.5 Flash</li>
+                </ul>
+            </div>
+            <div class="ai-card" style="border-top-color: var(--accent);">
+                <h3>DeepSeek</h3>
+                <ul>
+                    <li>DeepSeek Chat</li>
+                    <li>DeepSeek Coder</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+<footer>
+    <div class="container">
+        <p>Made with ❤️ for academics and students | صُنع بحب للأكاديميين والطلاب</p>
+        <p style="margin-top:10px">
+            <a href="https://github.com/haydary1986/cv-go">GitHub</a> · 
+            <a href="https://github.com/haydary1986">Hayder Al-iessa</a> · 
+            <a href="https://erticaz.com">Erticaz</a>
+        </p>
+        <p style="margin-top:10px; font-size:0.85em;">MIT License © 2026</p>
+    </div>
+</footer>
+
+</body>
+</html>
