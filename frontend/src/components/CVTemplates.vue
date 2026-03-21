@@ -281,7 +281,7 @@ function skillPercent(level: string): string {
 /* Minimalist */
 .style-minimalist .cv-header { border-bottom: 1px solid #eee; }
 .style-minimalist .section-title { text-transform: none; letter-spacing: 0; border: none; font-weight: 600; }
-.style-minimalist .header-photo { display: none; }
+.style-minimalist .header-photo { width: 60px; height: 60px; }
 
 /* Academic */
 .style-academic { font-family: 'Georgia', 'Cairo', serif; }
@@ -299,7 +299,7 @@ function skillPercent(level: string): string {
 
 /* ATS */
 .style-ats { font-family: 'Arial', sans-serif; }
-.style-ats .header-photo { display: none; }
+.style-ats .header-photo { width: 60px; height: 60px; }
 .style-ats .cv-header { border-bottom: 2px solid #000; }
 .style-ats .section-title { text-transform: uppercase; border-bottom: 1px solid #000; color: #000; }
 .style-ats .skill-tag { background: none; border: none; padding: 0; border-radius: 0; }
