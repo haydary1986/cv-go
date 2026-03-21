@@ -215,6 +215,10 @@ export default {
     mustAgree: 'You must agree to the disclaimer before saving',
     memberDescription: 'Select your faculty and department',
     externalDescription: 'Continue without university affiliation',
+    additionalInfo: 'Additional Information',
+    optionalSection: 'These sections are optional — add only what applies to you',
+    reviewAndSave: 'Review & Save',
+    step: 'Step',
   },
   templates: {
     academic: 'Academic',

@@ -215,6 +215,10 @@ export default {
     mustAgree: 'يجب الموافقة على التعهد قبل الحفظ',
     memberDescription: 'اختر كليتك وقسمك',
     externalDescription: 'المتابعة بدون انتساب جامعي',
+    additionalInfo: 'معلومات إضافية',
+    optionalSection: 'هذه الأقسام اختيارية — أضف فقط ما ينطبق عليك',
+    reviewAndSave: 'مراجعة وحفظ',
+    step: 'الخطوة',
   },
   templates: {
     academic: 'أكاديمي',
