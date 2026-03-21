@@ -69,7 +69,7 @@
                 class="btn btn-outline-danger btn-sm"
                 @click="removeLogo"
               >
-                <i class="bi bi-trash me-1"></i>{{ t('admin.removeLogo') }}
+                <i class="fas fa-trash me-1"></i>{{ t('admin.removeLogo') }}
               </button>
             </div>
 
@@ -80,7 +80,7 @@
               @dragover.prevent="isDragging = true"
               @dragleave.prevent="isDragging = false"
               @drop.prevent="handleDrop"
-              @click="($refs.logoInput as HTMLInputElement).click()"
+              @click="logoInput?.click()"
               style="cursor: pointer; border-style: dashed !important; transition: all 0.2s;"
             >
               <input
@@ -95,7 +95,7 @@
                 <span class="text-muted">{{ t('app.loading') }}</span>
               </div>
               <div v-else>
-                <i class="bi bi-cloud-arrow-up fs-1 text-muted d-block mb-2"></i>
+                <i class="fas fa-cloud-upload-alt fs-1 text-muted d-block mb-2"></i>
                 <p class="mb-1 text-muted">{{ t('admin.dragDropLogo') }}</p>
                 <small class="text-muted">{{ t('admin.logoHint') }}</small>
               </div>
@@ -336,6 +336,7 @@ const faculties = ref<any[]>([])
 const notifDepartments = ref<any[]>([])
 const sendingNotif = ref(false)
 
+const logoInput = ref<HTMLInputElement>()
 const isDragging = ref(false)
 const logoUploading = ref(false)
 const savingBranding = ref(false)

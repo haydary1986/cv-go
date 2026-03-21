@@ -8,35 +8,37 @@ const router = createRouter({
       path: '/',
       name: 'home',
       component: () => import('../views/HomeView.vue'),
+      meta: { title: 'الرئيسية' },
     },
     {
       path: '/login',
       name: 'login',
       component: () => import('../views/LoginView.vue'),
-      meta: { guest: true },
+      meta: { guest: true, title: 'تسجيل الدخول' },
     },
     {
       path: '/register',
       name: 'register',
       component: () => import('../views/RegisterView.vue'),
-      meta: { guest: true },
+      meta: { guest: true, title: 'إنشاء حساب' },
     },
     {
       path: '/dashboard',
       name: 'dashboard',
       component: () => import('../views/DashboardView.vue'),
-      meta: { requiresAuth: true },
+      meta: { requiresAuth: true, title: 'لوحة التحكم' },
     },
     {
       path: '/cv/create',
       name: 'cv-create',
       component: () => import('../views/CVFormView.vue'),
-      meta: { requiresAuth: true },
+      meta: { requiresAuth: true, title: 'إنشاء سيرة ذاتية' },
     },
     {
       path: '/cv/guest',
       name: 'cv-guest',
       component: () => import('../views/GuestCVFormView.vue'),
+      meta: { title: 'إنشاء سيرة ذاتية - ضيف' },
     },
     {
       path: '/cv/:id/edit',
@@ -139,6 +141,12 @@ router.beforeEach(async (to, _from, next) => {
   } else {
     next()
   }
+})
+
+router.afterEach((to) => {
+  const pageTitle = to.meta.title as string
+  const baseName = 'جامعة التراث'
+  document.title = pageTitle ? `${pageTitle} | ${baseName}` : baseName
 })
 
 export default router
