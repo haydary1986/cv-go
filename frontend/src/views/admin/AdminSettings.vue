@@ -372,10 +372,7 @@ async function onNotifFacultyChange() {
   }
 }
 
-async function uploadLogo(event: Event) {
-  const input = event.target as HTMLInputElement
-  if (!input.files?.length) return
-  const file = input.files[0]
+async function doUpload(file: File) {
   if (file.size > 2 * 1024 * 1024) {
     toast.error('File too large (max 2MB)')
     return
@@ -393,38 +390,26 @@ async function uploadLogo(event: Event) {
     toast.error('Upload failed')
   } finally {
     logoUploading.value = false
-    // Reset file input so the same file can be re-selected
-    input.value = ''
   }
+}
+
+function uploadLogo(event: Event) {
+  const input = event.target as HTMLInputElement
+  const file = input.files?.[0]
+  if (!file) return
+  doUpload(file)
+  input.value = ''
 }
 
 function handleDrop(event: DragEvent) {
   isDragging.value = false
-  const files = event.dataTransfer?.files
-  if (!files?.length) return
-  const file = files[0]
+  const file = event.dataTransfer?.files?.[0]
+  if (!file) return
   if (!['image/jpeg', 'image/png', 'image/gif', 'image/svg+xml', 'image/webp'].includes(file.type)) {
     toast.error('Invalid file type')
     return
   }
-  // Create a synthetic event-like call through the upload function
-  if (file.size > 2 * 1024 * 1024) {
-    toast.error('File too large (max 2MB)')
-    return
-  }
-  const formData = new FormData()
-  formData.append('logo', file)
-  logoUploading.value = true
-  api.post('/admin/branding/logo', formData, {
-    headers: { 'Content-Type': 'multipart/form-data' }
-  }).then((res) => {
-    branding.logo_url = res.data.url
-    toast.success('Logo uploaded')
-  }).catch(() => {
-    toast.error('Upload failed')
-  }).finally(() => {
-    logoUploading.value = false
-  })
+  doUpload(file)
 }
 
 function removeLogo() {
