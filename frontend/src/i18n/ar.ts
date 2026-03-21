@@ -1,6 +1,6 @@
 export default {
   app: {
-    name: 'نظام إنشاء السيرة الذاتية',
+    name: 'جامعة التراث - نظام السيرة الذاتية',
     home: 'الرئيسية',
     dashboard: 'لوحة التحكم',
     createCV: 'إنشاء سيرة ذاتية',
@@ -355,7 +355,7 @@ export default {
     goHome: 'الذهاب للرئيسية',
     downloadPDF: 'تحميل PDF',
     createYourCV: 'أنشئ سيرتك الذاتية',
-    poweredBy: 'مدعوم من CV Builder',
+    poweredBy: 'جامعة التراث',
     untitledCV: 'سيرة ذاتية بدون عنوان',
     printCV: 'طباعة',
   },

@@ -347,8 +347,8 @@ func (h *AdminHandler) DeleteDepartment(c *gin.Context) {
 func (h *AdminHandler) GetBranding(c *gin.Context) {
 	var branding models.BrandingSetting
 	h.DB.FirstOrCreate(&branding, models.BrandingSetting{
-		Name: "CV Builder", PrimaryColor: "#0d6efd",
-		SecondaryColor: "#6c757d", AccentColor: "#198754",
+		Name: "جامعة التراث - نظام السيرة الذاتية", PrimaryColor: "#1a5276",
+		SecondaryColor: "#2c3e50", AccentColor: "#c0982b",
 	})
 	c.JSON(http.StatusOK, gin.H{"branding": branding})
 }
@@ -700,10 +700,10 @@ func (h *AdminHandler) UploadLogo(c *gin.Context) {
 func (h *AdminHandler) GetPublicBranding(c *gin.Context) {
 	var branding models.BrandingSetting
 	h.DB.FirstOrCreate(&branding, models.BrandingSetting{
-		Name:           "CV Builder",
-		PrimaryColor:   "#0d6efd",
-		SecondaryColor: "#6c757d",
-		AccentColor:    "#198754",
+		Name:           "جامعة التراث - نظام السيرة الذاتية",
+		PrimaryColor:   "#1a5276",
+		SecondaryColor: "#2c3e50",
+		AccentColor:    "#c0982b",
 	})
 	c.JSON(http.StatusOK, gin.H{"branding": branding})
 }

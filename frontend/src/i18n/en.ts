@@ -1,6 +1,6 @@
 export default {
   app: {
-    name: 'CV Builder System',
+    name: 'University of Heritage - CV System',
     home: 'Home',
     dashboard: 'Dashboard',
     createCV: 'Create CV',
@@ -355,7 +355,7 @@ export default {
     goHome: 'Go Home',
     downloadPDF: 'Download PDF',
     createYourCV: 'Create Your CV',
-    poweredBy: 'Powered by CV Builder',
+    poweredBy: 'University of Heritage',
     untitledCV: 'Untitled CV',
     printCV: 'Print',
   },
@@ -393,7 +393,7 @@ export default {
     downloading: 'Preparing download...',
   },
   home: {
-    heroBadge: 'AI-Powered CV Builder',
+    heroBadge: 'University of Heritage CV System',
     heroTitle: 'Build Your Perfect CV in Minutes',
     heroSubtitle: 'Create stunning, professional CVs with AI assistance, 16+ templates, bilingual support, and instant PDF export.',
     getStartedBtn: 'Get Started Free',

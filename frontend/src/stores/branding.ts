@@ -4,11 +4,11 @@ import { publicAPI } from '../services/api'
 
 export const useBrandingStore = defineStore('branding', () => {
   const branding = ref({
-    name: 'CV Builder',
+    name: 'جامعة التراث',
     logo_url: '',
-    primary_color: '#0d6efd',
-    secondary_color: '#6c757d',
-    accent_color: '#198754',
+    primary_color: '#1a5276',
+    secondary_color: '#2c3e50',
+    accent_color: '#c0982b',
   })
   const loaded = ref(false)
 
@@ -34,7 +34,7 @@ export const useBrandingStore = defineStore('branding', () => {
     root.style.setProperty('--app-accent', branding.value.accent_color)
   }
 
-  const systemName = computed(() => branding.value.name || 'CV Builder')
+  const systemName = computed(() => branding.value.name || 'جامعة التراث')
   const logoUrl = computed(() => branding.value.logo_url || '')
 
   return { branding, loaded, fetchBranding, applyColors, systemName, logoUrl }

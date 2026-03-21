@@ -778,10 +778,10 @@ func seedDemoData(db *gorm.DB) {
 	db.Model(&models.BrandingSetting{}).Count(&brandCount)
 	if brandCount == 0 {
 		db.Create(&models.BrandingSetting{
-			Name:           "CV Builder - نظام بناء السيرة الذاتية",
-			PrimaryColor:   "#0d6efd",
-			SecondaryColor: "#6c757d",
-			AccentColor:    "#198754",
+			Name:           "جامعة التراث - نظام السيرة الذاتية",
+			PrimaryColor:   "#1a5276",
+			SecondaryColor: "#2c3e50",
+			AccentColor:    "#c0982b",
 		})
 		log.Println("Seeded branding settings")
 	}
