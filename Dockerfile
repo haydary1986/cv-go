@@ -30,11 +30,18 @@ COPY --from=frontend-builder /app/frontend/dist ./static
 COPY entrypoint.sh .
 RUN chmod +x ./entrypoint.sh
 
+# Create non-root user
+RUN addgroup -g 1001 -S appgroup && \
+    adduser -u 1001 -S appuser -G appgroup
+
 # Create data directory for SQLite and uploads
-RUN mkdir -p /app/data /app/data/uploads
+RUN mkdir -p /app/data /app/data/uploads /app/data/backups && \
+    chown -R appuser:appgroup /app
 
 # Declare volume for persistent data (survives container rebuilds)
 VOLUME /app/data
+
+USER appuser
 
 # Environment variables (defaults - can be overridden)
 ENV PORT=8080
@@ -44,7 +51,7 @@ ENV TZ=Asia/Baghdad
 
 # Health check (use shell form so $PORT is expanded at runtime)
 HEALTHCHECK --interval=10s --timeout=5s --start-period=15s --retries=5 \
-  CMD curl -f http://127.0.0.1:${PORT:-8080}/api/v1/stats || exit 1
+  CMD curl -f http://127.0.0.1:${PORT:-8080}/api/health || exit 1
 
 EXPOSE 8080
 

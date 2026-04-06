@@ -25,6 +25,7 @@ JWT_SECRET=$JWT_SECRET
 AES_KEY=$AES_KEY
 EOF
 
+    chmod 600 "$ENV_FILE"
     echo "==> Secrets generated and saved to $ENV_FILE"
     echo "==> JWT_SECRET and AES_KEY will persist across redeployments"
 else

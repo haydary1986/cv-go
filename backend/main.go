@@ -49,6 +49,15 @@ func main() {
 		slog.Error("Failed to connect to database", "error", err)
 		os.Exit(1)
 	}
+	// SQLite performance and safety PRAGMAs
+	sqlDB, _ := db.DB()
+	sqlDB.Exec("PRAGMA journal_mode=WAL")
+	sqlDB.Exec("PRAGMA busy_timeout=5000")
+	sqlDB.Exec("PRAGMA synchronous=NORMAL")
+	sqlDB.Exec("PRAGMA foreign_keys=ON")
+	sqlDB.Exec("PRAGMA cache_size=-20000")
+	sqlDB.SetMaxOpenConns(1)
+	sqlDB.SetMaxIdleConns(1)
 	slog.Info("Database connected successfully")
 
 	// Auto migrate
@@ -273,6 +282,19 @@ func main() {
 			adminRoutes.POST("/users/import/csv", adminHandler.ImportUsersCSV)
 		}
 
+		// Health endpoints
+		api.GET("/health", func(c *gin.Context) {
+			c.JSON(200, gin.H{"status": "ok"})
+		})
+		api.GET("/ready", func(c *gin.Context) {
+			sqlDB, _ := db.DB()
+			if err := sqlDB.Ping(); err != nil {
+				c.JSON(503, gin.H{"status": "not ready", "db": "down"})
+				return
+			}
+			c.JSON(200, gin.H{"status": "ready", "db": "up"})
+		})
+
 		// Public API v1
 		v1 := api.Group("/v1")
 		{
@@ -308,8 +330,11 @@ func main() {
 
 	// Graceful shutdown
 	srv := &http.Server{
-		Addr:    fmt.Sprintf(":%s", cfg.Port),
-		Handler: r,
+		Addr:         fmt.Sprintf(":%s", cfg.Port),
+		Handler:      r,
+		ReadTimeout:  15 * time.Second,
+		WriteTimeout: 30 * time.Second,
+		IdleTimeout:  60 * time.Second,
 	}
 
 	go func() {
