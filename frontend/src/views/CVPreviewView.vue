@@ -280,6 +280,7 @@ import { useCVStore } from '../stores/cv'
 import { aiAPI } from '../services/api'
 import CVTemplates from '../components/CVTemplates.vue'
 import QRCode from 'qrcode'
+import DOMPurify from 'dompurify'
 
 const { t } = useI18n()
 const route = useRoute()
@@ -447,8 +448,9 @@ async function generateCoverLetter() {
   }
 }
 
-function formatAIResult(text: string) {
-  return text.replace(/\n/g, '<br>')
+function formatAIResult(text: string): string {
+  const withBreaks = text.replace(/\n/g, '<br>')
+  return DOMPurify.sanitize(withBreaks, { ALLOWED_TAGS: ['br', 'b', 'strong', 'em', 'i', 'ul', 'ol', 'li', 'p', 'h1', 'h2', 'h3', 'h4'] })
 }
 
 function copyAIResult() {

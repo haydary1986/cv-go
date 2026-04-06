@@ -169,3 +169,13 @@ func (lrl *LoginRateLimiter) Reset(email string) {
 	defer lrl.mu.Unlock()
 	delete(lrl.attempts, email)
 }
+
+// Close stops the cleanup goroutine for RateLimiter
+func (rl *RateLimiter) Close() {
+	close(rl.done)
+}
+
+// Close stops the cleanup goroutine for LoginRateLimiter
+func (lrl *LoginRateLimiter) Close() {
+	close(lrl.done)
+}

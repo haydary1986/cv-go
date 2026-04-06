@@ -247,24 +247,32 @@ func callDeepSeek(apiKey, model, prompt string, maxTokens int) (string, error) {
 	return content, nil
 }
 
-func (h *AIHandler) checkCredits(userID uint, required int) (*models.User, error) {
+func (h *AIHandler) checkAndDeductCredits(userID uint, required int, feature string) (*models.User, error) {
 	var user models.User
-	if err := h.DB.First(&user, userID).Error; err != nil {
-		return nil, fmt.Errorf("user not found")
-	}
-	if user.AICredits < required {
-		return nil, fmt.Errorf("insufficient credits. Required: %d, Available: %d", required, user.AICredits)
+	err := h.DB.Transaction(func(tx *gorm.DB) error {
+		// Lock the row for update
+		if err := tx.Set("gorm:query_option", "FOR UPDATE").First(&user, userID).Error; err != nil {
+			return fmt.Errorf("user not found")
+		}
+		if user.AICredits < required {
+			return fmt.Errorf("insufficient credits. Required: %d, Available: %d", required, user.AICredits)
+		}
+		if err := tx.Model(&user).Update("ai_credits", gorm.Expr("ai_credits - ?", required)).Error; err != nil {
+			return fmt.Errorf("failed to deduct credits: %w", err)
+		}
+		if err := tx.Create(&models.AIUsageLog{
+			UserID:  user.ID,
+			Feature: feature,
+			Credits: required,
+		}).Error; err != nil {
+			return fmt.Errorf("failed to log usage: %w", err)
+		}
+		return nil
+	})
+	if err != nil {
+		return nil, err
 	}
 	return &user, nil
-}
-
-func (h *AIHandler) deductCredits(user *models.User, credits int, feature string) {
-	h.DB.Model(user).Update("ai_credits", gorm.Expr("ai_credits - ?", credits))
-	h.DB.Create(&models.AIUsageLog{
-		UserID:  user.ID,
-		Feature: feature,
-		Credits: credits,
-	})
 }
 
 // verifyCVOwnership checks that the CV belongs to the requesting user
@@ -295,9 +303,14 @@ func (h *AIHandler) ImproveText(c *gin.Context) {
 		return
 	}
 
-	user, err := h.checkCredits(userID, 1)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	// Check credits first (without deducting) to fail fast
+	var user models.User
+	if err := h.DB.First(&user, userID).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "user not found"})
+		return
+	}
+	if user.AICredits < 1 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("insufficient credits. Required: %d, Available: %d", 1, user.AICredits)})
 		return
 	}
 
@@ -314,17 +327,30 @@ func (h *AIHandler) ImproveText(c *gin.Context) {
 		return
 	}
 
-	h.deductCredits(user, 1, "improve_text")
+	// Atomic deduction after successful AI call
+	if _, err := h.checkAndDeductCredits(userID, 1, "improve_text"); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 	c.JSON(http.StatusOK, gin.H{"result": result})
 }
 
 func (h *AIHandler) AnalyzeCV(c *gin.Context) {
 	userID := c.GetUint("user_id")
-	cvID, _ := strconv.ParseUint(c.Param("id"), 10, 32)
-
-	user, err := h.checkCredits(userID, 2)
+	cvID, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid CV ID"})
+		return
+	}
+
+	// Check credits first (without deducting) to fail fast
+	var user models.User
+	if err := h.DB.First(&user, userID).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "user not found"})
+		return
+	}
+	if user.AICredits < 2 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("insufficient credits. Required: %d, Available: %d", 2, user.AICredits)})
 		return
 	}
 
@@ -351,7 +377,11 @@ CV Data:
 		return
 	}
 
-	h.deductCredits(user, 2, "analyze_cv")
+	// Atomic deduction after successful AI call
+	if _, err := h.checkAndDeductCredits(userID, 2, "analyze_cv"); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 	c.JSON(http.StatusOK, gin.H{"result": result})
 }
 
@@ -368,9 +398,14 @@ func (h *AIHandler) GenerateCoverLetter(c *gin.Context) {
 		return
 	}
 
-	user, err := h.checkCredits(userID, 2)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	// Check credits first (without deducting) to fail fast
+	var user models.User
+	if err := h.DB.First(&user, userID).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "user not found"})
+		return
+	}
+	if user.AICredits < 2 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("insufficient credits. Required: %d, Available: %d", 2, user.AICredits)})
 		return
 	}
 
@@ -401,17 +436,30 @@ The cover letter should be formal, professional, and tailored to the position.`,
 		return
 	}
 
-	h.deductCredits(user, 2, "cover_letter")
+	// Atomic deduction after successful AI call
+	if _, err := h.checkAndDeductCredits(userID, 2, "cover_letter"); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 	c.JSON(http.StatusOK, gin.H{"result": result})
 }
 
 func (h *AIHandler) SuggestJobs(c *gin.Context) {
 	userID := c.GetUint("user_id")
-	cvID, _ := strconv.ParseUint(c.Param("id"), 10, 32)
-
-	user, err := h.checkCredits(userID, 1)
+	cvID, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid CV ID"})
+		return
+	}
+
+	// Check credits first (without deducting) to fail fast
+	var user models.User
+	if err := h.DB.First(&user, userID).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "user not found"})
+		return
+	}
+	if user.AICredits < 1 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("insufficient credits. Required: %d, Available: %d", 1, user.AICredits)})
 		return
 	}
 
@@ -444,17 +492,30 @@ CV Data:
 		return
 	}
 
-	h.deductCredits(user, 1, "suggest_jobs")
+	// Atomic deduction after successful AI call
+	if _, err := h.checkAndDeductCredits(userID, 1, "suggest_jobs"); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 	c.JSON(http.StatusOK, gin.H{"result": result})
 }
 
 func (h *AIHandler) EvaluateResearch(c *gin.Context) {
 	userID := c.GetUint("user_id")
-	cvID, _ := strconv.ParseUint(c.Param("id"), 10, 32)
-
-	user, err := h.checkCredits(userID, 2)
+	cvID, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid CV ID"})
+		return
+	}
+
+	// Check credits first (without deducting) to fail fast
+	var user models.User
+	if err := h.DB.First(&user, userID).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "user not found"})
+		return
+	}
+	if user.AICredits < 2 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("insufficient credits. Required: %d, Available: %d", 2, user.AICredits)})
 		return
 	}
 
@@ -482,17 +543,30 @@ CV Data:
 		return
 	}
 
-	h.deductCredits(user, 2, "evaluate_research")
+	// Atomic deduction after successful AI call
+	if _, err := h.checkAndDeductCredits(userID, 2, "evaluate_research"); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 	c.JSON(http.StatusOK, gin.H{"result": result})
 }
 
 func (h *AIHandler) GetAITips(c *gin.Context) {
 	userID := c.GetUint("user_id")
-	cvID, _ := strconv.ParseUint(c.Param("id"), 10, 32)
-
-	user, err := h.checkCredits(userID, 1)
+	cvID, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid CV ID"})
+		return
+	}
+
+	// Check credits first (without deducting) to fail fast
+	var user models.User
+	if err := h.DB.First(&user, userID).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "user not found"})
+		return
+	}
+	if user.AICredits < 1 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("insufficient credits. Required: %d, Available: %d", 1, user.AICredits)})
 		return
 	}
 
@@ -519,6 +593,10 @@ CV Data:
 		return
 	}
 
-	h.deductCredits(user, 1, "get_tips")
+	// Atomic deduction after successful AI call
+	if _, err := h.checkAndDeductCredits(userID, 1, "get_tips"); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 	c.JSON(http.StatusOK, gin.H{"result": result})
 }

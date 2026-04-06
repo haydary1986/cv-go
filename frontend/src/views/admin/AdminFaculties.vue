@@ -8,7 +8,7 @@
         <div class="card">
           <div class="card-header d-flex justify-content-between align-items-center">
             <h5 class="mb-0">{{ t('admin.manageFaculties') }}</h5>
-            <button @click="showFacultyModal = true; editFaculty = null; facultyForm = { name_ar: '', name_en: '' }" class="btn btn-sm btn-primary"><i class="fas fa-plus"></i></button>
+            <button @click="showFacultyModal = true; editFaculty = null; Object.assign(facultyForm, { name_ar: '', name_en: '' })" class="btn btn-sm btn-primary"><i class="fas fa-plus"></i></button>
           </div>
           <div class="card-body">
             <div v-for="f in faculties" :key="f.id" class="d-flex justify-content-between align-items-center border-bottom py-2">
@@ -30,7 +30,7 @@
         <div class="card">
           <div class="card-header d-flex justify-content-between align-items-center">
             <h5 class="mb-0">{{ t('admin.manageDepartments') }}</h5>
-            <button @click="showDeptModal = true; editDept = null; deptForm = { faculty_id: 0, name_ar: '', name_en: '' }" class="btn btn-sm btn-primary"><i class="fas fa-plus"></i></button>
+            <button @click="showDeptModal = true; editDept = null; Object.assign(deptForm, { faculty_id: 0, name_ar: '', name_en: '' })" class="btn btn-sm btn-primary"><i class="fas fa-plus"></i></button>
           </div>
           <div class="card-body">
             <div v-for="d in departments" :key="d.id" class="d-flex justify-content-between align-items-center border-bottom py-2">

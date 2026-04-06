@@ -45,7 +45,11 @@ func (h *NotificationHandler) GetNotifications(c *gin.Context) {
 
 func (h *NotificationHandler) MarkAsRead(c *gin.Context) {
 	userID := c.GetUint("user_id")
-	notifID, _ := strconv.ParseUint(c.Param("id"), 10, 32)
+	notifID, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid notification ID"})
+		return
+	}
 
 	result := h.DB.Model(&models.Notification{}).
 		Where("id = ? AND user_id = ?", notifID, userID).
@@ -82,7 +86,11 @@ func (h *NotificationHandler) GetUnreadCount(c *gin.Context) {
 
 func (h *NotificationHandler) DeleteNotification(c *gin.Context) {
 	userID := c.GetUint("user_id")
-	notifID, _ := strconv.ParseUint(c.Param("id"), 10, 32)
+	notifID, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid notification ID"})
+		return
+	}
 
 	result := h.DB.Where("id = ? AND user_id = ?", notifID, userID).
 		Delete(&models.Notification{})

@@ -173,7 +173,11 @@ func (h *CVHandler) ListCVs(c *gin.Context) {
 func (h *CVHandler) GetCV(c *gin.Context) {
 	userID := c.GetUint("user_id")
 	role, _ := c.Get("user_role")
-	cvID, _ := strconv.ParseUint(c.Param("id"), 10, 32)
+	cvID, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid CV ID"})
+		return
+	}
 
 	var cv models.CV
 	if err := h.DB.Preload("Faculty").Preload("Department").First(&cv, cvID).Error; err != nil {
@@ -198,7 +202,11 @@ func (h *CVHandler) GetCV(c *gin.Context) {
 
 func (h *CVHandler) UpdateCV(c *gin.Context) {
 	userID := c.GetUint("user_id")
-	cvID, _ := strconv.ParseUint(c.Param("id"), 10, 32)
+	cvID, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid CV ID"})
+		return
+	}
 
 	var cv models.CV
 	if err := h.DB.First(&cv, cvID).Error; err != nil {
@@ -248,7 +256,11 @@ func (h *CVHandler) UpdateCV(c *gin.Context) {
 
 func (h *CVHandler) DeleteCV(c *gin.Context) {
 	userID := c.GetUint("user_id")
-	cvID, _ := strconv.ParseUint(c.Param("id"), 10, 32)
+	cvID, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid CV ID"})
+		return
+	}
 
 	var cv models.CV
 	if err := h.DB.First(&cv, cvID).Error; err != nil {
@@ -274,7 +286,11 @@ func (h *CVHandler) DeleteCV(c *gin.Context) {
 
 func (h *CVHandler) ToggleShare(c *gin.Context) {
 	userID := c.GetUint("user_id")
-	cvID, _ := strconv.ParseUint(c.Param("id"), 10, 32)
+	cvID, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid CV ID"})
+		return
+	}
 
 	var cv models.CV
 	if err := h.DB.First(&cv, cvID).Error; err != nil {

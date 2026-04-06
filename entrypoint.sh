@@ -38,7 +38,7 @@ while IFS='=' read -r key value; do
         \#*|"") continue ;;
     esac
     # Only set if not already provided via environment variable
-    eval current_val=\$$key
+    current_val=$(printenv "$key" 2>/dev/null || true)
     if [ -z "$current_val" ]; then
         export "$key=$value"
         echo "==> Loaded $key from saved config"

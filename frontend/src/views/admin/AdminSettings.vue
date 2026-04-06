@@ -353,7 +353,9 @@ onMounted(async () => {
     if (aiRes.data.settings) Object.assign(aiForm, aiRes.data.settings)
     if (adRes.data.settings) Object.assign(adSettings, adRes.data.settings)
     if (fRes.data.faculties) faculties.value = fRes.data.faculties
-  } catch {}
+  } catch {
+    toast.error(t('app.error'))
+  }
 })
 
 function onTargetChange() {
@@ -369,7 +371,9 @@ async function onNotifFacultyChange() {
     try {
       const res = await publicAPI.getDepartments(notifForm.faculty_id)
       notifDepartments.value = res.data.departments || []
-    } catch {}
+    } catch {
+      toast.error(t('app.error'))
+    }
   }
 }
 

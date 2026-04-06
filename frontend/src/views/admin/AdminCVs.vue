@@ -5,7 +5,7 @@
     <!-- Filters -->
     <div class="row g-2 mb-3">
       <div class="col-md-4">
-        <input type="text" class="form-control" :placeholder="t('app.search')" v-model="search" @input="fetchCVs" />
+        <input type="text" class="form-control" :placeholder="t('app.search')" v-model="search" @input="debouncedFetchCVs" />
       </div>
       <div class="col-md-3">
         <select class="form-select" v-model="statusFilter" @change="fetchCVs">
@@ -109,8 +109,10 @@
 import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { adminAPI } from '../../services/api'
+import { useToast } from '../../composables/useToast'
 
 const { t } = useI18n()
+const toast = useToast()
 const cvs = ref<any[]>([])
 const search = ref('')
 const statusFilter = ref('')
@@ -124,29 +126,51 @@ function statusBadge(s: string) {
   return { draft: 'bg-secondary', pending: 'bg-warning text-dark', approved: 'bg-success', rejected: 'bg-danger' }[s] || 'bg-secondary'
 }
 
+let debounceTimer: ReturnType<typeof setTimeout>
+function debouncedFetchCVs() {
+  clearTimeout(debounceTimer)
+  debounceTimer = setTimeout(fetchCVs, 300)
+}
+
 async function fetchCVs() {
-  const res = await adminAPI.listCVs({ search: search.value, status: statusFilter.value })
-  cvs.value = res.data.cvs || []
+  try {
+    const res = await adminAPI.listCVs({ search: search.value, status: statusFilter.value })
+    cvs.value = res.data.cvs || []
+  } catch {
+    toast.error(t('app.error'))
+  }
 }
 
 async function approve(id: number) {
-  await adminAPI.approveCV(id)
-  fetchCVs()
+  try {
+    await adminAPI.approveCV(id)
+    await fetchCVs()
+  } catch {
+    toast.error(t('app.error'))
+  }
 }
 
 function openReject(id: number) { selectedCVId.value = id; rejectReason.value = ''; showRejectModal.value = true }
 function openRevision(id: number) { selectedCVId.value = id; revisionNote.value = ''; showRevisionModal.value = true }
 
 async function reject() {
-  await adminAPI.rejectCV(selectedCVId.value, rejectReason.value)
-  showRejectModal.value = false
-  fetchCVs()
+  try {
+    await adminAPI.rejectCV(selectedCVId.value, rejectReason.value)
+    showRejectModal.value = false
+    await fetchCVs()
+  } catch {
+    toast.error(t('app.error'))
+  }
 }
 
 async function requestRevision() {
-  await adminAPI.requestRevision(selectedCVId.value, revisionNote.value)
-  showRevisionModal.value = false
-  fetchCVs()
+  try {
+    await adminAPI.requestRevision(selectedCVId.value, revisionNote.value)
+    showRevisionModal.value = false
+    await fetchCVs()
+  } catch {
+    toast.error(t('app.error'))
+  }
 }
 
 onMounted(fetchCVs)

@@ -1,11 +1,13 @@
 package handlers
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 	"net/url"
+	"os"
 	"strings"
 	"time"
 
@@ -150,10 +152,19 @@ func (h *AuthHandler) Login(c *gin.Context) {
 }
 
 func (h *AuthHandler) GoogleLogin(c *gin.Context) {
+	state, err := utils.GenerateToken(16)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate state"})
+		return
+	}
+	// Store state in a secure cookie
+	isSecure := os.Getenv("GIN_MODE") == "release"
+	c.SetCookie("oauth_state", state, 300, "/", "", isSecure, true)
 	authURL := fmt.Sprintf(
-		"https://accounts.google.com/o/oauth2/v2/auth?client_id=%s&redirect_uri=%s&response_type=code&scope=email+profile&access_type=offline",
+		"https://accounts.google.com/o/oauth2/v2/auth?client_id=%s&redirect_uri=%s&response_type=code&scope=email+profile&access_type=offline&state=%s",
 		url.QueryEscape(h.GoogleClientID),
 		url.QueryEscape(h.GoogleRedirectURL),
+		url.QueryEscape(state),
 	)
 	c.Redirect(http.StatusTemporaryRedirect, authURL)
 }
@@ -165,6 +176,16 @@ func (h *AuthHandler) GoogleCallback(c *gin.Context) {
 		return
 	}
 
+	// Verify state parameter
+	receivedState := c.Query("state")
+	expectedState, err := c.Cookie("oauth_state")
+	if err != nil || receivedState == "" || receivedState != expectedState {
+		c.Redirect(http.StatusTemporaryRedirect, h.FrontendURL+"/login?error=invalid_state")
+		return
+	}
+	// Clear the state cookie
+	c.SetCookie("oauth_state", "", -1, "/", "", os.Getenv("GIN_MODE") == "release", true)
+
 	// Exchange code for token
 	data := url.Values{
 		"code":          {code},
@@ -174,7 +195,15 @@ func (h *AuthHandler) GoogleCallback(c *gin.Context) {
 		"grant_type":    {"authorization_code"},
 	}
 
-	resp, err := http.Post("https://oauth2.googleapis.com/token", "application/x-www-form-urlencoded", strings.NewReader(data.Encode()))
+	ctx, cancel := context.WithTimeout(c.Request.Context(), 10*time.Second)
+	defer cancel()
+	tokenReq, err := http.NewRequestWithContext(ctx, http.MethodPost, "https://oauth2.googleapis.com/token", strings.NewReader(data.Encode()))
+	if err != nil {
+		c.Redirect(http.StatusTemporaryRedirect, h.FrontendURL+"/login?error=token_exchange")
+		return
+	}
+	tokenReq.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	resp, err := (&http.Client{}).Do(tokenReq)
 	if err != nil {
 		c.Redirect(http.StatusTemporaryRedirect, h.FrontendURL+"/login?error=token_exchange")
 		return
@@ -237,8 +266,16 @@ func (h *AuthHandler) GoogleCallback(c *gin.Context) {
 		result = h.DB.Where("email = ?", email).First(&user)
 		if result.Error != nil {
 			// Create new user
-			randomPw, _ := utils.GenerateToken(16)
-			hashedPw, _ := utils.HashPassword(randomPw)
+			randomPw, err := utils.GenerateToken(16)
+			if err != nil {
+				c.Redirect(http.StatusTemporaryRedirect, h.FrontendURL+"/login?error=account_creation")
+				return
+			}
+			hashedPw, err := utils.HashPassword(randomPw)
+			if err != nil {
+				c.Redirect(http.StatusTemporaryRedirect, h.FrontendURL+"/login?error=account_creation")
+				return
+			}
 			user = models.User{
 				Email:      email,
 				Password:   hashedPw,
@@ -249,14 +286,21 @@ func (h *AuthHandler) GoogleCallback(c *gin.Context) {
 				AICredits:  10,
 				IsActive:   true,
 			}
-			h.DB.Create(&user)
+			if err := h.DB.Create(&user).Error; err != nil {
+				c.Redirect(http.StatusTemporaryRedirect, h.FrontendURL+"/login?error=account_creation")
+				return
+			}
 		} else {
 			// Link Google account
 			h.DB.Model(&user).Update("google_id", googleID)
 		}
 	}
 
-	jwtToken, _ := middleware.GenerateJWT(user.ID, user.Email, user.Role)
+	jwtToken, err := middleware.GenerateJWT(user.ID, user.Email, user.Role)
+	if err != nil {
+		c.Redirect(http.StatusTemporaryRedirect, h.FrontendURL+"/login?error=token_generation")
+		return
+	}
 
 	// Log activity
 	h.DB.Create(&models.ActivityLog{
@@ -264,7 +308,7 @@ func (h *AuthHandler) GoogleCallback(c *gin.Context) {
 		IP: c.ClientIP(), UserAgent: c.Request.UserAgent(),
 	})
 
-	c.Redirect(http.StatusTemporaryRedirect, fmt.Sprintf("%s/auth/callback?token=%s", h.FrontendURL, jwtToken))
+	c.Redirect(http.StatusTemporaryRedirect, fmt.Sprintf("%s/auth/callback#token=%s", h.FrontendURL, jwtToken))
 }
 
 func (h *AuthHandler) GetProfile(c *gin.Context) {

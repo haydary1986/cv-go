@@ -127,7 +127,8 @@ async function handleLogin() {
   error.value = ''
   try {
     await authStore.login(form.email, form.password)
-    const redirect = (route.query.redirect as string) || '/dashboard'
+    const rawRedirect = route.query.redirect as string
+    const redirect = (rawRedirect && rawRedirect.startsWith('/') && !rawRedirect.startsWith('//')) ? rawRedirect : '/dashboard'
     router.push(redirect)
   } catch (err: any) {
     error.value = err.response?.data?.error || t('auth.invalidCredentials')

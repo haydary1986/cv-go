@@ -1,10 +1,13 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"cv-go/config"
@@ -57,7 +60,9 @@ func main() {
 	// Seed admin user and initial data
 	seedAdmin(db)
 	seedFacultiesAndDepartments(db)
-	seedDemoData(db)
+	if os.Getenv("SEED_DEMO_DATA") == "true" {
+		seedDemoData(db)
+	}
 
 	// Initialize handlers
 	loginRL := middleware.NewLoginRateLimiter()
@@ -95,6 +100,25 @@ func main() {
 		AllowCredentials: true,
 		MaxAge:           12 * time.Hour,
 	}))
+
+	// Security Headers
+	r.Use(func(c *gin.Context) {
+		c.Header("X-Frame-Options", "DENY")
+		c.Header("X-Content-Type-Options", "nosniff")
+		c.Header("X-XSS-Protection", "1; mode=block")
+		c.Header("Referrer-Policy", "strict-origin-when-cross-origin")
+		c.Header("Permissions-Policy", "camera=(), microphone=(), geolocation=()")
+		if c.Request.TLS != nil || os.Getenv("GIN_MODE") == "release" {
+			c.Header("Strict-Transport-Security", "max-age=63072000; includeSubDomains")
+		}
+		c.Next()
+	})
+
+	// Request body size limit (5MB)
+	r.Use(func(c *gin.Context) {
+		c.Request.Body = http.MaxBytesReader(c.Writer, c.Request.Body, 5<<20)
+		c.Next()
+	})
 
 	// Rate limiter
 	rl := middleware.NewRateLimiter(100, time.Minute)
@@ -235,17 +259,56 @@ func main() {
 		})
 	}
 
-	log.Printf("Server starting on port %s", cfg.Port)
-	r.Run(fmt.Sprintf(":%s", cfg.Port))
+	// Graceful shutdown
+	srv := &http.Server{
+		Addr:    fmt.Sprintf(":%s", cfg.Port),
+		Handler: r,
+	}
+
+	go func() {
+		log.Printf("Server starting on port %s", cfg.Port)
+		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Fatal("Server failed:", err)
+		}
+	}()
+
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	<-quit
+	log.Println("Shutting down server...")
+
+	// Close rate limiters to stop goroutines
+	rl.Close()
+	loginRL.Close()
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	if err := srv.Shutdown(ctx); err != nil {
+		log.Fatal("Server forced to shutdown:", err)
+	}
+	log.Println("Server exited gracefully")
 }
 
 func seedAdmin(db *gorm.DB) {
 	var count int64
 	db.Model(&models.User{}).Where("role = ?", "admin").Count(&count)
 	if count == 0 {
-		hashedPassword, _ := utils.HashPassword("admin123")
+		adminPassword := os.Getenv("ADMIN_INITIAL_PASSWORD")
+		if adminPassword == "" {
+			// Generate a random secure password
+			adminPassword, _ = utils.GenerateToken(16)
+			log.Printf("Generated admin password (save this, it will not be shown again): %s", adminPassword)
+		}
+		hashedPassword, err := utils.HashPassword(adminPassword)
+		if err != nil {
+			log.Fatal("Failed to hash admin password:", err)
+		}
+		adminEmail := os.Getenv("ADMIN_EMAIL")
+		if adminEmail == "" {
+			adminEmail = "admin@cvbuilder.com"
+		}
 		admin := models.User{
-			Email:      "admin@cvbuilder.com",
+			Email:      adminEmail,
 			Password:   hashedPassword,
 			FullNameAr: "مدير النظام",
 			FullNameEn: "System Admin",
@@ -253,8 +316,10 @@ func seedAdmin(db *gorm.DB) {
 			AICredits:  999,
 			IsActive:   true,
 		}
-		db.Create(&admin)
-		log.Println("Admin user created: admin@cvbuilder.com / admin123")
+		if err := db.Create(&admin).Error; err != nil {
+			log.Fatal("Failed to create admin user:", err)
+		}
+		log.Println("Admin user created successfully")
 	}
 }
 
@@ -433,7 +498,7 @@ func seedDemoData(db *gorm.DB) {
 	for i := range users {
 		db.Create(&users[i])
 	}
-	log.Printf("Seeded %d demo users (password: demo123)", len(users))
+	log.Printf("Seeded %d demo users", len(users))
 
 	// --- Demo CVs ---
 	genToken := func() string {

@@ -50,7 +50,7 @@ type CV struct {
 	IsGuest            bool           `gorm:"default:false" json:"is_guest"`
 	GuestName          string         `json:"guest_name"`
 	GuestEmail         string         `json:"guest_email"`
-	GuestIP            string         `json:"guest_ip"`
+	GuestIP            string         `gorm:"column:guest_ip" json:"-"`
 	IsUniversityMember bool           `gorm:"default:false" json:"is_university_member"`
 	FacultyID          *uint          `json:"faculty_id"`
 	DepartmentID       *uint          `json:"department_id"`

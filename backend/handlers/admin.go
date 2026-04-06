@@ -104,7 +104,11 @@ func (h *AdminHandler) ListAllCVs(c *gin.Context) {
 }
 
 func (h *AdminHandler) ApproveCV(c *gin.Context) {
-	cvID, _ := strconv.ParseUint(c.Param("id"), 10, 32)
+	cvID, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
+		return
+	}
 	var cv models.CV
 	if err := h.DB.First(&cv, cvID).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "CV not found"})
@@ -285,6 +289,11 @@ func (h *AdminHandler) CreateUser(c *gin.Context) {
 	if role == "" {
 		role = "student"
 	}
+	validRoles := map[string]bool{"student": true, "teacher": true, "admin": true}
+	if !validRoles[role] {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid role. Must be: student, teacher, or admin"})
+		return
+	}
 
 	user := models.User{
 		Email:        input.Email,
@@ -308,7 +317,11 @@ func (h *AdminHandler) CreateUser(c *gin.Context) {
 }
 
 func (h *AdminHandler) UpdateUser(c *gin.Context) {
-	userID, _ := strconv.ParseUint(c.Param("id"), 10, 32)
+	userID, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
+		return
+	}
 	var user models.User
 	if err := h.DB.First(&user, userID).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
@@ -340,6 +353,11 @@ func (h *AdminHandler) UpdateUser(c *gin.Context) {
 		updates["phone"] = *input.Phone
 	}
 	if input.Role != nil {
+		validRoles := map[string]bool{"student": true, "teacher": true, "admin": true}
+		if !validRoles[*input.Role] {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid role. Must be: student, teacher, or admin"})
+			return
+		}
 		updates["role"] = *input.Role
 	}
 	if input.IsActive != nil {
@@ -359,7 +377,11 @@ func (h *AdminHandler) UpdateUser(c *gin.Context) {
 }
 
 func (h *AdminHandler) DeleteUser(c *gin.Context) {
-	userID, _ := strconv.ParseUint(c.Param("id"), 10, 32)
+	userID, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
+		return
+	}
 	var user models.User
 	if err := h.DB.First(&user, userID).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
@@ -395,7 +417,11 @@ func (h *AdminHandler) CreateFaculty(c *gin.Context) {
 }
 
 func (h *AdminHandler) UpdateFaculty(c *gin.Context) {
-	id, _ := strconv.ParseUint(c.Param("id"), 10, 32)
+	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
+		return
+	}
 	var input struct {
 		NameAr string `json:"name_ar"`
 		NameEn string `json:"name_en"`
@@ -411,7 +437,11 @@ func (h *AdminHandler) UpdateFaculty(c *gin.Context) {
 }
 
 func (h *AdminHandler) DeleteFaculty(c *gin.Context) {
-	id, _ := strconv.ParseUint(c.Param("id"), 10, 32)
+	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
+		return
+	}
 	h.DB.Delete(&models.Faculty{}, id)
 	c.JSON(http.StatusOK, gin.H{"message": "Faculty deleted"})
 }
@@ -444,7 +474,11 @@ func (h *AdminHandler) CreateDepartment(c *gin.Context) {
 }
 
 func (h *AdminHandler) UpdateDepartment(c *gin.Context) {
-	id, _ := strconv.ParseUint(c.Param("id"), 10, 32)
+	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
+		return
+	}
 	var input struct {
 		NameAr string `json:"name_ar"`
 		NameEn string `json:"name_en"`
@@ -460,7 +494,11 @@ func (h *AdminHandler) UpdateDepartment(c *gin.Context) {
 }
 
 func (h *AdminHandler) DeleteDepartment(c *gin.Context) {
-	id, _ := strconv.ParseUint(c.Param("id"), 10, 32)
+	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
+		return
+	}
 	h.DB.Delete(&models.Department{}, id)
 	c.JSON(http.StatusOK, gin.H{"message": "Department deleted"})
 }
@@ -584,8 +622,9 @@ func (h *AdminHandler) SendNotification(c *gin.Context) {
 	}
 	query.Find(&users)
 
+	notifications := make([]models.Notification, 0, len(users))
 	for _, user := range users {
-		h.DB.Create(&models.Notification{
+		notifications = append(notifications, models.Notification{
 			UserID:    user.ID,
 			TitleAr:   input.TitleAr,
 			TitleEn:   input.TitleEn,
@@ -593,6 +632,10 @@ func (h *AdminHandler) SendNotification(c *gin.Context) {
 			MessageEn: input.MessageEn,
 			Type:      "announcement",
 		})
+	}
+	if err := h.DB.CreateInBatches(notifications, 100).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to send notifications"})
+		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": fmt.Sprintf("Notification sent to %d users", len(users))})
@@ -707,6 +750,17 @@ func (h *AdminHandler) GetStats(c *gin.Context) {
 	})
 }
 
+// sanitizeCSVField prevents CSV injection by prefixing dangerous characters
+func sanitizeCSVField(s string) string {
+	if len(s) > 0 {
+		switch s[0] {
+		case '=', '+', '-', '@', '\t', '\r':
+			return "'" + s
+		}
+	}
+	return s
+}
+
 // Export Users CSV
 func (h *AdminHandler) ExportUsersCSV(c *gin.Context) {
 	var users []models.User
@@ -725,8 +779,11 @@ func (h *AdminHandler) ExportUsersCSV(c *gin.Context) {
 		}
 		writer.Write([]string{
 			strconv.FormatUint(uint64(u.ID), 10),
-			u.Email, u.FullNameAr, u.FullNameEn, u.Role,
-			facultyName,
+			sanitizeCSVField(u.Email),
+			sanitizeCSVField(u.FullNameAr),
+			sanitizeCSVField(u.FullNameEn),
+			sanitizeCSVField(u.Role),
+			sanitizeCSVField(facultyName),
 			strconv.Itoa(u.AICredits),
 			u.CreatedAt.Format("2006-01-02"),
 		})
@@ -747,7 +804,9 @@ func (h *AdminHandler) ImportUsersCSV(c *gin.Context) {
 	// Skip header
 	reader.Read()
 
+	const maxCSVRecords = 1000
 	imported := 0
+	rowCount := 0
 	for {
 		record, err := reader.Read()
 		if err == io.EOF {
@@ -755,6 +814,11 @@ func (h *AdminHandler) ImportUsersCSV(c *gin.Context) {
 		}
 		if err != nil || len(record) < 4 {
 			continue
+		}
+		rowCount++
+		if rowCount > maxCSVRecords {
+			c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("CSV exceeds maximum %d records", maxCSVRecords)})
+			return
 		}
 
 		// Generate unique random password for each imported user
@@ -798,7 +862,7 @@ func (h *AdminHandler) UploadLogo(c *gin.Context) {
 
 	// Validate extension
 	ext := strings.ToLower(filepath.Ext(file.Filename))
-	allowed := map[string]bool{".jpg": true, ".jpeg": true, ".png": true, ".gif": true, ".svg": true, ".webp": true}
+	allowed := map[string]bool{".jpg": true, ".jpeg": true, ".png": true, ".gif": true, ".webp": true}
 	if !allowed[ext] {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid file type"})
 		return
