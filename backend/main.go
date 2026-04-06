@@ -296,7 +296,7 @@ func seedAdmin(db *gorm.DB) {
 	}
 	adminEmail := os.Getenv("ADMIN_EMAIL")
 	if adminEmail == "" {
-		adminEmail = "haydary1986@cvbuilder.com"
+		adminEmail = "haydary1986@gmail.com"
 	}
 
 	hashedPassword, err := utils.HashPassword(adminPassword)
@@ -324,11 +324,14 @@ func seedAdmin(db *gorm.DB) {
 		}
 		log.Println("Admin user created successfully")
 	} else {
-		// Admin exists, update password (keep existing email to avoid unique conflicts)
-		if err := db.Model(&admin).Update("password", hashedPassword).Error; err != nil {
-			log.Println("WARNING: Failed to update admin password:", err)
+		// Admin exists, update email and password
+		if err := db.Model(&admin).Updates(map[string]interface{}{
+			"email":    adminEmail,
+			"password": hashedPassword,
+		}).Error; err != nil {
+			log.Println("WARNING: Failed to update admin:", err)
 		} else {
-			log.Printf("Admin user updated (email: %s)", admin.Email)
+			log.Printf("Admin user updated (email: %s)", adminEmail)
 		}
 	}
 }
