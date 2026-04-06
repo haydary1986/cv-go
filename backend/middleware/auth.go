@@ -31,6 +31,8 @@ func GenerateJWT(userID uint, email, role string) (string, error) {
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
+			Issuer:    "cv-builder",
+			Audience:  jwt.ClaimStrings{"cv-builder-api"},
 		},
 	}
 

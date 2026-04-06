@@ -416,7 +416,7 @@ func (h *CVHandler) ExportCVsCSV(c *gin.Context) {
 	for _, cv := range cvs {
 		writer.Write([]string{
 			strconv.FormatUint(uint64(cv.ID), 10),
-			cv.Title,
+			sanitizeCSVField(cv.Title),
 			cv.Language,
 			cv.Template,
 			cv.Status,

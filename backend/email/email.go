@@ -39,10 +39,14 @@ func (s *Sender) Send(to, subject, htmlBody string) error {
 		return nil
 	}
 
+	// Sanitize headers to prevent injection
+	sanitize := func(s string) string {
+		return strings.NewReplacer("\r", "", "\n", "").Replace(s)
+	}
 	headers := map[string]string{
 		"From":         s.From,
-		"To":           to,
-		"Subject":      subject,
+		"To":           sanitize(to),
+		"Subject":      sanitize(subject),
 		"MIME-Version": "1.0",
 		"Content-Type": "text/html; charset=UTF-8",
 	}

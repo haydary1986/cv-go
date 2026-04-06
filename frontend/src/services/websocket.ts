@@ -15,14 +15,15 @@ export function connectWebSocket() {
 
   const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
   const host = window.location.host
-  const url = `${protocol}//${host}/api/ws?token=${token}`
+  const url = `${protocol}//${host}/api/ws`
 
   try {
     ws = new WebSocket(url)
 
     ws.onopen = () => {
       reconnectAttempts = 0
-      console.log('WebSocket connected')
+      // Send token as first message for authentication (not in URL)
+      ws?.send(JSON.stringify({ type: 'auth', token }))
     }
 
     ws.onmessage = (event) => {

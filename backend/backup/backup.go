@@ -55,7 +55,7 @@ func (s *Scheduler) runBackup() {
 	backupPath := filepath.Join(s.backupDir, backupName)
 
 	// Use SQLite VACUUM INTO for safe hot backup
-	result := s.db.Exec(fmt.Sprintf("VACUUM INTO '%s'", backupPath))
+	result := s.db.Exec("VACUUM INTO ?", backupPath)
 	if result.Error != nil {
 		slog.Error("backup failed", "error", result.Error)
 		return
