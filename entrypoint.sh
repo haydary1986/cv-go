@@ -37,10 +37,16 @@ while IFS='=' read -r key value; do
     case "$key" in
         \#*|"") continue ;;
     esac
+    # Trim whitespace from key and value
+    key=$(echo "$key" | tr -d '[:space:]')
+    value=$(echo "$value" | tr -d '[:space:]')
+    [ -z "$key" ] && continue
+
     # Only set if not already provided via environment variable
-    current_val=$(printenv "$key" 2>/dev/null || true)
+    current_val=""
+    current_val=$(printenv "$key" 2>/dev/null) || true
     if [ -z "$current_val" ]; then
-        export "$key=$value"
+        export "${key}=${value}"
         echo "==> Loaded $key from saved config"
     else
         echo "==> Using provided $key from environment"

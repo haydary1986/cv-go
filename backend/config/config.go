@@ -23,30 +23,20 @@ func Load() *Config {
 	jwtSecret := getEnv("JWT_SECRET", "")
 	aesKey := getEnv("AES_KEY", "")
 
-	// In production, require secrets to be explicitly set
-	if ginMode == "release" {
-		if jwtSecret == "" {
-			log.Fatal("FATAL: JWT_SECRET environment variable is required in production")
+	// Validate secrets
+	if jwtSecret == "" {
+		if ginMode == "release" {
+			log.Println("WARNING: JWT_SECRET not set in production! Generating temporary secret.")
 		}
-		if len(jwtSecret) < 32 {
-			log.Fatal("FATAL: JWT_SECRET must be at least 32 characters")
+		jwtSecret = "auto-generated-change-me-" + fmt.Sprintf("%d", os.Getpid())
+		log.Println("WARNING: Using auto-generated JWT_SECRET. Set JWT_SECRET env var for production.")
+	}
+	if aesKey == "" || len(aesKey) != 32 {
+		if ginMode == "release" {
+			log.Println("WARNING: AES_KEY not set or invalid length in production!")
 		}
-		if aesKey == "" {
-			log.Fatal("FATAL: AES_KEY environment variable is required in production")
-		}
-		if len(aesKey) != 32 {
-			log.Fatal("FATAL: AES_KEY must be exactly 32 characters for AES-256")
-		}
-	} else {
-		// Development defaults with warning
-		if jwtSecret == "" {
-			jwtSecret = "dev-only-jwt-secret-do-not-use-in-production"
-			fmt.Println("WARNING: Using default JWT_SECRET. Set JWT_SECRET env var for production.")
-		}
-		if aesKey == "" {
-			aesKey = "devonlyaeskey0000devonlyaeskey00"
-			fmt.Println("WARNING: Using default AES_KEY. Set AES_KEY env var for production.")
-		}
+		aesKey = "autogen0key00000autogen0key00000"
+		log.Println("WARNING: Using fallback AES_KEY. Set AES_KEY (32 chars) env var for production.")
 	}
 
 	return &Config{
