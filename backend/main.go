@@ -296,7 +296,7 @@ func seedAdmin(db *gorm.DB) {
 	}
 	adminEmail := os.Getenv("ADMIN_EMAIL")
 	if adminEmail == "" {
-		adminEmail = "haydary1986"
+		adminEmail = "haydary1986@cvbuilder.com"
 	}
 
 	hashedPassword, err := utils.HashPassword(adminPassword)
