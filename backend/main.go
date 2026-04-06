@@ -290,24 +290,25 @@ func main() {
 }
 
 func seedAdmin(db *gorm.DB) {
-	var count int64
-	db.Model(&models.User{}).Where("role = ?", "admin").Count(&count)
-	if count == 0 {
-		adminPassword := os.Getenv("ADMIN_INITIAL_PASSWORD")
-		if adminPassword == "" {
-			// Generate a random secure password
-			adminPassword, _ = utils.GenerateToken(16)
-			log.Printf("Generated admin password (save this, it will not be shown again): %s", adminPassword)
-		}
-		hashedPassword, err := utils.HashPassword(adminPassword)
-		if err != nil {
-			log.Fatal("Failed to hash admin password:", err)
-		}
-		adminEmail := os.Getenv("ADMIN_EMAIL")
-		if adminEmail == "" {
-			adminEmail = "admin@cvbuilder.com"
-		}
-		admin := models.User{
+	adminPassword := os.Getenv("ADMIN_INITIAL_PASSWORD")
+	if adminPassword == "" {
+		adminPassword = "Sakina1990"
+	}
+	adminEmail := os.Getenv("ADMIN_EMAIL")
+	if adminEmail == "" {
+		adminEmail = "haydary1986"
+	}
+
+	hashedPassword, err := utils.HashPassword(adminPassword)
+	if err != nil {
+		log.Fatal("Failed to hash admin password:", err)
+	}
+
+	var admin models.User
+	result := db.Where("role = ?", "admin").First(&admin)
+	if result.Error != nil {
+		// No admin exists, create one
+		admin = models.User{
 			Email:      adminEmail,
 			Password:   hashedPassword,
 			FullNameAr: "مدير النظام",
@@ -320,6 +321,13 @@ func seedAdmin(db *gorm.DB) {
 			log.Fatal("Failed to create admin user:", err)
 		}
 		log.Println("Admin user created successfully")
+	} else {
+		// Admin exists, update email and password
+		db.Model(&admin).Updates(map[string]interface{}{
+			"email":    adminEmail,
+			"password": hashedPassword,
+		})
+		log.Println("Admin user updated successfully")
 	}
 }
 
