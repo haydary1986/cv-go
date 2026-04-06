@@ -301,7 +301,8 @@ func seedAdmin(db *gorm.DB) {
 
 	hashedPassword, err := utils.HashPassword(adminPassword)
 	if err != nil {
-		log.Fatal("Failed to hash admin password:", err)
+		log.Println("WARNING: Failed to hash admin password:", err)
+		return
 	}
 
 	var admin models.User
@@ -318,16 +319,17 @@ func seedAdmin(db *gorm.DB) {
 			IsActive:   true,
 		}
 		if err := db.Create(&admin).Error; err != nil {
-			log.Fatal("Failed to create admin user:", err)
+			log.Println("WARNING: Failed to create admin user:", err)
+			return
 		}
 		log.Println("Admin user created successfully")
 	} else {
-		// Admin exists, update email and password
-		db.Model(&admin).Updates(map[string]interface{}{
-			"email":    adminEmail,
-			"password": hashedPassword,
-		})
-		log.Println("Admin user updated successfully")
+		// Admin exists, update password (keep existing email to avoid unique conflicts)
+		if err := db.Model(&admin).Update("password", hashedPassword).Error; err != nil {
+			log.Println("WARNING: Failed to update admin password:", err)
+		} else {
+			log.Printf("Admin user updated (email: %s)", admin.Email)
+		}
 	}
 }
 
