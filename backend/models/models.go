@@ -20,7 +20,7 @@ type User struct {
 	Faculty           *Faculty       `gorm:"foreignKey:FacultyID" json:"faculty,omitempty"`
 	Department        *Department    `gorm:"foreignKey:DepartmentID" json:"department,omitempty"`
 	PhotoURL          string         `json:"photo_url"`
-	GoogleID          string         `gorm:"uniqueIndex" json:"-"`
+	GoogleID          string         `gorm:"index" json:"-"`
 	AICredits         int            `gorm:"default:10" json:"ai_credits"`
 	IsActive          bool           `gorm:"default:true" json:"is_active"`
 	LoginAttempts     int            `gorm:"default:0" json:"-"`
