@@ -2,7 +2,7 @@ package config
 
 import (
 	"fmt"
-	"log"
+	"log/slog"
 	"os"
 )
 
@@ -26,17 +26,17 @@ func Load() *Config {
 	// Validate secrets
 	if jwtSecret == "" {
 		if ginMode == "release" {
-			log.Println("WARNING: JWT_SECRET not set in production! Generating temporary secret.")
+			slog.Warn("JWT_SECRET not set in production, generating temporary secret")
 		}
 		jwtSecret = "auto-generated-change-me-" + fmt.Sprintf("%d", os.Getpid())
-		log.Println("WARNING: Using auto-generated JWT_SECRET. Set JWT_SECRET env var for production.")
+		slog.Warn("Using auto-generated JWT_SECRET, set JWT_SECRET env var for production")
 	}
 	if aesKey == "" || len(aesKey) != 32 {
 		if ginMode == "release" {
-			log.Println("WARNING: AES_KEY not set or invalid length in production!")
+			slog.Warn("AES_KEY not set or invalid length in production")
 		}
 		aesKey = "autogen0key00000autogen0key00000"
-		log.Println("WARNING: Using fallback AES_KEY. Set AES_KEY (32 chars) env var for production.")
+		slog.Warn("Using fallback AES_KEY, set AES_KEY (32 chars) env var for production")
 	}
 
 	return &Config{

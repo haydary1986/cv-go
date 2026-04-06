@@ -51,7 +51,11 @@ export const cvAPI = {
   getShared: (token: string) => api.get(`/shared/${token}`),
   exportJSON: () => api.get('/cvs/export/json', { responseType: 'blob' }),
   exportCSV: () => api.get('/cvs/export/csv', { responseType: 'blob' }),
+  exportPDF: (id: number) => api.get(`/cvs/${id}/export/pdf`, { responseType: 'blob' }),
   createGuest: (data: any) => api.post('/guest/cv', data),
+  importLinkedIn: (formData: FormData) => api.post('/cvs/import/linkedin', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  }),
 }
 
 // AI API
@@ -108,6 +112,7 @@ export const adminAPI = {
   sendNotification: (data: any) => api.post('/admin/notifications', data),
   getActivityLogs: (params?: any) => api.get('/admin/activity-logs', { params }),
   getStats: () => api.get('/admin/stats'),
+  getAuditTrail: (params?: any) => api.get('/admin/audit-trail', { params }),
   exportUsersCSV: () => api.get('/admin/users/export/csv', { responseType: 'blob' }),
   importUsersCSV: (file: File) => {
     const formData = new FormData()
@@ -116,6 +121,14 @@ export const adminAPI = {
       headers: { 'Content-Type': 'multipart/form-data' },
     })
   },
+}
+
+// 2FA API
+export const twoFAAPI = {
+  setup: () => api.post('/auth/2fa/setup'),
+  verifySetup: (code: string) => api.post('/auth/2fa/verify-setup', { code }),
+  disable: (password: string) => api.post('/auth/2fa/disable', { password }),
+  validate: (data: { temp_token: string; code: string }) => api.post('/auth/2fa/validate', data),
 }
 
 // Public API

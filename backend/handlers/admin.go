@@ -11,6 +11,7 @@ import (
 	"strings"
 	"time"
 
+	"cv-go/audit"
 	"cv-go/models"
 	"cv-go/utils"
 
@@ -128,6 +129,9 @@ func (h *AdminHandler) ApproveCV(c *gin.Context) {
 		CVID:      &cv.ID,
 	})
 
+	adminID := c.GetUint("user_id")
+	audit.Log(h.DB, cv.ID, adminID, "approve", "CV approved", c.ClientIP(), c.Request.UserAgent())
+
 	c.JSON(http.StatusOK, gin.H{"message": "CV approved"})
 }
 
@@ -162,6 +166,9 @@ func (h *AdminHandler) RejectCV(c *gin.Context) {
 		CVID:      &cv.ID,
 	})
 
+	adminID := c.GetUint("user_id")
+	audit.Log(h.DB, cv.ID, adminID, "reject", "Rejected: "+input.Reason, c.ClientIP(), c.Request.UserAgent())
+
 	c.JSON(http.StatusOK, gin.H{"message": "CV rejected"})
 }
 
@@ -195,6 +202,9 @@ func (h *AdminHandler) RequestRevision(c *gin.Context) {
 		Type:      "revision",
 		CVID:      &cv.ID,
 	})
+
+	adminID := c.GetUint("user_id")
+	audit.Log(h.DB, cv.ID, adminID, "revision", "Revision requested: "+input.Note, c.ClientIP(), c.Request.UserAgent())
 
 	c.JSON(http.StatusOK, gin.H{"message": "Revision requested"})
 }
@@ -676,6 +686,34 @@ func (h *AdminHandler) GetActivityLogs(c *gin.Context) {
 		"total": total,
 		"page":  page,
 	})
+}
+
+// Audit Trail
+func (h *AdminHandler) GetAuditTrail(c *gin.Context) {
+	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
+	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "50"))
+	cvID := c.Query("cv_id")
+
+	if page < 1 {
+		page = 1
+	}
+	if limit < 1 || limit > 100 {
+		limit = 50
+	}
+	offset := (page - 1) * limit
+
+	query := h.DB.Model(&models.AuditEntry{}).Preload("User")
+	if cvID != "" {
+		query = query.Where("cv_id = ?", cvID)
+	}
+
+	var total int64
+	query.Count(&total)
+
+	var entries []models.AuditEntry
+	query.Order("created_at DESC").Offset(offset).Limit(limit).Find(&entries)
+
+	c.JSON(200, gin.H{"entries": entries, "total": total, "page": page})
 }
 
 // Statistics

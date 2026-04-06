@@ -1,20 +1,32 @@
+// @title CV Builder API
+// @version 1.0
+// @description API for the University of Heritage CV Management System
+// @host cv.erticaz.com
+// @BasePath /api
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
 package main
 
 import (
 	"context"
 	"fmt"
-	"log"
+	"log/slog"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
 
+	"cv-go/backup"
 	"cv-go/config"
+	"cv-go/email"
 	"cv-go/handlers"
+	"cv-go/logger"
 	"cv-go/middleware"
 	"cv-go/models"
 	"cv-go/utils"
+	"cv-go/ws"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -23,22 +35,24 @@ import (
 )
 
 func main() {
-	log.Println("Starting CV Builder Server...")
+	logger.Init()
+	slog.Info("Starting CV Builder Server...")
 
 	cfg := config.Load()
-	log.Printf("Config loaded. Port: %s, DB: %s", cfg.Port, cfg.DBPath)
+	slog.Info("Config loaded", "port", cfg.Port, "db", cfg.DBPath)
 	middleware.SetJWTSecret(cfg.JWTSecret)
 
 	// Database
-	log.Println("Connecting to database...")
+	slog.Info("Connecting to database...")
 	db, err := gorm.Open(sqlite.Open(cfg.DBPath), &gorm.Config{})
 	if err != nil {
-		log.Fatal("Failed to connect to database:", err)
+		slog.Error("Failed to connect to database", "error", err)
+		os.Exit(1)
 	}
-	log.Println("Database connected successfully")
+	slog.Info("Database connected successfully")
 
 	// Auto migrate
-	log.Println("Running migrations...")
+	slog.Info("Running migrations...")
 	err = db.AutoMigrate(
 		&models.User{},
 		&models.CV{},
@@ -51,11 +65,13 @@ func main() {
 		&models.AIUsageLog{},
 		&models.BrandingSetting{},
 		&models.AISetting{},
+		&models.AuditEntry{},
 	)
 	if err != nil {
-		log.Fatal("Migration failed:", err)
+		slog.Error("Migration failed", "error", err)
+		os.Exit(1)
 	}
-	log.Println("Migrations completed successfully")
+	slog.Info("Migrations completed successfully")
 
 	// Seed admin user and initial data
 	seedAdmin(db)
@@ -63,6 +79,14 @@ func main() {
 	if os.Getenv("SEED_DEMO_DATA") == "true" {
 		seedDemoData(db)
 	}
+
+	// Backup scheduler
+	backupDir := os.Getenv("BACKUP_DIR")
+	if backupDir == "" {
+		backupDir = "/app/data/backups"
+	}
+	backupScheduler := backup.NewScheduler(db, cfg.DBPath, backupDir, 24*time.Hour, 7)
+	backupScheduler.Start()
 
 	// Initialize handlers
 	loginRL := middleware.NewLoginRateLimiter()
@@ -78,6 +102,17 @@ func main() {
 	adminHandler := &handlers.AdminHandler{DB: db, AESKey: cfg.AESKey}
 	aiHandler := &handlers.AIHandler{DB: db, AESKey: cfg.AESKey}
 	notifHandler := &handlers.NotificationHandler{DB: db}
+	twoFAHandler := &handlers.TwoFAHandler{DB: db, AESKey: cfg.AESKey}
+	emailSender := email.NewSender()
+	if emailSender.IsConfigured() {
+		slog.Info("Email notifications enabled", "from", emailSender.From)
+	} else {
+		slog.Info("Email notifications disabled (set SMTP_ENABLED=true to enable)")
+	}
+
+	// WebSocket hub
+	wsHub := ws.NewHub()
+	go wsHub.Run()
 
 	// Router
 	r := gin.Default()
@@ -108,6 +143,7 @@ func main() {
 		c.Header("X-XSS-Protection", "1; mode=block")
 		c.Header("Referrer-Policy", "strict-origin-when-cross-origin")
 		c.Header("Permissions-Policy", "camera=(), microphone=(), geolocation=()")
+		c.Header("Content-Security-Policy", "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' https:; connect-src 'self' wss: ws:; frame-ancestors 'none'")
 		if c.Request.TLS != nil || os.Getenv("GIN_MODE") == "release" {
 			c.Header("Strict-Transport-Security", "max-age=63072000; includeSubDomains")
 		}
@@ -141,7 +177,11 @@ func main() {
 				authProtected.GET("/profile", authHandler.GetProfile)
 				authProtected.PUT("/profile", authHandler.UpdateProfile)
 				authProtected.PUT("/change-password", authHandler.ChangePassword)
+				authProtected.POST("/2fa/setup", twoFAHandler.Setup2FA)
+				authProtected.POST("/2fa/verify-setup", twoFAHandler.VerifySetup2FA)
+				authProtected.POST("/2fa/disable", twoFAHandler.Disable2FA)
 			}
+			auth.POST("/2fa/validate", twoFAHandler.Validate2FA)
 		}
 
 		// CV routes
@@ -156,6 +196,7 @@ func main() {
 			cvRoutes.POST("/:id/toggle-share", cvHandler.ToggleShare)
 			cvRoutes.GET("/export/json", cvHandler.ExportCVsJSON)
 			cvRoutes.GET("/export/csv", cvHandler.ExportCVsCSV)
+			cvRoutes.POST("/import/linkedin", handlers.ImportLinkedIn)
 		}
 
 		// Shared CV (public)
@@ -166,6 +207,11 @@ func main() {
 
 		// Public branding (no auth required)
 		api.GET("/branding", adminHandler.GetPublicBranding)
+
+		// WebSocket endpoint
+		api.GET("/ws", middleware.AuthMiddleware(), func(c *gin.Context) {
+			ws.ServeWS(wsHub, c)
+		})
 
 		// AI routes
 		aiRoutes := api.Group("/ai")
@@ -221,6 +267,7 @@ func main() {
 			adminRoutes.PUT("/ad-settings", adminHandler.UpdateAdSettings)
 			adminRoutes.POST("/notifications", adminHandler.SendNotification)
 			adminRoutes.GET("/activity-logs", adminHandler.GetActivityLogs)
+			adminRoutes.GET("/audit-trail", adminHandler.GetAuditTrail)
 			adminRoutes.GET("/stats", adminHandler.GetStats)
 			adminRoutes.GET("/users/export/csv", adminHandler.ExportUsersCSV)
 			adminRoutes.POST("/users/import/csv", adminHandler.ImportUsersCSV)
@@ -266,27 +313,31 @@ func main() {
 	}
 
 	go func() {
-		log.Printf("Server starting on port %s", cfg.Port)
+		slog.Info("Server starting", "port", cfg.Port)
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			log.Fatal("Server failed:", err)
+			slog.Error("Server failed", "error", err)
+			os.Exit(1)
 		}
 	}()
 
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
-	log.Println("Shutting down server...")
+	slog.Info("Shutting down server...")
 
-	// Close rate limiters to stop goroutines
+	// Close all background goroutines
+	wsHub.Close()
+	backupScheduler.Close()
 	rl.Close()
 	loginRL.Close()
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	if err := srv.Shutdown(ctx); err != nil {
-		log.Fatal("Server forced to shutdown:", err)
+		slog.Error("Server forced to shutdown", "error", err)
+		os.Exit(1)
 	}
-	log.Println("Server exited gracefully")
+	slog.Info("Server exited gracefully")
 }
 
 func seedAdmin(db *gorm.DB) {
@@ -301,7 +352,7 @@ func seedAdmin(db *gorm.DB) {
 
 	hashedPassword, err := utils.HashPassword(adminPassword)
 	if err != nil {
-		log.Println("WARNING: Failed to hash admin password:", err)
+		slog.Warn("Failed to hash admin password", "error", err)
 		return
 	}
 
@@ -319,19 +370,19 @@ func seedAdmin(db *gorm.DB) {
 			IsActive:   true,
 		}
 		if err := db.Create(&admin).Error; err != nil {
-			log.Println("WARNING: Failed to create admin user:", err)
+			slog.Warn("Failed to create admin user", "error", err)
 			return
 		}
-		log.Println("Admin user created successfully")
+		slog.Info("Admin user created successfully")
 	} else {
 		// Admin exists, update email and password
 		if err := db.Model(&admin).Updates(map[string]interface{}{
 			"email":    adminEmail,
 			"password": hashedPassword,
 		}).Error; err != nil {
-			log.Println("WARNING: Failed to update admin:", err)
+			slog.Warn("Failed to update admin", "error", err)
 		} else {
-			log.Printf("Admin user updated (email: %s)", adminEmail)
+			slog.Info("Admin user updated", "email", adminEmail)
 		}
 	}
 }
@@ -432,7 +483,7 @@ func seedFacultiesAndDepartments(db *gorm.DB) {
 			db.Create(&dept)
 		}
 	}
-	log.Printf("Seeded %d faculties with departments", len(faculties))
+	slog.Info("Seeded faculties with departments", "count", len(faculties))
 }
 
 func seedDemoData(db *gorm.DB) {
@@ -511,7 +562,7 @@ func seedDemoData(db *gorm.DB) {
 	for i := range users {
 		db.Create(&users[i])
 	}
-	log.Printf("Seeded %d demo users", len(users))
+	slog.Info("Seeded demo users", "count", len(users))
 
 	// --- Demo CVs ---
 	genToken := func() string {
@@ -792,7 +843,7 @@ func seedDemoData(db *gorm.DB) {
 		cvs[i].QRCodeData = fmt.Sprintf("https://cvbuilder.example.com/shared/%s", cvs[i].ShareToken)
 		db.Create(&cvs[i])
 	}
-	log.Printf("Seeded %d demo CVs", len(cvs))
+	slog.Info("Seeded demo CVs", "count", len(cvs))
 
 	// --- Notifications ---
 	cvID1 := cvs[0].ID
@@ -826,7 +877,7 @@ func seedDemoData(db *gorm.DB) {
 	for i := range notifications {
 		db.Create(&notifications[i])
 	}
-	log.Printf("Seeded %d notifications", len(notifications))
+	slog.Info("Seeded notifications", "count", len(notifications))
 
 	// --- Activity Logs ---
 	logs := []models.ActivityLog{
@@ -852,7 +903,7 @@ func seedDemoData(db *gorm.DB) {
 	for i := range logs {
 		db.Create(&logs[i])
 	}
-	log.Printf("Seeded %d activity logs", len(logs))
+	slog.Info("Seeded activity logs", "count", len(logs))
 
 	// --- Branding Settings ---
 	var brandCount int64
@@ -864,8 +915,8 @@ func seedDemoData(db *gorm.DB) {
 			SecondaryColor: "#2c3e50",
 			AccentColor:    "#c0982b",
 		})
-		log.Println("Seeded branding settings")
+		slog.Info("Seeded branding settings")
 	}
 
-	log.Println("Demo data seeding completed successfully!")
+	slog.Info("Demo data seeding completed successfully!")
 }

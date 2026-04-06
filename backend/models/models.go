@@ -23,6 +23,8 @@ type User struct {
 	GoogleID          string         `gorm:"index" json:"-"`
 	AICredits         int            `gorm:"default:10" json:"ai_credits"`
 	IsActive          bool           `gorm:"default:true" json:"is_active"`
+	TOTPSecret        string         `json:"-"`
+	TOTPEnabled       bool           `gorm:"default:false" json:"totp_enabled"`
 	LoginAttempts     int            `gorm:"default:0" json:"-"`
 	LockedUntil       *time.Time     `json:"-"`
 	CVs               []CV           `gorm:"foreignKey:UserID" json:"cvs,omitempty"`
@@ -186,6 +188,19 @@ type Notification struct {
 	CVID      *uint          `json:"cv_id"`
 	CreatedAt time.Time      `json:"created_at"`
 	DeletedAt gorm.DeletedAt `gorm:"index" json:"-"`
+}
+
+// AuditEntry records detailed changes to CVs
+type AuditEntry struct {
+	ID        uint      `gorm:"primaryKey" json:"id"`
+	CVID      uint      `gorm:"index" json:"cv_id"`
+	UserID    uint      `gorm:"index" json:"user_id"`
+	User      User      `gorm:"foreignKey:UserID" json:"user,omitempty"`
+	Action    string    `gorm:"not null" json:"action"` // create, update, approve, reject, revision, delete
+	Details   string    `json:"details"`
+	IP        string    `json:"ip"`
+	UserAgent string    `json:"user_agent"`
+	CreatedAt time.Time `json:"created_at"`
 }
 
 // ActivityLog records user activities

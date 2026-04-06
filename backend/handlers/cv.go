@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"cv-go/audit"
 	"cv-go/models"
 	"cv-go/utils"
 
@@ -89,6 +90,18 @@ func (h *CVHandler) CreateGuestCV(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{"cv": cv})
 }
 
+// CreateCV godoc
+// @Summary Create a new CV
+// @Description Create a new CV for the authenticated user
+// @Tags CV
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param input body CreateCVInput true "CV data"
+// @Success 201 {object} map[string]interface{}
+// @Failure 400 {object} map[string]interface{}
+// @Failure 500 {object} map[string]interface{}
+// @Router /v1/cvs [post]
 func (h *CVHandler) CreateCV(c *gin.Context) {
 	userID := c.GetUint("user_id")
 	var input CreateCVInput
@@ -130,10 +143,21 @@ func (h *CVHandler) CreateCV(c *gin.Context) {
 		Details: fmt.Sprintf("CV ID: %d", cv.ID),
 		IP: c.ClientIP(), UserAgent: c.Request.UserAgent(),
 	})
+	audit.Log(h.DB, cv.ID, userID, "create", "CV created", c.ClientIP(), c.Request.UserAgent())
 
 	c.JSON(http.StatusCreated, gin.H{"cv": cv})
 }
 
+// ListCVs godoc
+// @Summary List user's CVs
+// @Description Retrieve a paginated list of CVs for the authenticated user
+// @Tags CV
+// @Produce json
+// @Security BearerAuth
+// @Param page query int false "Page number" default(1)
+// @Param limit query int false "Items per page" default(12)
+// @Success 200 {object} map[string]interface{}
+// @Router /v1/cvs [get]
 func (h *CVHandler) ListCVs(c *gin.Context) {
 	userID := c.GetUint("user_id")
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
@@ -170,6 +194,18 @@ func (h *CVHandler) ListCVs(c *gin.Context) {
 	})
 }
 
+// GetCV godoc
+// @Summary Get a specific CV
+// @Description Retrieve a CV by ID (owner or admin only)
+// @Tags CV
+// @Produce json
+// @Security BearerAuth
+// @Param id path int true "CV ID"
+// @Success 200 {object} map[string]interface{}
+// @Failure 400 {object} map[string]interface{}
+// @Failure 403 {object} map[string]interface{}
+// @Failure 404 {object} map[string]interface{}
+// @Router /v1/cvs/{id} [get]
 func (h *CVHandler) GetCV(c *gin.Context) {
 	userID := c.GetUint("user_id")
 	role, _ := c.Get("user_role")
@@ -200,6 +236,20 @@ func (h *CVHandler) GetCV(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"cv": cv})
 }
 
+// UpdateCV godoc
+// @Summary Update a CV
+// @Description Update an existing CV (owner only)
+// @Tags CV
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param id path int true "CV ID"
+// @Param input body object true "CV update data"
+// @Success 200 {object} map[string]interface{}
+// @Failure 400 {object} map[string]interface{}
+// @Failure 403 {object} map[string]interface{}
+// @Failure 404 {object} map[string]interface{}
+// @Router /v1/cvs/{id} [put]
 func (h *CVHandler) UpdateCV(c *gin.Context) {
 	userID := c.GetUint("user_id")
 	cvID, err := strconv.ParseUint(c.Param("id"), 10, 32)
@@ -250,10 +300,23 @@ func (h *CVHandler) UpdateCV(c *gin.Context) {
 		Details: fmt.Sprintf("CV ID: %d", cv.ID),
 		IP: c.ClientIP(), UserAgent: c.Request.UserAgent(),
 	})
+	audit.Log(h.DB, cv.ID, userID, "update", "CV updated", c.ClientIP(), c.Request.UserAgent())
 
 	c.JSON(http.StatusOK, gin.H{"cv": cv})
 }
 
+// DeleteCV godoc
+// @Summary Delete a CV
+// @Description Delete a CV by ID (owner only)
+// @Tags CV
+// @Produce json
+// @Security BearerAuth
+// @Param id path int true "CV ID"
+// @Success 200 {object} map[string]interface{}
+// @Failure 400 {object} map[string]interface{}
+// @Failure 403 {object} map[string]interface{}
+// @Failure 404 {object} map[string]interface{}
+// @Router /v1/cvs/{id} [delete]
 func (h *CVHandler) DeleteCV(c *gin.Context) {
 	userID := c.GetUint("user_id")
 	cvID, err := strconv.ParseUint(c.Param("id"), 10, 32)
@@ -280,6 +343,7 @@ func (h *CVHandler) DeleteCV(c *gin.Context) {
 		Details: fmt.Sprintf("CV ID: %d", cv.ID),
 		IP: c.ClientIP(), UserAgent: c.Request.UserAgent(),
 	})
+	audit.Log(h.DB, uint(cvID), userID, "delete", "CV deleted", c.ClientIP(), c.Request.UserAgent())
 
 	c.JSON(http.StatusOK, gin.H{"message": "CV deleted successfully"})
 }

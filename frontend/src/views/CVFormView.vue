@@ -18,6 +18,14 @@
         ></div>
       </div>
 
+      <!-- Auto-save indicator -->
+      <div v-if="lastSaved" class="text-end mb-2">
+        <small class="text-muted">
+          <i class="fas fa-check-circle text-success"></i>
+          {{ locale === 'ar' ? 'حُفظ تلقائياً' : 'Auto-saved' }} {{ lastSaved }}
+        </small>
+      </div>
+
       <!-- Step Card -->
       <div class="card border-0 shadow-sm" style="border-radius: 16px;">
         <div class="card-body p-4 p-md-5">
@@ -457,14 +465,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, watch } from 'vue'
+import { ref, reactive, onMounted, onUnmounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useCVStore, getEmptyCVData } from '../stores/cv'
-import { aiAPI, publicAPI } from '../services/api'
+import { cvAPI, aiAPI, publicAPI } from '../services/api'
 import { useToast } from '../composables/useToast'
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const route = useRoute()
 const router = useRouter()
 const cvStore = useCVStore()
@@ -485,6 +493,10 @@ const departments = ref<any[]>([])
 
 // Legal disclaimer
 const agreedToTerms = ref(false)
+
+// Auto-save
+const lastSaved = ref('')
+let autoSaveTimer: ReturnType<typeof setInterval>
 
 const templates = [
   'academic', 'ats', 'compact', 'creative', 'designer', 'elegant', 'engineer',
@@ -537,18 +549,41 @@ onMounted(async () => {
       }
     }
   } else {
-    const saved = localStorage.getItem('cv_draft')
-    if (saved) {
-      try { Object.assign(form, JSON.parse(saved)) } catch {}
+    const draft = localStorage.getItem('cv-draft')
+    if (draft) {
+      try {
+        const parsed = JSON.parse(draft)
+        Object.assign(form.data, parsed)
+        toast.info(locale.value === 'ar' ? 'تم استعادة المسودة' : 'Draft restored')
+      } catch {}
     }
   }
+
+  // Start auto-save timer (every 30 seconds)
+  autoSaveTimer = setInterval(async () => {
+    if (route.params.id) {
+      // Existing CV - save to server silently
+      try {
+        await cvAPI.update(Number(route.params.id), { data: form.data })
+        lastSaved.value = new Date().toLocaleTimeString()
+      } catch {}
+    } else {
+      // New CV - save to localStorage
+      localStorage.setItem('cv-draft', JSON.stringify(form.data))
+      lastSaved.value = new Date().toLocaleTimeString()
+    }
+  }, 30000)
+})
+
+onUnmounted(() => {
+  clearInterval(autoSaveTimer)
 })
 
 let saveTimeout: ReturnType<typeof setTimeout> | null = null
 watch(form, () => {
   if (!isEdit.value) {
     if (saveTimeout) clearTimeout(saveTimeout)
-    saveTimeout = setTimeout(() => localStorage.setItem('cv_draft', JSON.stringify(form)), 1000)
+    saveTimeout = setTimeout(() => localStorage.setItem('cv-draft', JSON.stringify(form.data)), 1000)
   }
 }, { deep: true })
 
@@ -607,7 +642,7 @@ async function handleSubmit() {
     } else {
       const cv = await cvStore.createCV(payload)
       cvId = cv.id
-      localStorage.removeItem('cv_draft')
+      localStorage.removeItem('cv-draft')
     }
     router.push(`/cv/${cvId}`)
   } catch {

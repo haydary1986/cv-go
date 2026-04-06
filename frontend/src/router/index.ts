@@ -110,7 +110,18 @@ const router = createRouter({
           name: 'admin-logs',
           component: () => import('../views/admin/AdminLogs.vue'),
         },
+        {
+          path: 'audit-trail',
+          name: 'admin-audit-trail',
+          component: () => import('../views/admin/AdminAuditTrail.vue'),
+        },
       ],
+    },
+    {
+      path: '/import/linkedin',
+      name: 'linkedin-import',
+      component: () => import('../views/LinkedInImport.vue'),
+      meta: { requiresAuth: true, title: 'استيراد من LinkedIn' },
     },
     {
       path: '/auth/callback',
