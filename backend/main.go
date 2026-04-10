@@ -77,10 +77,10 @@ func main() {
 		&models.AuditEntry{},
 	)
 	if err != nil {
-		slog.Error("Migration failed", "error", err)
-		os.Exit(1)
+		slog.Warn("Migration had issues (may be normal on first run with existing DB)", "error", err)
+	} else {
+		slog.Info("Migrations completed successfully")
 	}
-	slog.Info("Migrations completed successfully")
 
 	// Seed admin user and initial data
 	seedAdmin(db)

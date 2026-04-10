@@ -30,18 +30,11 @@ COPY --from=frontend-builder /app/frontend/dist ./static
 COPY entrypoint.sh .
 RUN chmod +x ./entrypoint.sh
 
-# Create non-root user
-RUN addgroup -g 1001 -S appgroup && \
-    adduser -u 1001 -S appuser -G appgroup
-
 # Create data directory for SQLite and uploads
-RUN mkdir -p /app/data /app/data/uploads /app/data/backups && \
-    chown -R appuser:appgroup /app
+RUN mkdir -p /app/data /app/data/uploads /app/data/backups
 
 # Declare volume for persistent data (survives container rebuilds)
 VOLUME /app/data
-
-USER appuser
 
 # Environment variables (defaults - can be overridden)
 ENV PORT=8080
