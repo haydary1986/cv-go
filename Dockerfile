@@ -23,8 +23,11 @@ WORKDIR /app
 COPY --from=backend-builder /app/backend/server .
 RUN chmod +x ./server
 
-# Copy frontend dist
+# Copy frontend dist (includes logo.png, PWA files, assets)
 COPY --from=frontend-builder /app/frontend/dist ./static
+
+# Verify critical static files exist
+RUN ls -la ./static/logo.png && echo "Logo verified"
 
 # Copy entrypoint script
 COPY entrypoint.sh .
