@@ -9,12 +9,12 @@
             <div class="d-flex align-items-center mb-4 fade-in">
               <img
                 :src="brandingStore.logoUrl || '/logo.png'"
-                alt="University of Heritage Logo"
+                alt="AL-Turath University Logo"
                 class="hero-university-logo"
               />
               <div class="ms-3">
                 <h4 class="mb-0 hero-uni-name">{{ brandingStore.systemName || 'جامعة التراث' }}</h4>
-                <small class="hero-uni-subtitle">University of Heritage</small>
+                <small class="hero-uni-subtitle">AL-Turath University</small>
               </div>
             </div>
 

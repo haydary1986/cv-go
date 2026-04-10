@@ -1,6 +1,6 @@
 // @title CV Builder API
 // @version 1.0
-// @description API for the University of Heritage CV Management System
+// @description API for the AL-Turath University CV Management System
 // @host cv.erticaz.com
 // @BasePath /api
 // @securityDefinitions.apikey BearerAuth
