@@ -319,6 +319,12 @@ func main() {
 	if _, err := os.Stat("./static"); err == nil {
 		r.Static("/assets", "./static/assets")
 		r.StaticFile("/vite.svg", "./static/vite.svg")
+		r.StaticFile("/logo.png", "./static/logo.png")
+		r.StaticFile("/logo-white.png", "./static/logo-white.png")
+		r.StaticFile("/manifest.webmanifest", "./static/manifest.webmanifest")
+		r.StaticFile("/sw.js", "./static/sw.js")
+		r.StaticFile("/registerSW.js", "./static/registerSW.js")
+		r.StaticFile("/workbox-01ded3f8.js", "./static/workbox-01ded3f8.js")
 		r.NoRoute(func(c *gin.Context) {
 			c.File("./static/index.html")
 		})
