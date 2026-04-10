@@ -5,8 +5,7 @@
          :style="{ backgroundColor: brandingStore.branding.primary_color || '#0d6efd' }">
       <div class="container">
         <router-link class="navbar-brand d-flex align-items-center fw-bold" to="/">
-          <img v-if="brandingStore.logoUrl" :src="brandingStore.logoUrl" alt="Logo" class="navbar-logo me-2" />
-          <i v-else class="fas fa-file-alt me-2"></i>
+          <img :src="brandingStore.logoUrl || '/logo.svg'" alt="Logo" class="navbar-logo me-2" />
           {{ brandingStore.systemName }}
         </router-link>
 

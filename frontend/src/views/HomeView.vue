@@ -11,6 +11,19 @@
       <div class="container position-relative">
         <div class="row align-items-center min-vh-75">
           <div class="col-lg-7 text-white py-5">
+            <!-- University Logo + Name -->
+            <div class="d-flex align-items-center mb-4 fade-in">
+              <img
+                :src="brandingStore.logoUrl || '/logo.svg'"
+                alt="University of Heritage Logo"
+                class="hero-university-logo"
+              />
+              <div class="ms-3">
+                <h4 class="mb-0 fw-bold text-white" style="letter-spacing: 0.02em;">{{ brandingStore.systemName || 'جامعة التراث' }}</h4>
+                <small class="text-white-50">University of Heritage</small>
+              </div>
+            </div>
+
             <div class="hero-badge mb-3 fade-in">
               <span class="badge bg-white bg-opacity-25 px-3 py-2 rounded-pill fs-6">
                 <i class="fas fa-star me-1"></i> {{ t('home.heroBadge') }}
@@ -24,7 +37,7 @@
             </p>
             <div class="d-flex gap-3 flex-wrap fade-in">
               <template v-if="authStore.isAuthenticated">
-                <router-link to="/cv/create" class="btn btn-light btn-lg px-4 fw-semibold shadow-sm hero-btn">
+                <router-link to="/cv/create" class="btn btn-gold btn-lg px-4 fw-semibold shadow-sm hero-btn">
                   <i class="fas fa-plus-circle me-2"></i>{{ t('home.createCVBtn') }}
                 </router-link>
                 <router-link to="/dashboard" class="btn btn-outline-light btn-lg px-4 fw-semibold hero-btn">
@@ -32,7 +45,7 @@
                 </router-link>
               </template>
               <template v-else>
-                <router-link to="/register" class="btn btn-light btn-lg px-4 fw-semibold shadow-sm hero-btn">
+                <router-link to="/register" class="btn btn-gold btn-lg px-4 fw-semibold shadow-sm hero-btn">
                   <i class="fas fa-rocket me-2"></i>{{ t('home.getStartedBtn') }}
                 </router-link>
                 <router-link to="/cv/guest" class="btn btn-outline-light btn-lg px-4 fw-semibold hero-btn">
@@ -41,51 +54,35 @@
               </template>
             </div>
             <div class="mt-4 d-flex align-items-center gap-4 hero-trust fade-in">
-              <div class="d-flex align-items-center">
-                <div class="d-flex">
-                  <div class="trust-avatar" style="background: #4fc3f7;">A</div>
-                  <div class="trust-avatar" style="background: #81c784; margin-left: -8px;">M</div>
-                  <div class="trust-avatar" style="background: #ffb74d; margin-left: -8px;">S</div>
+              <div class="d-flex align-items-center gap-3">
+                <div class="hero-stat-item">
+                  <i class="fas fa-graduation-cap me-1"></i> 14 {{ t('home.faculties') || 'كلية' }}
                 </div>
-                <span class="text-white-50 ms-2 small">{{ t('home.trustedBy') }}</span>
+                <div class="hero-stat-divider"></div>
+                <div class="hero-stat-item">
+                  <i class="fas fa-palette me-1"></i> 16 {{ t('home.statTemplates') || 'قالب' }}
+                </div>
+                <div class="hero-stat-divider"></div>
+                <div class="hero-stat-item">
+                  <i class="fas fa-robot me-1"></i> AI
+                </div>
               </div>
             </div>
           </div>
           <div class="col-lg-5 d-none d-lg-block">
             <div class="hero-visual fade-in-right">
-              <div class="cv-preview-card">
-                <div class="cv-preview-header">
-                  <div class="cv-dots">
-                    <span class="dot dot-red"></span>
-                    <span class="dot dot-yellow"></span>
-                    <span class="dot dot-green"></span>
-                  </div>
-                </div>
-                <div class="cv-preview-body">
-                  <div class="cv-line cv-line-title"></div>
-                  <div class="cv-line cv-line-subtitle"></div>
-                  <div class="cv-section-divider"></div>
-                  <div class="cv-line cv-line-heading"></div>
-                  <div class="cv-line cv-line-text"></div>
-                  <div class="cv-line cv-line-text short"></div>
-                  <div class="cv-section-divider"></div>
-                  <div class="cv-line cv-line-heading"></div>
-                  <div class="cv-line cv-line-text"></div>
-                  <div class="cv-line cv-line-text medium"></div>
-                  <div class="cv-line cv-line-text short"></div>
-                  <div class="cv-section-divider"></div>
-                  <div class="cv-skills-row">
-                    <span class="cv-skill-chip"></span>
-                    <span class="cv-skill-chip"></span>
-                    <span class="cv-skill-chip"></span>
-                  </div>
-                </div>
+              <!-- Large University Logo -->
+              <div class="hero-logo-showcase">
+                <img :src="brandingStore.logoUrl || '/logo.svg'" alt="University Logo" class="hero-logo-large" />
               </div>
               <div class="floating-badge floating-badge-ai">
                 <i class="fas fa-magic"></i> AI
               </div>
               <div class="floating-badge floating-badge-pdf">
                 <i class="fas fa-file-pdf"></i> PDF
+              </div>
+              <div class="floating-badge floating-badge-qr">
+                <i class="fas fa-qrcode"></i> QR
               </div>
             </div>
           </div>
@@ -156,15 +153,8 @@
         <div class="row g-3">
           <div class="col-6 col-sm-4 col-md-3 col-lg-2" v-for="tmpl in templates" :key="tmpl.name">
             <div class="template-card">
-              <div class="template-preview" :style="{ background: tmpl.color }">
-                <div class="template-lines">
-                  <div class="tl tl-header"></div>
-                  <div class="tl tl-sub"></div>
-                  <div class="tl-divider"></div>
-                  <div class="tl tl-text"></div>
-                  <div class="tl tl-text short"></div>
-                  <div class="tl tl-text"></div>
-                </div>
+              <div class="template-preview">
+                <img :src="getTemplatePreviewDataUrl(tmpl.name)" :alt="t(`templates.${tmpl.name}`)" loading="lazy" />
                 <div class="template-overlay">
                   <i class="fas fa-eye"></i>
                 </div>
@@ -251,8 +241,7 @@
         <div class="row g-4">
           <div class="col-lg-4 mb-3">
             <div class="d-flex align-items-center mb-3">
-              <img v-if="brandingStore.logoUrl" :src="brandingStore.logoUrl" alt="Logo" class="footer-logo me-2" />
-              <i v-else class="fas fa-file-alt fa-2x text-primary me-2"></i>
+              <img :src="brandingStore.logoUrl || '/logo.svg'" alt="Logo" class="footer-logo me-2" style="width: 40px; height: 40px;" />
               <h5 class="fw-bold mb-0">{{ brandingStore.systemName }}</h5>
             </div>
             <p class="text-muted small">{{ t('home.footerDesc') }}</p>
@@ -320,6 +309,7 @@
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '../stores/auth'
 import { useBrandingStore } from '../stores/branding'
+import { getTemplatePreviewDataUrl } from '../data/templatePreviews'
 import { onMounted } from 'vue'
 
 const { t } = useI18n()
@@ -420,12 +410,78 @@ onMounted(() => {
 <style scoped>
 /* ===== Hero Section ===== */
 .hero-section {
-  background: linear-gradient(135deg, #0a1628 0%, #0d3b66 30%, #0d6efd 70%, #4da3ff 100%);
+  background: linear-gradient(135deg, #0a1628 0%, #0d2e4d 25%, #1a5276 50%, #0d6efd 85%, #4da3ff 100%);
   position: relative;
   overflow: hidden;
   min-height: 85vh;
   display: flex;
   align-items: center;
+}
+
+.hero-university-logo {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.3));
+}
+
+.btn-gold {
+  background: linear-gradient(135deg, #c0982b, #d4aa3c);
+  color: #1a1a2e;
+  border: none;
+  font-weight: 700;
+}
+
+.btn-gold:hover {
+  background: linear-gradient(135deg, #d4aa3c, #e0bc4e);
+  color: #1a1a2e;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(192, 152, 43, 0.35);
+}
+
+.hero-stat-item {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.9rem;
+}
+
+.hero-stat-divider {
+  width: 1px;
+  height: 16px;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.hero-logo-showcase {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 30px;
+}
+
+.hero-logo-large {
+  width: 280px;
+  height: 280px;
+  object-fit: contain;
+  filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.4));
+  animation: logoFloat 6s ease-in-out infinite;
+}
+
+@keyframes logoFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-15px); }
+}
+
+.floating-badge-qr {
+  position: absolute;
+  bottom: 20%;
+  left: 5%;
+  background: linear-gradient(135deg, #00BCD4, #009688);
+  color: white;
+  padding: 8px 14px;
+  border-radius: 20px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  box-shadow: 0 8px 20px rgba(0, 188, 212, 0.3);
+  animation: floatBadge 4s ease-in-out infinite 2s;
 }
 
 .min-vh-75 {
@@ -795,48 +851,17 @@ onMounted(() => {
 }
 
 .template-preview {
-  height: 140px;
+  aspect-ratio: 160 / 220;
   position: relative;
-  padding: 16px;
-  display: flex;
-  align-items: flex-start;
   overflow: hidden;
+  background: #f8fafc;
 }
 
-.template-lines {
+.template-preview img {
   width: 100%;
-}
-
-.tl {
-  height: 5px;
-  border-radius: 3px;
-  background: rgba(255, 255, 255, 0.4);
-  margin-bottom: 5px;
-}
-
-.tl-header {
-  width: 55%;
-  height: 8px;
-  background: rgba(255, 255, 255, 0.7);
-}
-
-.tl-sub {
-  width: 35%;
-  background: rgba(255, 255, 255, 0.5);
-}
-
-.tl-divider {
-  height: 1px;
-  background: rgba(255, 255, 255, 0.2);
-  margin: 6px 0;
-}
-
-.tl-text {
-  width: 80%;
-}
-
-.tl-text.short {
-  width: 50%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
 }
 
 .template-overlay {
