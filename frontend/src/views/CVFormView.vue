@@ -48,15 +48,20 @@
             </div>
 
             <label class="form-label fw-semibold">{{ t('cv.chooseTemplate') }}</label>
-            <div class="row g-2">
-              <div class="col-4 col-md-3" v-for="tmpl in templates" :key="tmpl">
+            <div class="row g-3">
+              <div class="col-6 col-sm-4 col-md-3" v-for="tmpl in templates" :key="tmpl">
                 <div
-                  class="template-card text-center p-3"
+                  class="template-card"
                   :class="{ active: form.template === tmpl }"
                   @click="form.template = tmpl"
                 >
-                  <i class="fas fa-file-alt fa-2x mb-2"></i>
-                  <div class="small fw-medium">{{ t(`templates.${tmpl}`) }}</div>
+                  <div class="template-preview">
+                    <img :src="getTemplatePreviewDataUrl(tmpl)" :alt="t(`templates.${tmpl}`)" loading="lazy" />
+                    <div class="template-check" v-if="form.template === tmpl">
+                      <i class="fas fa-check"></i>
+                    </div>
+                  </div>
+                  <div class="template-name">{{ t(`templates.${tmpl}`) }}</div>
                 </div>
               </div>
             </div>
@@ -471,6 +476,7 @@ import { useI18n } from 'vue-i18n'
 import { useCVStore, getEmptyCVData } from '../stores/cv'
 import { cvAPI, aiAPI, publicAPI } from '../services/api'
 import { useToast } from '../composables/useToast'
+import { getTemplatePreviewDataUrl } from '../data/templatePreviews'
 
 const { t, locale } = useI18n()
 const route = useRoute()
@@ -685,18 +691,68 @@ async function handleSubmit() {
   border-radius: 12px;
   cursor: pointer;
   transition: all 0.2s;
-  color: #94a3b8;
+  overflow: hidden;
+  background: #ffffff;
 }
 
 .template-card:hover {
   border-color: #6366f1;
-  color: #6366f1;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(99, 102, 241, 0.12);
 }
 
 .template-card.active {
   border-color: #6366f1;
-  background: #f0f0ff;
+  box-shadow: 0 8px 20px rgba(99, 102, 241, 0.2);
+}
+
+.template-preview {
+  position: relative;
+  aspect-ratio: 160 / 220;
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+  overflow: hidden;
+}
+
+.template-preview img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+.template-check {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #6366f1;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.4);
+}
+
+.rtl .template-check {
+  right: auto;
+  left: 8px;
+}
+
+.template-name {
+  padding: 10px 8px;
+  text-align: center;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #334155;
+}
+
+.template-card.active .template-name {
   color: #6366f1;
+  background: #f0f0ff;
 }
 
 .choice-card {
