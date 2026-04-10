@@ -1,100 +1,119 @@
 <template>
-  <div class="profile-page">
-    <div class="container py-4">
-      <div class="row justify-content-center">
-        <div class="col-lg-9 col-xl-8">
-          <!-- Profile Header -->
-          <div class="profile-header card border-0 shadow-sm mb-4">
-            <div class="card-body p-4">
-              <div class="d-flex flex-column flex-sm-row align-items-center gap-3">
-                <div class="avatar-circle">
-                  <span class="avatar-initials">{{ userInitials }}</span>
-                </div>
-                <div class="text-center text-sm-start flex-grow-1">
-                  <h4 class="mb-1 fw-bold">{{ displayName }}</h4>
-                  <p class="text-muted mb-2">{{ authStore.user?.email }}</p>
-                  <div class="d-flex flex-wrap gap-2 justify-content-center justify-content-sm-start">
-                    <span class="badge role-badge">
-                      <i class="fas fa-user-tag me-1"></i>{{ authStore.user?.role }}
-                    </span>
-                    <span class="badge bg-info-subtle text-info-emphasis">
-                      <i class="fas fa-coins me-1"></i>{{ t('auth.aiCredits') }}: {{ authStore.user?.ai_credits || 0 }}
-                    </span>
-                    <span v-if="authStore.user?.created_at" class="badge bg-light text-muted">
-                      <i class="fas fa-calendar-alt me-1"></i>{{ t('auth.memberSince') }}: {{ formatDate(authStore.user.created_at) }}
-                    </span>
-                  </div>
-                </div>
-              </div>
+  <div class="prof-page">
+    <!-- Hero Header -->
+    <div class="prof-hero">
+      <div class="prof-hero-bg"></div>
+      <div class="container position-relative">
+        <div class="prof-hero-content">
+          <div class="prof-avatar">
+            <span class="prof-avatar-text">{{ userInitials }}</span>
+          </div>
+          <div class="prof-hero-info">
+            <h2 class="prof-hero-name">{{ displayName }}</h2>
+            <p class="prof-hero-email">{{ authStore.user?.email }}</p>
+            <div class="prof-hero-badges">
+              <span class="prof-role-badge">
+                <i class="fas fa-user-tag me-1"></i>{{ authStore.user?.role }}
+              </span>
+              <span v-if="authStore.user?.created_at" class="prof-date-badge">
+                <i class="fas fa-calendar-alt me-1"></i>{{ t('auth.memberSince') }}: {{ formatDate(authStore.user.created_at) }}
+              </span>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
 
-          <!-- Alerts -->
-          <transition name="fade">
-            <div v-if="success" class="alert alert-success d-flex align-items-center border-0 shadow-sm mb-4" role="alert">
-              <i class="fas fa-check-circle me-2 flex-shrink-0"></i>
-              <div>{{ success }}</div>
-              <button type="button" class="btn-close ms-auto" @click="success = ''"></button>
+    <!-- Stats Bar -->
+    <div class="prof-stats-bar">
+      <div class="container">
+        <div class="prof-stats-grid">
+          <div class="prof-stat">
+            <div class="prof-stat-icon">
+              <i class="fas fa-coins"></i>
             </div>
-          </transition>
-          <transition name="fade">
-            <div v-if="error" class="alert alert-danger d-flex align-items-center border-0 shadow-sm mb-4" role="alert">
-              <i class="fas fa-exclamation-circle me-2 flex-shrink-0"></i>
-              <div>{{ error }}</div>
-              <button type="button" class="btn-close ms-auto" @click="error = ''"></button>
+            <div class="prof-stat-info">
+              <span class="prof-stat-value">{{ authStore.user?.ai_credits || 0 }}</span>
+              <span class="prof-stat-label">{{ t('auth.aiCredits') }}</span>
             </div>
-          </transition>
+          </div>
+          <div class="prof-stat">
+            <div class="prof-stat-icon">
+              <i class="fas fa-file-alt"></i>
+            </div>
+            <div class="prof-stat-info">
+              <span class="prof-stat-value">{{ authStore.user?.cvs_count || 0 }}</span>
+              <span class="prof-stat-label">{{ locale === 'ar' ? 'السير الذاتية' : 'CVs Created' }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
+    <div class="container prof-body">
+      <!-- Alerts -->
+      <transition name="fade">
+        <div v-if="success" class="alert alert-success d-flex align-items-center border-0 prof-alert" role="alert">
+          <i class="fas fa-check-circle me-2 flex-shrink-0"></i>
+          <div>{{ success }}</div>
+          <button type="button" class="btn-close ms-auto" @click="success = ''"></button>
+        </div>
+      </transition>
+      <transition name="fade">
+        <div v-if="error" class="alert alert-danger d-flex align-items-center border-0 prof-alert" role="alert">
+          <i class="fas fa-exclamation-circle me-2 flex-shrink-0"></i>
+          <div>{{ error }}</div>
+          <button type="button" class="btn-close ms-auto" @click="error = ''"></button>
+        </div>
+      </transition>
+
+      <div class="row g-4 justify-content-center">
+        <div class="col-lg-9 col-xl-8">
           <!-- Personal Information Card -->
-          <div class="card border-0 shadow-sm mb-4">
-            <div class="card-header bg-white border-bottom py-3">
-              <h5 class="mb-0 fw-semibold">
-                <i class="fas fa-user-edit text-primary me-2"></i>{{ t('auth.personalInformation') }}
-              </h5>
+          <div class="prof-card">
+            <div class="prof-card-header">
+              <div class="prof-card-icon prof-card-icon-blue">
+                <i class="fas fa-user-edit"></i>
+              </div>
+              <h5 class="prof-card-title">{{ t('auth.personalInformation') }}</h5>
             </div>
-            <div class="card-body p-4">
+            <div class="prof-card-body">
               <form @submit.prevent="updateProfile">
                 <div class="row g-3">
                   <div class="col-md-6">
-                    <label class="form-label fw-medium">{{ t('auth.fullNameAr') }}</label>
-                    <div class="input-group">
-                      <span class="input-group-text bg-light border-end-0">
-                        <i class="fas fa-user text-muted"></i>
-                      </span>
-                      <input type="text" class="form-control border-start-0 ps-0" v-model="form.full_name_ar" />
+                    <label class="prof-label">{{ t('auth.fullNameAr') }}</label>
+                    <div class="prof-input-wrap">
+                      <i class="fas fa-user prof-input-icon"></i>
+                      <input type="text" class="form-control prof-input" v-model="form.full_name_ar" />
                     </div>
                   </div>
                   <div class="col-md-6">
-                    <label class="form-label fw-medium">{{ t('auth.fullNameEn') }}</label>
-                    <div class="input-group">
-                      <span class="input-group-text bg-light border-end-0">
-                        <i class="fas fa-user text-muted"></i>
-                      </span>
-                      <input type="text" class="form-control border-start-0 ps-0" v-model="form.full_name_en" />
+                    <label class="prof-label">{{ t('auth.fullNameEn') }}</label>
+                    <div class="prof-input-wrap">
+                      <i class="fas fa-user prof-input-icon"></i>
+                      <input type="text" class="form-control prof-input" v-model="form.full_name_en" />
                     </div>
                   </div>
                   <div class="col-md-6">
-                    <label class="form-label fw-medium">{{ t('auth.email') }}</label>
-                    <div class="input-group">
-                      <span class="input-group-text bg-light border-end-0">
-                        <i class="fas fa-envelope text-muted"></i>
-                      </span>
-                      <input type="email" class="form-control border-start-0 ps-0 bg-light" :value="authStore.user?.email" disabled />
+                    <label class="prof-label">{{ t('auth.email') }}</label>
+                    <div class="prof-input-wrap">
+                      <i class="fas fa-envelope prof-input-icon"></i>
+                      <input type="email" class="form-control prof-input prof-input-disabled" :value="authStore.user?.email" disabled />
                     </div>
-                    <small class="text-muted"><i class="fas fa-info-circle me-1"></i>{{ locale === 'ar' ? 'لا يمكن تغيير البريد الإلكتروني' : 'Email cannot be changed' }}</small>
+                    <small class="prof-hint">
+                      <i class="fas fa-info-circle me-1"></i>{{ locale === 'ar' ? 'لا يمكن تغيير البريد الإلكتروني' : 'Email cannot be changed' }}
+                    </small>
                   </div>
                   <div class="col-md-6">
-                    <label class="form-label fw-medium">{{ t('auth.phone') }}</label>
-                    <div class="input-group">
-                      <span class="input-group-text bg-light border-end-0">
-                        <i class="fas fa-phone text-muted"></i>
-                      </span>
-                      <input type="tel" class="form-control border-start-0 ps-0" v-model="form.phone" dir="ltr" />
+                    <label class="prof-label">{{ t('auth.phone') }}</label>
+                    <div class="prof-input-wrap">
+                      <i class="fas fa-phone prof-input-icon"></i>
+                      <input type="tel" class="form-control prof-input" v-model="form.phone" dir="ltr" />
                     </div>
                   </div>
                 </div>
                 <div class="mt-4">
-                  <button type="submit" class="btn btn-primary px-4" :disabled="savingProfile">
+                  <button type="submit" class="btn prof-save-btn" :disabled="savingProfile">
                     <span v-if="savingProfile" class="spinner-border spinner-border-sm me-2" role="status"></span>
                     <i v-else class="fas fa-save me-2"></i>
                     {{ savingProfile ? t('auth.saving') : t('app.save') }}
@@ -105,74 +124,69 @@
           </div>
 
           <!-- Security Settings Card -->
-          <div class="card border-0 shadow-sm mb-4">
-            <div class="card-header bg-white border-bottom py-3">
-              <h5 class="mb-0 fw-semibold">
-                <i class="fas fa-shield-alt text-warning me-2"></i>{{ t('auth.securitySettings') }}
-              </h5>
+          <div class="prof-card">
+            <div class="prof-card-header">
+              <div class="prof-card-icon prof-card-icon-gold">
+                <i class="fas fa-shield-alt"></i>
+              </div>
+              <h5 class="prof-card-title">{{ t('auth.securitySettings') }}</h5>
             </div>
-            <div class="card-body p-4">
+            <div class="prof-card-body">
               <form @submit.prevent="changePassword">
                 <div class="row g-3">
                   <div class="col-md-4">
-                    <label class="form-label fw-medium">{{ t('auth.currentPassword') }}</label>
-                    <div class="input-group">
-                      <span class="input-group-text bg-light border-end-0">
-                        <i class="fas fa-lock text-muted"></i>
-                      </span>
+                    <label class="prof-label">{{ t('auth.currentPassword') }}</label>
+                    <div class="prof-input-wrap">
+                      <i class="fas fa-lock prof-input-icon"></i>
                       <input
                         :type="showCurrentPw ? 'text' : 'password'"
-                        class="form-control border-start-0 border-end-0 ps-0"
+                        class="form-control prof-input prof-input-pw"
                         v-model="pwForm.current_password"
                         required
                       />
-                      <button type="button" class="input-group-text bg-light border-start-0 toggle-password" @click="showCurrentPw = !showCurrentPw">
-                        <i class="fas" :class="showCurrentPw ? 'fa-eye-slash' : 'fa-eye'" style="width: 16px;"></i>
+                      <button type="button" class="prof-toggle-pw" @click="showCurrentPw = !showCurrentPw">
+                        <i class="fas" :class="showCurrentPw ? 'fa-eye-slash' : 'fa-eye'"></i>
                       </button>
                     </div>
                   </div>
                   <div class="col-md-4">
-                    <label class="form-label fw-medium">{{ t('auth.newPassword') }}</label>
-                    <div class="input-group">
-                      <span class="input-group-text bg-light border-end-0">
-                        <i class="fas fa-key text-muted"></i>
-                      </span>
+                    <label class="prof-label">{{ t('auth.newPassword') }}</label>
+                    <div class="prof-input-wrap">
+                      <i class="fas fa-key prof-input-icon"></i>
                       <input
                         :type="showNewPw ? 'text' : 'password'"
-                        class="form-control border-start-0 border-end-0 ps-0"
+                        class="form-control prof-input prof-input-pw"
                         v-model="pwForm.new_password"
                         required
                         minlength="6"
                       />
-                      <button type="button" class="input-group-text bg-light border-start-0 toggle-password" @click="showNewPw = !showNewPw">
-                        <i class="fas" :class="showNewPw ? 'fa-eye-slash' : 'fa-eye'" style="width: 16px;"></i>
+                      <button type="button" class="prof-toggle-pw" @click="showNewPw = !showNewPw">
+                        <i class="fas" :class="showNewPw ? 'fa-eye-slash' : 'fa-eye'"></i>
                       </button>
                     </div>
                   </div>
                   <div class="col-md-4">
-                    <label class="form-label fw-medium">{{ t('auth.confirmPassword') }}</label>
-                    <div class="input-group">
-                      <span class="input-group-text bg-light border-end-0">
-                        <i class="fas fa-key text-muted"></i>
-                      </span>
+                    <label class="prof-label">{{ t('auth.confirmPassword') }}</label>
+                    <div class="prof-input-wrap">
+                      <i class="fas fa-key prof-input-icon"></i>
                       <input
                         :type="showConfirmPw ? 'text' : 'password'"
-                        class="form-control border-start-0 border-end-0 ps-0"
+                        class="form-control prof-input prof-input-pw"
                         :class="pwConfirmClass"
                         v-model="pwForm.confirm_password"
                         required
                       />
-                      <button type="button" class="input-group-text bg-light border-start-0 toggle-password" @click="showConfirmPw = !showConfirmPw">
-                        <i class="fas" :class="showConfirmPw ? 'fa-eye-slash' : 'fa-eye'" style="width: 16px;"></i>
+                      <button type="button" class="prof-toggle-pw" @click="showConfirmPw = !showConfirmPw">
+                        <i class="fas" :class="showConfirmPw ? 'fa-eye-slash' : 'fa-eye'"></i>
                       </button>
                     </div>
-                    <small v-if="pwForm.confirm_password && pwForm.new_password !== pwForm.confirm_password" class="text-danger">
+                    <small v-if="pwForm.confirm_password && pwForm.new_password !== pwForm.confirm_password" class="text-danger" style="font-size: 0.8rem;">
                       <i class="fas fa-times-circle me-1"></i>{{ t('auth.passwordMismatch') }}
                     </small>
                   </div>
                 </div>
                 <div class="mt-4">
-                  <button type="submit" class="btn btn-warning px-4" :disabled="savingPassword">
+                  <button type="submit" class="btn prof-pw-btn" :disabled="savingPassword">
                     <span v-if="savingPassword" class="spinner-border spinner-border-sm me-2" role="status"></span>
                     <i v-else class="fas fa-sync-alt me-2"></i>
                     {{ savingPassword ? t('auth.saving') : t('auth.changePassword') }}
@@ -285,80 +299,360 @@ async function changePassword() {
 </script>
 
 <style scoped>
-.profile-page {
+/* ── Page ── */
+.prof-page {
   min-height: 100vh;
-  background: #f4f6f9;
+  background: #f0f2f5;
 }
 
-.profile-header {
-  border-radius: 16px;
+/* ── Hero ── */
+.prof-hero {
+  position: relative;
+  padding: 3rem 0 4rem;
   overflow: hidden;
 }
 
-.profile-header .card-body {
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+.prof-hero-bg {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, #1a5276 0%, #0d6efd 100%);
 }
 
-.avatar-circle {
-  width: 80px;
-  height: 80px;
+.prof-hero-bg::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 60px;
+  background: #f0f2f5;
+  clip-path: ellipse(55% 100% at 50% 100%);
+}
+
+.prof-hero-content {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  position: relative;
+  z-index: 1;
+}
+
+.prof-avatar {
+  width: 96px;
+  height: 96px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #2d5196, #3b82c4);
+  background: linear-gradient(135deg, #c0982b, #d4a933);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  box-shadow: 0 4px 14px rgba(45, 81, 150, 0.3);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  border: 4px solid rgba(255, 255, 255, 0.3);
 }
 
-.avatar-initials {
+.prof-avatar-text {
   color: #fff;
-  font-size: 1.75rem;
-  font-weight: 700;
+  font-size: 2rem;
+  font-weight: 800;
   letter-spacing: 1px;
 }
 
-.role-badge {
-  background: linear-gradient(135deg, #2d5196, #3b82c4);
+.prof-hero-info {
+  flex: 1;
+}
+
+.prof-hero-name {
   color: #fff;
+  font-size: 1.75rem;
+  font-weight: 800;
+  margin-bottom: 0.15rem;
+}
+
+.prof-hero-email {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.95rem;
+  margin-bottom: 0.75rem;
+}
+
+.prof-hero-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.prof-role-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: 20px;
+  background: rgba(192, 152, 43, 0.25);
+  color: #f0d78c;
+  font-size: 0.8rem;
+  font-weight: 600;
   text-transform: capitalize;
 }
 
-.card {
+.prof-date-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.8rem;
+}
+
+/* ── Stats Bar ── */
+.prof-stats-bar {
+  margin-top: -2rem;
+  position: relative;
+  z-index: 2;
+  padding: 0 1rem;
+}
+
+.prof-stats-grid {
+  display: flex;
+  gap: 1.5rem;
+  justify-content: center;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.prof-stat {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #fff;
+  padding: 1rem 1.25rem;
+  border-radius: 14px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e9ecef;
+}
+
+.prof-stat-icon {
+  width: 44px;
+  height: 44px;
   border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.prof-stat:first-child .prof-stat-icon {
+  background: rgba(192, 152, 43, 0.12);
+  color: #c0982b;
+}
+
+.prof-stat:last-child .prof-stat-icon {
+  background: rgba(26, 82, 118, 0.1);
+  color: #1a5276;
+}
+
+.prof-stat-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.prof-stat-value {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: #2c3e50;
+  line-height: 1.2;
+}
+
+.prof-stat-label {
+  font-size: 0.75rem;
+  color: #6c757d;
+  font-weight: 500;
+}
+
+/* ── Body ── */
+.prof-body {
+  padding-top: 2rem;
+  padding-bottom: 3rem;
+}
+
+.prof-alert {
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+}
+
+/* ── Cards ── */
+.prof-card {
+  background: #fff;
+  border-radius: 16px;
+  border: 1px solid #e9ecef;
   overflow: hidden;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 1px 8px rgba(0, 0, 0, 0.04);
 }
 
-.card-header {
-  border-radius: 12px 12px 0 0 !important;
+.prof-card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid #f0f0f0;
 }
 
-.input-group-text {
-  border-color: #dee2e6;
+.prof-card-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.95rem;
+  flex-shrink: 0;
 }
 
-.form-control {
-  border-color: #dee2e6;
+.prof-card-icon-blue {
+  background: rgba(26, 82, 118, 0.1);
+  color: #1a5276;
 }
 
-.form-control:focus {
-  box-shadow: none;
-  border-color: #86b7fe;
+.prof-card-icon-gold {
+  background: rgba(192, 152, 43, 0.12);
+  color: #c0982b;
 }
 
-.input-group:focus-within .input-group-text {
-  border-color: #86b7fe;
+.prof-card-title {
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: #2c3e50;
+  margin: 0;
 }
 
-.toggle-password {
+.prof-card-body {
+  padding: 1.5rem;
+}
+
+/* ── Inputs ── */
+.prof-label {
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: #2c3e50;
+  margin-bottom: 0.35rem;
+  display: block;
+}
+
+.prof-input-wrap {
+  position: relative;
+}
+
+.prof-input-icon {
+  position: absolute;
+  top: 50%;
+  inset-inline-start: 14px;
+  transform: translateY(-50%);
+  color: #9ca3af;
+  font-size: 0.9rem;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.prof-input {
+  height: 46px;
+  padding-inline-start: 42px;
+  padding-inline-end: 14px;
+  border: 2px solid #e5e7eb;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  background: #f9fafb;
+  transition: border-color 0.2s, background-color 0.2s, box-shadow 0.2s;
+}
+
+.prof-input-pw {
+  padding-inline-end: 42px;
+}
+
+.prof-input-disabled {
+  background: #f3f4f6;
+  color: #6c757d;
+  cursor: not-allowed;
+}
+
+.prof-input:focus {
+  border-color: #1a5276;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(26, 82, 118, 0.1);
+  outline: none;
+}
+
+.prof-hint {
+  font-size: 0.78rem;
+  color: #9ca3af;
+  margin-top: 4px;
+  display: block;
+}
+
+.prof-toggle-pw {
+  position: absolute;
+  top: 50%;
+  inset-inline-end: 12px;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #9ca3af;
   cursor: pointer;
+  padding: 4px;
+  z-index: 2;
   transition: color 0.15s;
 }
 
-.toggle-password:hover {
-  color: #0d6efd;
+.prof-toggle-pw:hover {
+  color: #1a5276;
 }
 
+/* ── Buttons ── */
+.prof-save-btn {
+  background: linear-gradient(135deg, #1a5276, #0d6efd);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 28px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: transform 0.15s, box-shadow 0.2s;
+}
+
+.prof-save-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(26, 82, 118, 0.3);
+  color: #fff;
+}
+
+.prof-save-btn:disabled {
+  opacity: 0.6;
+  color: #fff;
+}
+
+.prof-pw-btn {
+  background: linear-gradient(135deg, #c0982b, #d4a933);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 28px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: transform 0.15s, box-shadow 0.2s;
+}
+
+.prof-pw-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(192, 152, 43, 0.3);
+  color: #fff;
+}
+
+.prof-pw-btn:disabled {
+  opacity: 0.6;
+  color: #fff;
+}
+
+/* ── Transitions ── */
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.3s ease;
@@ -369,14 +663,43 @@ async function changePassword() {
   opacity: 0;
 }
 
-@media (max-width: 576px) {
-  .avatar-circle {
-    width: 64px;
-    height: 64px;
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .prof-hero {
+    padding: 2rem 0 3rem;
   }
 
-  .avatar-initials {
-    font-size: 1.25rem;
+  .prof-hero-content {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .prof-hero-badges {
+    justify-content: center;
+  }
+
+  .prof-avatar {
+    width: 80px;
+    height: 80px;
+  }
+
+  .prof-avatar-text {
+    font-size: 1.5rem;
+  }
+
+  .prof-hero-name {
+    font-size: 1.35rem;
+  }
+
+  .prof-stats-grid {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .prof-card-body {
+    padding: 1rem;
   }
 }
 </style>

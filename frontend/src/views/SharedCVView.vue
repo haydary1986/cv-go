@@ -1,62 +1,62 @@
 <template>
   <div class="shared-cv-page">
-    <!-- Top Navbar -->
-    <nav class="navbar navbar-expand navbar-light bg-white shadow-sm sticky-top">
-      <div class="container-fluid px-3 px-md-4">
-        <router-link to="/" class="navbar-brand d-flex align-items-center gap-2 fw-bold">
+    <!-- Top Bar -->
+    <nav class="shared-topbar sticky-top">
+      <div class="container-fluid px-3 px-md-4 d-flex align-items-center justify-content-between">
+        <router-link to="/" class="topbar-brand d-flex align-items-center gap-2 text-decoration-none">
           <template v-if="brandingStore.logoUrl">
-            <img :src="brandingStore.logoUrl" alt="Logo" class="nav-brand-logo" />
+            <img :src="brandingStore.logoUrl" alt="Logo" class="topbar-logo" />
           </template>
-          <div v-else class="nav-brand-icon">
-            <i class="fas fa-file-alt"></i>
+          <div v-else class="topbar-logo-fallback">
+            <i class="fas fa-university"></i>
           </div>
-          <span class="brand-text">{{ brandingStore.systemName }}</span>
+          <span class="topbar-name">{{ brandingStore.systemName }}</span>
         </router-link>
+
         <div class="d-flex align-items-center gap-2">
-          <button @click="printCV" class="btn btn-outline-secondary btn-sm d-none d-sm-inline-flex align-items-center" :disabled="!cv">
+          <span class="shared-badge d-none d-sm-inline-flex">
+            <i class="fas fa-share-alt me-1"></i>
+            {{ t('shared.sharedCV') || 'Shared CV' }}
+          </span>
+          <button @click="printCV" class="btn-pill btn-pill--outline d-none d-sm-inline-flex" :disabled="!cv">
             <i class="fas fa-print me-1"></i>
             {{ t('shared.printCV') }}
           </button>
-          <button @click="exportPDF" class="btn btn-outline-danger btn-sm d-inline-flex align-items-center" :disabled="exporting || !cv">
+          <button @click="exportPDF" class="btn-pill btn-pill--accent d-inline-flex" :disabled="exporting || !cv">
             <span v-if="exporting" class="spinner-border spinner-border-sm me-1"></span>
             <i v-else class="fas fa-file-pdf me-1"></i>
             {{ t('shared.downloadPDF') }}
           </button>
-          <router-link to="/dashboard" class="btn btn-primary btn-sm d-inline-flex align-items-center">
-            <i class="fas fa-plus me-1"></i>
-            <span class="d-none d-sm-inline">{{ t('shared.createYourCV') }}</span>
-            <span class="d-sm-none">{{ t('app.createCV') }}</span>
-          </router-link>
         </div>
       </div>
     </nav>
 
-    <div class="container-fluid py-4 px-3 px-md-4">
+    <div class="container-fluid py-4 px-3 px-md-5">
       <!-- Loading State -->
-      <div v-if="loading" class="loading-state text-center py-5">
-        <div class="loading-spinner mb-4">
-          <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+      <div v-if="loading" class="shared-loading text-center">
+        <div class="loading-ring mb-4">
+          <div class="spinner-border" role="status">
             <span class="visually-hidden">Loading...</span>
           </div>
         </div>
-        <h5 class="text-muted fw-normal mb-2">{{ t('shared.loadingCV') }}</h5>
+        <h5 class="fw-normal mb-2">{{ t('shared.loadingCV') }}</h5>
         <p class="text-muted small">{{ t('shared.loadingDesc') }}</p>
       </div>
 
       <!-- Error State -->
-      <div v-else-if="error" class="error-state text-center py-5">
+      <div v-else-if="error" class="shared-error text-center">
         <div class="error-icon-wrapper mb-4">
           <div class="error-icon-circle">
             <i class="fas fa-exclamation-triangle"></i>
           </div>
         </div>
-        <h4 class="fw-semibold mb-2">{{ t('shared.cvNotFound') }}</h4>
+        <h4 class="fw-bold mb-2" style="color: var(--uni-primary);">{{ t('shared.cvNotFound') }}</h4>
         <p class="text-muted mb-4 mx-auto" style="max-width: 400px;">{{ t('shared.cvNotFoundDesc') }}</p>
         <div class="d-flex gap-2 justify-content-center">
-          <router-link to="/" class="btn btn-outline-secondary">
+          <router-link to="/" class="btn-pill btn-pill--outline">
             <i class="fas fa-home me-2"></i>{{ t('shared.goHome') }}
           </router-link>
-          <router-link to="/dashboard" class="btn btn-primary">
+          <router-link to="/dashboard" class="btn-pill btn-pill--primary">
             <i class="fas fa-plus me-2"></i>{{ t('shared.createYourCV') }}
           </router-link>
         </div>
@@ -64,21 +64,32 @@
 
       <!-- CV Content -->
       <div v-else-if="cv">
-        <div class="text-center mb-3">
-          <h5 class="text-muted fw-normal">
-            <i class="fas fa-file-alt me-2 text-primary"></i>{{ cv.title || t('shared.untitledCV') }}
+        <div class="text-center mb-4">
+          <h5 class="cv-title-label">
+            <i class="fas fa-file-alt me-2"></i>{{ cv.title || t('shared.untitledCV') }}
           </h5>
         </div>
-        <div class="cv-preview-container bg-white shadow mx-auto" ref="cvContainer">
-          <CVTemplates :data="cv.data" :template="cv.template" :language="cv.language" />
+        <div class="cv-frame mx-auto">
+          <div class="cv-preview-container" ref="cvContainer">
+            <CVTemplates :data="cv.data" :template="cv.template" :language="cv.language" />
+          </div>
         </div>
       </div>
     </div>
 
+    <!-- CTA Banner -->
+    <div v-if="cv && !loading" class="cta-banner text-center">
+      <p class="mb-2 fw-semibold">{{ t('shared.createYourCV') }}</p>
+      <router-link to="/dashboard" class="btn-pill btn-pill--primary">
+        <i class="fas fa-plus me-1"></i>
+        {{ t('shared.createYourCV') }}
+      </router-link>
+    </div>
+
     <!-- Footer -->
-    <footer class="shared-footer text-center py-3" v-if="!loading">
-      <small class="text-muted">
-        <i class="fas fa-file-alt me-1"></i>{{ t('shared.poweredBy') }}
+    <footer class="shared-footer text-center" v-if="!loading">
+      <small>
+        <i class="fas fa-university me-1"></i>{{ t('shared.poweredBy') }}
       </small>
     </footer>
   </div>
@@ -155,57 +166,182 @@ async function exportPDF() {
 </script>
 
 <style scoped>
+:root {
+  --uni-primary: #1a5276;
+  --uni-accent: #c0982b;
+  --uni-secondary: #2c3e50;
+}
+
 .shared-cv-page {
+  --uni-primary: #1a5276;
+  --uni-accent: #c0982b;
+  --uni-secondary: #2c3e50;
   min-height: 100vh;
-  background: #f0f2f5;
+  background: linear-gradient(135deg, #f0f2f5 0%, #e8ecf1 100%);
   display: flex;
   flex-direction: column;
 }
 
-.nav-brand-icon {
-  width: 36px;
-  height: 36px;
+/* Top Bar */
+.shared-topbar {
+  background: var(--uni-primary);
+  padding: 0.65rem 0;
+  box-shadow: 0 2px 12px rgba(26, 82, 118, 0.18);
+  z-index: 1030;
+}
+
+.topbar-brand {
+  color: #fff;
+}
+
+.topbar-logo {
+  height: 34px;
+  width: auto;
+  object-fit: contain;
+  filter: brightness(0) invert(1);
+}
+
+.topbar-logo-fallback {
+  width: 38px;
+  height: 38px;
   border-radius: 10px;
-  background: linear-gradient(135deg, #2d5196, #3b82c4);
+  background: rgba(255, 255, 255, 0.15);
   display: flex;
   align-items: center;
   justify-content: center;
+  color: var(--uni-accent);
+  font-size: 18px;
+}
+
+.topbar-name {
+  font-size: 1.05rem;
+  font-weight: 700;
   color: #fff;
-  font-size: 16px;
+  letter-spacing: 0.01em;
 }
 
-.nav-brand-logo {
-  height: 32px;
-  width: auto;
-  object-fit: contain;
+/* Shared Badge */
+.shared-badge {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.15);
+  color: var(--uni-accent);
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.3rem 0.75rem;
+  border-radius: 999px;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
 }
 
-.brand-text {
-  font-size: 1.1rem;
-  color: #1a1c4e;
+/* Pill Buttons */
+.btn-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.4rem 1.1rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  white-space: nowrap;
 }
 
-.loading-state {
+.btn-pill--outline {
+  background: transparent;
+  border: 1.5px solid rgba(255, 255, 255, 0.4);
+  color: #fff;
+}
+
+.btn-pill--outline:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.7);
+  color: #fff;
+}
+
+.btn-pill--accent {
+  background: var(--uni-accent);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(192, 152, 43, 0.3);
+}
+
+.btn-pill--accent:hover {
+  background: #d4a82f;
+  box-shadow: 0 4px 14px rgba(192, 152, 43, 0.4);
+  color: #fff;
+}
+
+.btn-pill--primary {
+  background: var(--uni-primary);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(26, 82, 118, 0.25);
+}
+
+.btn-pill--primary:hover {
+  background: #1e6291;
+  box-shadow: 0 4px 14px rgba(26, 82, 118, 0.35);
+  color: #fff;
+}
+
+.btn-pill:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Loading State */
+.shared-loading {
   max-width: 400px;
   margin: 0 auto;
-  padding-top: 10vh !important;
+  padding-top: 12vh;
 }
 
-.error-state {
-  padding-top: 10vh !important;
+.loading-ring .spinner-border {
+  width: 3rem;
+  height: 3rem;
+  color: var(--uni-accent);
+  border-width: 3px;
+}
+
+/* Error State */
+.shared-error {
+  padding-top: 12vh;
 }
 
 .error-icon-circle {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 80px;
-  height: 80px;
+  width: 90px;
+  height: 90px;
   border-radius: 50%;
-  background: #fff3cd;
-  color: #856d00;
-  font-size: 2rem;
-  box-shadow: 0 4px 14px rgba(133, 109, 0, 0.15);
+  background: linear-gradient(135deg, #fff8e1, #fff3cd);
+  color: var(--uni-accent);
+  font-size: 2.2rem;
+  box-shadow: 0 6px 20px rgba(192, 152, 43, 0.15);
+}
+
+/* CV Title */
+.cv-title-label {
+  color: var(--uni-secondary);
+  font-weight: 500;
+}
+
+.cv-title-label i {
+  color: var(--uni-accent);
+}
+
+/* CV Frame */
+.cv-frame {
+  max-width: 220mm;
+  background: #fff;
+  border-radius: 8px;
+  padding: 8px;
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.06),
+    0 8px 30px rgba(26, 82, 118, 0.08);
+  border: 1px solid rgba(26, 82, 118, 0.08);
 }
 
 .cv-preview-container {
@@ -215,21 +351,60 @@ async function exportPDF() {
   overflow: hidden;
 }
 
+/* CTA Banner */
+.cta-banner {
+  background: linear-gradient(135deg, var(--uni-primary), var(--uni-secondary));
+  color: #fff;
+  padding: 1.5rem 1rem;
+  margin-top: 2rem;
+}
+
+.cta-banner p {
+  font-size: 1rem;
+  opacity: 0.9;
+}
+
+.cta-banner .btn-pill--primary {
+  background: var(--uni-accent);
+  box-shadow: 0 2px 10px rgba(192, 152, 43, 0.3);
+}
+
+.cta-banner .btn-pill--primary:hover {
+  background: #d4a82f;
+}
+
+/* Footer */
 .shared-footer {
   margin-top: auto;
-  background: #fff;
-  border-top: 1px solid #e9ecef;
+  background: var(--uni-primary);
+  color: rgba(255, 255, 255, 0.7);
+  padding: 0.85rem 0;
+  border-top: 3px solid var(--uni-accent);
+}
+
+.shared-footer small {
+  color: rgba(255, 255, 255, 0.7);
 }
 
 /* Print styles */
 @media print {
-  .navbar,
-  .shared-footer {
+  .shared-topbar,
+  .shared-footer,
+  .cta-banner,
+  .shared-badge,
+  .btn-pill {
     display: none !important;
   }
 
   .shared-cv-page {
     background: #fff;
+  }
+
+  .cv-frame {
+    box-shadow: none !important;
+    border: none !important;
+    padding: 0 !important;
+    max-width: 100% !important;
   }
 
   .cv-preview-container {
@@ -244,8 +419,13 @@ async function exportPDF() {
 }
 
 @media (max-width: 576px) {
-  .brand-text {
+  .topbar-name {
     display: none;
+  }
+
+  .btn-pill {
+    padding: 0.35rem 0.8rem;
+    font-size: 0.8rem;
   }
 }
 </style>
