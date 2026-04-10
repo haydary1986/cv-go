@@ -1,7 +1,7 @@
 <template>
-  <div class="container py-5 text-center">
-    <div class="spinner-border text-primary mb-3"></div>
-    <p>{{ t('app.loading') }}</p>
+  <div class="auth-callback">
+    <div class="auth-callback-spinner"></div>
+    <p class="auth-callback-text">{{ t('app.loading') }}</p>
   </div>
 </template>
 
@@ -38,3 +38,36 @@ onMounted(async () => {
   }
 })
 </script>
+
+<style scoped>
+.auth-callback {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff;
+  gap: 16px;
+}
+
+.auth-callback-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #e8e8e8;
+  border-top-color: #1a5276;
+  border-radius: 50%;
+  animation: authSpin 0.8s linear infinite;
+}
+
+@keyframes authSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.auth-callback-text {
+  color: #6a6a6a;
+  font-size: 0.95rem;
+  margin: 0;
+}
+</style>

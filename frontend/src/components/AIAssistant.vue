@@ -18,7 +18,7 @@
         <div class="ai-loading-dots">
           <span></span><span></span><span></span>
         </div>
-        <small class="text-muted mt-2 d-block">{{ locale === 'ar' ? 'جاري التحسين...' : 'Improving...' }}</small>
+        <small class="cell-muted mt-2 d-block">{{ locale === 'ar' ? 'جاري التحسين...' : 'Improving...' }}</small>
       </div>
 
       <!-- Suggestion Card -->
@@ -122,8 +122,6 @@ defineExpose({ show })
 
 <style scoped>
 .ai-panel {
-  --uni-primary: #1a5276;
-  --uni-accent: #c0982b;
   position: absolute;
   z-index: 1050;
   width: 370px;
@@ -131,30 +129,29 @@ defineExpose({ show })
   right: 0;
   top: 100%;
   margin-top: 6px;
-  border-radius: 16px;
+  border-radius: 12px;
   overflow: hidden;
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(26, 82, 118, 0.1);
-  box-shadow: 0 8px 32px rgba(26, 82, 118, 0.15), 0 2px 8px rgba(0, 0, 0, 0.06);
+  background: #ffffff;
+  border: none;
+  box-shadow: rgba(0,0,0,0.02) 0px 0px 0px 1px, rgba(0,0,0,0.04) 0px 2px 6px, rgba(0,0,0,0.1) 0px 4px 8px;
 }
 
 .ai-panel-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.7rem 1rem;
-  background: linear-gradient(135deg, var(--uni-primary), #1e6291);
-  color: #fff;
+  padding: 14px 16px;
+  border-bottom: 1px solid #ebebeb;
+  background: #ffffff;
 }
 
 .ai-panel-title {
-  font-size: 0.85rem;
-  font-weight: 700;
+  font-size: 14px;
+  font-weight: 600;
+  color: #222222;
   display: flex;
   align-items: center;
-  gap: 0.35rem;
+  gap: 6px;
 }
 
 .ai-sparkle {
@@ -168,11 +165,11 @@ defineExpose({ show })
 }
 
 .ai-panel-close {
-  background: rgba(255, 255, 255, 0.2);
+  background: #f7f7f7;
   border: none;
-  color: #fff;
-  width: 26px;
-  height: 26px;
+  color: #222222;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -183,11 +180,15 @@ defineExpose({ show })
 }
 
 .ai-panel-close:hover {
-  background: rgba(255, 255, 255, 0.35);
+  background: #ebebeb;
 }
 
 .ai-panel-body {
-  padding: 1rem;
+  padding: 16px;
+}
+
+.cell-muted {
+  color: #6a6a6a;
 }
 
 /* Loading dots */
@@ -200,7 +201,7 @@ defineExpose({ show })
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: var(--uni-accent);
+  background: #c0982b;
   animation: dot-bounce 1.4s infinite ease-in-out;
 }
 
@@ -219,15 +220,15 @@ defineExpose({ show })
 
 /* Suggestion Card */
 .ai-suggestion-card {
-  background: rgba(26, 82, 118, 0.04);
-  border: 1px solid rgba(26, 82, 118, 0.1);
-  border-radius: 10px;
-  padding: 0.85rem;
+  background: #f7f7f7;
+  border: 1px solid #ebebeb;
+  border-radius: 12px;
+  padding: 14px;
 }
 
 .ai-suggestion-text {
-  font-size: 0.85rem;
-  color: #2c3e50;
+  font-size: 14px;
+  color: #222222;
   white-space: pre-wrap;
   line-height: 1.6;
   margin: 0;
@@ -237,9 +238,9 @@ defineExpose({ show })
 .ai-btn {
   display: inline-flex;
   align-items: center;
-  padding: 0.4rem 0.9rem;
+  padding: 8px 14px;
   border-radius: 8px;
-  font-size: 0.8rem;
+  font-size: 13px;
   font-weight: 600;
   border: none;
   cursor: pointer;
@@ -252,40 +253,40 @@ defineExpose({ show })
 }
 
 .ai-btn--accept {
-  background: #28a745;
+  background: #222222;
   color: #fff;
 }
 
 .ai-btn--accept:hover:not(:disabled) {
-  background: #218838;
+  background: #000000;
 }
 
 .ai-btn--reject {
-  background: transparent;
-  border: 1.5px solid #dc3545;
-  color: #dc3545;
+  background: #ffffff;
+  border: 1px solid #c1c1c1;
+  color: #222222;
 }
 
 .ai-btn--reject:hover:not(:disabled) {
-  background: rgba(220, 53, 69, 0.08);
+  background: #f7f7f7;
 }
 
 .ai-btn--primary {
-  background: var(--uni-accent);
+  background: #c0982b;
   color: #fff;
 }
 
 .ai-btn--primary:hover:not(:disabled) {
-  background: #d4a82f;
+  background: #a8862a;
 }
 
 .ai-btn--outline {
-  background: transparent;
-  border: 1.5px solid var(--uni-primary);
-  color: var(--uni-primary);
+  background: #ffffff;
+  border: 1px solid #c1c1c1;
+  color: #222222;
 }
 
 .ai-btn--outline:hover:not(:disabled) {
-  background: rgba(26, 82, 118, 0.06);
+  background: #f7f7f7;
 }
 </style>

@@ -44,7 +44,8 @@
           <span class="sidebar-link-text">{{ t('admin.manageFaculties') }}</span>
         </router-link>
 
-        <div class="nav-section-label mt-3">{{ t('admin.analytics') || 'ANALYTICS' }}</div>
+        <div class="nav-section-divider"></div>
+        <div class="nav-section-label">{{ t('admin.analytics') || 'ANALYTICS' }}</div>
 
         <router-link to="/admin/statistics" class="sidebar-link" active-class="active" @click="closeSidebarOnMobile">
           <span class="sidebar-link-icon"><i class="fas fa-chart-bar"></i></span>
@@ -61,7 +62,8 @@
           <span class="sidebar-link-text">{{ t('admin.auditTrail') || 'Audit Trail' }}</span>
         </router-link>
 
-        <div class="nav-section-label mt-3">{{ t('admin.system') || 'SYSTEM' }}</div>
+        <div class="nav-section-divider"></div>
+        <div class="nav-section-label">{{ t('admin.system') || 'SYSTEM' }}</div>
 
         <router-link to="/admin/settings" class="sidebar-link" active-class="active" @click="closeSidebarOnMobile">
           <span class="sidebar-link-icon"><i class="fas fa-sliders-h"></i></span>
@@ -119,7 +121,8 @@ function closeSidebarOnMobile() {
   min-height: calc(100vh - 60px);
   position: sticky;
   top: 60px;
-  background: linear-gradient(180deg, #0a1628 0%, #0f1f3d 50%, #132744 100%);
+  background: #ffffff;
+  border-inline-end: 1px solid #ebebeb;
   display: flex;
   flex-direction: column;
   overflow-y: auto;
@@ -132,20 +135,20 @@ function closeSidebarOnMobile() {
   align-items: center;
   gap: 12px;
   padding: 24px 20px 20px;
-  border-bottom: 1px solid rgba(192, 152, 43, 0.15);
+  border-bottom: 1px solid #ebebeb;
   margin-bottom: 8px;
 }
 
 .brand-icon {
-  width: 42px;
-  height: 42px;
-  border-radius: 10px;
-  background: linear-gradient(135deg, #c0982b, #d4a93a);
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: #1a5276;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 18px;
-  color: #0a1628;
+  font-size: 16px;
+  color: #ffffff;
   flex-shrink: 0;
 }
 
@@ -155,14 +158,14 @@ function closeSidebarOnMobile() {
 }
 
 .brand-title {
-  color: #ffffff;
+  color: #222222;
   font-weight: 700;
   font-size: 15px;
   line-height: 1.2;
 }
 
 .brand-subtitle {
-  color: rgba(255, 255, 255, 0.4);
+  color: #6a6a6a;
   font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -175,12 +178,18 @@ function closeSidebarOnMobile() {
 }
 
 .nav-section-label {
-  color: rgba(192, 152, 43, 0.6);
+  color: #6a6a6a;
   font-size: 10px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 1.5px;
   padding: 12px 12px 6px;
+}
+
+.nav-section-divider {
+  height: 1px;
+  background: #ebebeb;
+  margin: 8px 12px;
 }
 
 .sidebar-link {
@@ -190,7 +199,7 @@ function closeSidebarOnMobile() {
   padding: 10px 12px;
   margin: 2px 0;
   border-radius: 8px;
-  color: rgba(255, 255, 255, 0.65);
+  color: #222222;
   text-decoration: none;
   transition: all 0.2s ease;
   position: relative;
@@ -199,13 +208,13 @@ function closeSidebarOnMobile() {
 }
 
 .sidebar-link:hover {
-  color: #ffffff;
-  background: rgba(255, 255, 255, 0.06);
+  color: #1a5276;
+  background: #f7f7f7;
 }
 
 .sidebar-link.active {
-  color: #ffffff;
-  background: rgba(192, 152, 43, 0.12);
+  color: #1a5276;
+  background: #e8f0f6;
 }
 
 .sidebar-link.active::before {
@@ -227,19 +236,22 @@ function closeSidebarOnMobile() {
 .sidebar-link-icon {
   width: 32px;
   height: 32px;
-  border-radius: 6px;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 14px;
   flex-shrink: 0;
-  background: rgba(255, 255, 255, 0.04);
+  color: #6a6a6a;
   transition: all 0.2s ease;
 }
 
+.sidebar-link:hover .sidebar-link-icon {
+  color: #1a5276;
+}
+
 .sidebar-link.active .sidebar-link-icon {
-  background: rgba(192, 152, 43, 0.2);
-  color: #c0982b;
+  color: #1a5276;
 }
 
 .sidebar-link-text {
@@ -251,11 +263,11 @@ function closeSidebarOnMobile() {
 /* Footer */
 .sidebar-footer {
   padding: 16px 20px;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  border-top: 1px solid #ebebeb;
 }
 
 .sidebar-footer-text {
-  color: rgba(255, 255, 255, 0.3);
+  color: #6a6a6a;
   font-size: 11px;
   text-align: center;
 }
@@ -266,7 +278,7 @@ function closeSidebarOnMobile() {
   min-height: calc(100vh - 60px);
   overflow-x: hidden;
   min-width: 0;
-  background: #f8fafc;
+  background: #f7f7f7;
 }
 
 .admin-content-inner {
@@ -280,7 +292,7 @@ function closeSidebarOnMobile() {
   gap: 12px;
   padding: 12px 16px;
   background: #ffffff;
-  border-bottom: 1px solid #e9ecef;
+  border-bottom: 1px solid #ebebeb;
   position: sticky;
   top: 60px;
   z-index: 10;
@@ -289,10 +301,10 @@ function closeSidebarOnMobile() {
 .sidebar-toggle-btn {
   width: 36px;
   height: 36px;
-  border: 1px solid #dee2e6;
+  border: 1px solid #ebebeb;
   border-radius: 8px;
   background: #ffffff;
-  color: #1a5276;
+  color: #222222;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -301,14 +313,13 @@ function closeSidebarOnMobile() {
 }
 
 .sidebar-toggle-btn:hover {
-  background: #1a5276;
-  color: #ffffff;
-  border-color: #1a5276;
+  background: #f7f7f7;
+  border-color: #c1c1c1;
 }
 
 .topbar-title {
   font-weight: 600;
-  color: #1a5276;
+  color: #222222;
   font-size: 16px;
 }
 
@@ -319,7 +330,7 @@ function closeSidebarOnMobile() {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(10, 22, 40, 0.6);
+  background: rgba(0, 0, 0, 0.4);
   backdrop-filter: blur(2px);
   z-index: 999;
 }
@@ -337,7 +348,7 @@ function closeSidebarOnMobile() {
 
   .admin-sidebar.show {
     inset-inline-start: 0;
-    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.3);
+    box-shadow: rgba(0,0,0,0.02) 0px 0px 0px 1px, rgba(0,0,0,0.04) 0px 2px 6px, rgba(0,0,0,0.1) 0px 4px 8px;
   }
 
   .admin-content-inner {

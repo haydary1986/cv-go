@@ -1,10 +1,10 @@
 <template>
   <div :dir="locale === 'ar' ? 'rtl' : 'ltr'" :class="{ 'rtl': locale === 'ar' }">
     <!-- Navbar -->
-    <nav class="app-navbar navbar navbar-expand-lg navbar-dark sticky-top"
+    <nav class="app-navbar navbar navbar-expand-lg sticky-top"
          :class="{ 'app-navbar--scrolled': isScrolled }">
       <div class="container">
-        <router-link class="navbar-brand d-flex align-items-center gap-2 fw-bold" to="/">
+        <router-link class="navbar-brand d-flex align-items-center gap-2" to="/">
           <img :src="brandingStore.logoUrl || '/logo.svg'" alt="Logo" class="navbar-logo" />
           <span class="navbar-brand-text">{{ brandingStore.systemName }}</span>
         </router-link>
@@ -213,19 +213,30 @@ watch(() => authStore.isAuthenticated, (isAuth) => {
 </script>
 
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap');
 
 :root {
   --font-ar: 'Cairo', sans-serif;
-  --font-en: 'Inter', sans-serif;
+  --font-en: 'Inter', -apple-system, system-ui, sans-serif;
   --uni-primary: #1a5276;
   --uni-accent: #c0982b;
-  --uni-secondary: #2c3e50;
+  --uni-text: #222222;
+  --uni-text-secondary: #6a6a6a;
+  --uni-bg: #ffffff;
+  --uni-bg-light: #f7f7f7;
+  --shadow-card: rgba(0,0,0,0.02) 0px 0px 0px 1px, rgba(0,0,0,0.04) 0px 2px 6px, rgba(0,0,0,0.1) 0px 4px 8px;
+  --shadow-hover: rgba(0,0,0,0.08) 0px 4px 12px;
+  --radius-btn: 8px;
+  --radius-card: 12px;
+  --radius-large: 20px;
 }
 
 body {
   font-family: var(--font-en);
-  background-color: #f4f6f9;
+  background-color: var(--uni-bg);
+  color: var(--uni-text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 [dir="rtl"] body,
@@ -240,63 +251,84 @@ body {
 
 /* ====== App Navbar ====== */
 .app-navbar {
-  background: rgba(26, 82, 118, 0.92) !important;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-bottom: 2px solid var(--uni-accent);
-  transition: background 0.3s ease, box-shadow 0.3s ease;
-  padding-top: 0.55rem;
-  padding-bottom: 0.55rem;
+  background: var(--uni-bg) !important;
+  border-bottom: none;
+  box-shadow: rgba(0,0,0,0.02) 0px 0px 0px 1px;
+  transition: box-shadow 0.3s ease;
+  padding-top: 0.6rem;
+  padding-bottom: 0.6rem;
 }
 
 .app-navbar--scrolled {
-  background: var(--uni-primary) !important;
-  box-shadow: 0 4px 20px rgba(26, 82, 118, 0.25);
+  box-shadow: rgba(0,0,0,0.02) 0px 0px 0px 1px, rgba(0,0,0,0.04) 0px 2px 6px, rgba(0,0,0,0.08) 0px 4px 8px;
 }
 
 .navbar-logo {
-  height: 34px;
+  height: 32px;
   width: auto;
   object-fit: contain;
-  filter: brightness(0) invert(1);
 }
 
 .navbar-brand-text {
   font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--uni-text);
   letter-spacing: 0.01em;
 }
 
 .app-navbar .nav-link {
+  color: var(--uni-text) !important;
   font-weight: 500;
   font-size: 0.9rem;
   padding: 0.5rem 0.85rem !important;
-  border-radius: 8px;
-  transition: background 0.2s;
+  border-radius: var(--radius-btn);
+  transition: color 0.2s ease, background 0.2s ease;
+  text-decoration: none;
 }
 
 .app-navbar .nav-link:hover {
-  background: rgba(255, 255, 255, 0.1);
+  color: var(--uni-primary) !important;
+  background: rgba(26, 82, 118, 0.04);
 }
 
 .app-navbar .nav-link.router-link-active {
-  background: rgba(255, 255, 255, 0.15);
+  color: var(--uni-primary) !important;
+  background: rgba(26, 82, 118, 0.06);
+}
+
+.navbar-toggler {
+  border: none !important;
+  padding: 0.4rem;
+}
+
+.navbar-toggler-icon {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='%23222222' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e") !important;
 }
 
 .nav-register-btn {
   background: var(--uni-accent) !important;
-  color: #fff !important;
+  color: #ffffff !important;
   border-radius: 999px !important;
-  padding: 0.4rem 1.2rem !important;
+  padding: 0.4rem 1.5rem !important;
   font-weight: 600 !important;
+  transition: all 0.2s ease !important;
 }
 
 .nav-register-btn:hover {
   background: #d4a82f !important;
+  color: #ffffff !important;
+  box-shadow: var(--shadow-hover);
+  transform: translateY(-1px);
 }
 
 /* Notification Bell */
 .notif-link {
   position: relative;
+}
+
+.notif-link .fas.fa-bell {
+  color: var(--uni-text);
+  font-size: 1.05rem;
 }
 
 .notif-badge {
@@ -307,20 +339,20 @@ body {
   height: 18px;
   padding: 0 4px;
   border-radius: 999px;
-  background: #dc3545;
+  background: #e53e3e;
   color: #fff;
   font-size: 0.6rem;
   font-weight: 700;
   display: flex;
   align-items: center;
   justify-content: center;
-  animation: notif-pulse 2s ease-in-out infinite;
+  animation: notif-pulse 2.5s ease-in-out infinite;
   line-height: 1;
 }
 
 @keyframes notif-pulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.5); }
-  50% { box-shadow: 0 0 0 6px rgba(220, 53, 69, 0); }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(229, 62, 62, 0.4); }
+  50% { box-shadow: 0 0 0 6px rgba(229, 62, 62, 0); }
 }
 
 /* User Avatar */
@@ -328,7 +360,10 @@ body {
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: var(--uni-accent);
+  background: linear-gradient(135deg, var(--uni-accent), #d4a82f);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  position: relative;
   color: #fff;
   font-size: 0.72rem;
   font-weight: 700;
@@ -336,10 +371,13 @@ body {
   align-items: center;
   justify-content: center;
   letter-spacing: 0.03em;
+  box-shadow: 0 0 0 2px var(--uni-accent);
 }
 
 .user-name-text {
   font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--uni-text);
   max-width: 160px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -349,21 +387,25 @@ body {
 /* Dropdown */
 .app-dropdown {
   border: none;
-  border-radius: 12px;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
   padding: 0.5rem;
   margin-top: 0.5rem;
+  background: var(--uni-bg);
 }
 
 .app-dropdown .dropdown-item {
-  border-radius: 8px;
+  border-radius: var(--radius-btn);
   padding: 0.5rem 0.75rem;
   font-size: 0.88rem;
+  font-weight: 500;
+  color: var(--uni-text);
   transition: background 0.15s;
 }
 
 .app-dropdown .dropdown-item:hover {
-  background: rgba(26, 82, 118, 0.06);
+  background: rgba(26, 82, 118, 0.04);
+  color: var(--uni-primary);
 }
 
 .user-dropdown {
@@ -383,7 +425,7 @@ body {
   min-width: 42px;
   border-radius: 50%;
   background: linear-gradient(135deg, var(--uni-primary), #1e6291);
-  color: var(--uni-accent);
+  color: #ffffff;
   font-size: 0.85rem;
   font-weight: 700;
   display: flex;
@@ -393,17 +435,17 @@ body {
 
 /* ====== App Footer ====== */
 .app-footer {
-  background: var(--uni-primary);
-  color: rgba(255, 255, 255, 0.8);
+  background: var(--uni-bg-light);
+  color: var(--uni-text-secondary);
   margin-top: 3rem;
-  border-top: 3px solid var(--uni-accent);
+  border-top: 1px solid rgba(0,0,0,0.06);
 }
 
 .app-footer-inner {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1rem 0;
+  padding: 1.25rem 0;
 }
 
 .app-footer-brand {
@@ -412,19 +454,19 @@ body {
   gap: 0.5rem;
   font-weight: 600;
   font-size: 0.9rem;
+  color: var(--uni-text);
 }
 
 .app-footer-logo {
   height: 24px;
   width: auto;
   object-fit: contain;
-  filter: brightness(0) invert(1);
-  opacity: 0.8;
+  opacity: 0.7;
 }
 
 .app-footer-copy {
   font-size: 0.8rem;
-  opacity: 0.7;
+  color: var(--uni-text-secondary);
 }
 
 @media (max-width: 576px) {

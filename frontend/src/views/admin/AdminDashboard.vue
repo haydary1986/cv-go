@@ -11,13 +11,13 @@
     <!-- Stats Cards -->
     <div class="row g-4 mb-4">
       <div class="col-sm-6 col-xl-3">
-        <div class="stat-card stat-card--users">
+        <div class="stat-card">
           <div class="stat-card-body">
             <div class="stat-card-info">
               <span class="stat-card-label">{{ t('admin.totalUsers') }}</span>
               <h3 class="stat-card-value">{{ stats.total_users }}</h3>
             </div>
-            <div class="stat-card-icon">
+            <div class="stat-card-icon stat-card-icon--blue">
               <i class="fas fa-users"></i>
             </div>
           </div>
@@ -28,13 +28,13 @@
       </div>
 
       <div class="col-sm-6 col-xl-3">
-        <div class="stat-card stat-card--cvs">
+        <div class="stat-card">
           <div class="stat-card-body">
             <div class="stat-card-info">
               <span class="stat-card-label">{{ t('admin.totalCVs') }}</span>
               <h3 class="stat-card-value">{{ stats.total_cvs }}</h3>
             </div>
-            <div class="stat-card-icon">
+            <div class="stat-card-icon stat-card-icon--green">
               <i class="fas fa-file-alt"></i>
             </div>
           </div>
@@ -45,13 +45,13 @@
       </div>
 
       <div class="col-sm-6 col-xl-3">
-        <div class="stat-card stat-card--active">
+        <div class="stat-card">
           <div class="stat-card-body">
             <div class="stat-card-info">
               <span class="stat-card-label">{{ t('admin.activeToday') }}</span>
               <h3 class="stat-card-value">{{ stats.active_today }}</h3>
             </div>
-            <div class="stat-card-icon">
+            <div class="stat-card-icon stat-card-icon--purple">
               <i class="fas fa-bolt"></i>
             </div>
           </div>
@@ -62,13 +62,13 @@
       </div>
 
       <div class="col-sm-6 col-xl-3">
-        <div class="stat-card stat-card--pending">
+        <div class="stat-card">
           <div class="stat-card-body">
             <div class="stat-card-info">
               <span class="stat-card-label">{{ t('admin.pendingReview') }}</span>
               <h3 class="stat-card-value">{{ stats.pending_cvs }}</h3>
             </div>
-            <div class="stat-card-icon">
+            <div class="stat-card-icon stat-card-icon--gold">
               <i class="fas fa-clock"></i>
             </div>
           </div>
@@ -79,13 +79,13 @@
       </div>
 
       <div class="col-sm-6 col-xl-3" v-if="stats.guest_cvs > 0">
-        <div class="stat-card stat-card--guest">
+        <div class="stat-card">
           <div class="stat-card-body">
             <div class="stat-card-info">
               <span class="stat-card-label">{{ t('cv.guestCVs') }}</span>
               <h3 class="stat-card-value">{{ stats.guest_cvs }}</h3>
             </div>
-            <div class="stat-card-icon">
+            <div class="stat-card-icon stat-card-icon--gray">
               <i class="fas fa-user-secret"></i>
             </div>
           </div>
@@ -187,27 +187,28 @@ onMounted(async () => {
 .page-title {
   font-size: 24px;
   font-weight: 700;
-  color: #1a5276;
+  color: #222222;
   margin: 0;
 }
 
 .page-subtitle {
-  color: #6c757d;
+  color: #6a6a6a;
   font-size: 14px;
   margin: 4px 0 0;
 }
 
 /* ── Stat Cards ── */
 .stat-card {
+  background: #ffffff;
   border-radius: 12px;
   border: none;
+  box-shadow: rgba(0,0,0,0.02) 0px 0px 0px 1px, rgba(0,0,0,0.04) 0px 2px 6px, rgba(0,0,0,0.1) 0px 4px 8px;
   overflow: hidden;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .stat-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
 }
 
 .stat-card-body {
@@ -224,14 +225,15 @@ onMounted(async () => {
 .stat-card-label {
   font-size: 13px;
   font-weight: 600;
+  color: #6a6a6a;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  opacity: 0.85;
 }
 
 .stat-card-value {
   font-size: 32px;
-  font-weight: 800;
+  font-weight: 700;
+  color: #222222;
   margin: 6px 0 0;
   line-height: 1;
 }
@@ -239,54 +241,53 @@ onMounted(async () => {
 .stat-card-icon {
   width: 52px;
   height: 52px;
-  border-radius: 12px;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 22px;
-  background: rgba(255, 255, 255, 0.2);
+  font-size: 20px;
   flex-shrink: 0;
+}
+
+.stat-card-icon--blue {
+  background: rgba(26, 82, 118, 0.1);
+  color: #1a5276;
+}
+
+.stat-card-icon--green {
+  background: rgba(46, 125, 50, 0.1);
+  color: #2e7d32;
+}
+
+.stat-card-icon--purple {
+  background: rgba(102, 16, 242, 0.1);
+  color: #6610f2;
+}
+
+.stat-card-icon--gold {
+  background: rgba(192, 152, 43, 0.1);
+  color: #c0982b;
+}
+
+.stat-card-icon--gray {
+  background: rgba(108, 117, 125, 0.1);
+  color: #6c757d;
 }
 
 .stat-card-footer {
   padding: 10px 24px;
   font-size: 12px;
-  opacity: 0.8;
-  border-top: 1px solid rgba(255, 255, 255, 0.15);
-}
-
-/* Card color themes */
-.stat-card--users {
-  background: linear-gradient(135deg, #1a5276, #1f6f9f);
-  color: #ffffff;
-}
-
-.stat-card--cvs {
-  background: linear-gradient(135deg, #0f7b5f, #15a67e);
-  color: #ffffff;
-}
-
-.stat-card--active {
-  background: linear-gradient(135deg, #5b2c8e, #7c3aed);
-  color: #ffffff;
-}
-
-.stat-card--pending {
-  background: linear-gradient(135deg, #c0782b, #e09138);
-  color: #ffffff;
-}
-
-.stat-card--guest {
-  background: linear-gradient(135deg, #2c3e50, #4a6274);
-  color: #ffffff;
+  color: #6a6a6a;
+  border-top: 1px solid #f0f0f0;
+  font-weight: 500;
 }
 
 /* ── Chart Cards ── */
 .chart-card {
   background: #ffffff;
   border-radius: 12px;
-  border: 1px solid #e9ecef;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  border: none;
+  box-shadow: rgba(0,0,0,0.02) 0px 0px 0px 1px, rgba(0,0,0,0.04) 0px 2px 6px, rgba(0,0,0,0.1) 0px 4px 8px;
   overflow: hidden;
 }
 
@@ -298,7 +299,7 @@ onMounted(async () => {
 .chart-card-title {
   font-size: 15px;
   font-weight: 600;
-  color: #1a5276;
+  color: #222222;
   margin: 0;
 }
 

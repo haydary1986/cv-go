@@ -65,7 +65,7 @@
           </thead>
           <tbody>
             <tr v-for="u in users" :key="u.id" :class="{ 'row-inactive': u.is_active === false }">
-              <td class="text-muted fw-medium">{{ u.id }}</td>
+              <td class="cell-muted fw-medium">{{ u.id }}</td>
               <td>
                 <div class="user-info">
                   <div class="user-avatar" :class="'user-avatar--' + u.role">
@@ -74,7 +74,7 @@
                   <span class="user-name">{{ u.full_name_ar || u.full_name_en || '-' }}</span>
                 </div>
               </td>
-              <td class="text-muted">{{ u.email }}</td>
+              <td class="cell-muted">{{ u.email }}</td>
               <td>
                 <select
                   class="form-select role-select"
@@ -87,7 +87,7 @@
                   <option value="admin">{{ t('admin.adminRole') }}</option>
                 </select>
               </td>
-              <td class="text-muted">{{ u.faculty?.name_en || '-' }}</td>
+              <td class="cell-muted">{{ u.faculty?.name_en || '-' }}</td>
               <td>
                 <span class="credit-badge">
                   <i class="fas fa-coins me-1"></i>{{ u.ai_credits }}
@@ -130,19 +130,18 @@
     <div class="modal fade" :class="{ show: showCreditsModal }" :style="{ display: showCreditsModal ? 'block' : 'none' }">
       <div class="modal-dialog modal-sm modal-dialog-centered">
         <div class="modal-content admin-modal">
-          <div class="modal-header admin-modal-header admin-modal-header--primary">
-            <div class="modal-header-icon">
-              <i class="fas fa-coins"></i>
-            </div>
+          <div class="modal-header admin-modal-header">
             <h5 class="modal-title">{{ t('admin.updateCredits') }}</h5>
-            <button class="btn-close btn-close-white" @click="showCreditsModal = false"></button>
+            <button class="modal-close-btn" @click="showCreditsModal = false">
+              <i class="fas fa-times"></i>
+            </button>
           </div>
           <div class="modal-body p-4">
             <label class="form-label fw-semibold mb-2">AI Credits</label>
             <input type="number" class="form-control admin-input" v-model.number="newCredits" min="0" />
           </div>
           <div class="modal-footer admin-modal-footer">
-            <button class="btn btn-light" @click="showCreditsModal = false">{{ t('app.cancel') || 'Cancel' }}</button>
+            <button class="btn btn-cancel" @click="showCreditsModal = false">{{ t('app.cancel') || 'Cancel' }}</button>
             <button class="btn admin-btn admin-btn--primary" @click="updateCredits">{{ t('app.save') }}</button>
           </div>
         </div>
@@ -154,12 +153,11 @@
     <div class="modal fade" :class="{ show: showCreateModal }" :style="{ display: showCreateModal ? 'block' : 'none' }">
       <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content admin-modal">
-          <div class="modal-header admin-modal-header admin-modal-header--primary">
-            <div class="modal-header-icon">
-              <i class="fas fa-user-plus"></i>
-            </div>
+          <div class="modal-header admin-modal-header">
             <h5 class="modal-title">{{ t('admin.addUser') }}</h5>
-            <button class="btn-close btn-close-white" @click="closeCreateModal"></button>
+            <button class="modal-close-btn" @click="closeCreateModal">
+              <i class="fas fa-times"></i>
+            </button>
           </div>
           <div class="modal-body p-4">
             <!-- Error display -->
@@ -189,7 +187,7 @@
                       class="btn btn-outline-secondary"
                       type="button"
                       @click="showPassword = !showPassword"
-                      style="border-radius: 0 10px 10px 0;"
+                      style="border-radius: 0 12px 12px 0;"
                     >
                       <i class="fas" :class="showPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
                     </button>
@@ -249,7 +247,7 @@
             </form>
           </div>
           <div class="modal-footer admin-modal-footer">
-            <button class="btn btn-light" @click="closeCreateModal" :disabled="creating">{{ t('app.cancel') }}</button>
+            <button class="btn btn-cancel" @click="closeCreateModal" :disabled="creating">{{ t('app.cancel') }}</button>
             <button class="btn admin-btn admin-btn--primary" @click="submitCreateUser" :disabled="creating">
               <span v-if="creating" class="spinner-border spinner-border-sm me-1" role="status"></span>
               {{ creating ? t('app.loading') : t('app.save') }}
@@ -264,21 +262,20 @@
     <div class="modal fade" :class="{ show: showDeleteModal }" :style="{ display: showDeleteModal ? 'block' : 'none' }">
       <div class="modal-dialog modal-sm modal-dialog-centered">
         <div class="modal-content admin-modal">
-          <div class="modal-header admin-modal-header admin-modal-header--danger">
-            <div class="modal-header-icon">
-              <i class="fas fa-exclamation-triangle"></i>
-            </div>
+          <div class="modal-header admin-modal-header">
             <h5 class="modal-title">{{ t('admin.deleteUser') }}</h5>
-            <button class="btn-close btn-close-white" @click="showDeleteModal = false"></button>
+            <button class="modal-close-btn" @click="showDeleteModal = false">
+              <i class="fas fa-times"></i>
+            </button>
           </div>
           <div class="modal-body p-4">
-            <p class="mb-2">{{ t('admin.deleteUserConfirm') }}</p>
+            <p class="mb-2" style="color: #222222;">{{ t('admin.deleteUserConfirm') }}</p>
             <div class="delete-user-info">
               <i class="fas fa-user me-2"></i>{{ userToDelete?.email }}
             </div>
           </div>
           <div class="modal-footer admin-modal-footer">
-            <button class="btn btn-light" @click="showDeleteModal = false">{{ t('app.cancel') }}</button>
+            <button class="btn btn-cancel" @click="showDeleteModal = false">{{ t('app.cancel') }}</button>
             <button class="btn admin-btn admin-btn--danger" @click="deleteUser" :disabled="deleting">
               <span v-if="deleting" class="spinner-border spinner-border-sm me-1" role="status"></span>
               <i v-else class="fas fa-trash me-1"></i>{{ t('app.delete') }}
@@ -518,12 +515,12 @@ onUnmounted(() => {
 .page-title {
   font-size: 24px;
   font-weight: 700;
-  color: #1a5276;
+  color: #222222;
   margin: 0;
 }
 
 .page-subtitle {
-  color: #6c757d;
+  color: #6a6a6a;
   font-size: 14px;
   margin: 4px 0 0;
 }
@@ -545,22 +542,22 @@ onUnmounted(() => {
 }
 
 .admin-btn--primary {
-  background: #1a5276;
+  background: #222222;
   color: #ffffff;
 }
 .admin-btn--primary:hover {
-  background: #154360;
+  background: #000000;
   color: #ffffff;
 }
 
 .admin-btn--outline {
   background: #ffffff;
-  color: #1a5276;
-  border: 1px solid #1a5276;
+  color: #222222;
+  border: 1px solid #c1c1c1;
 }
 .admin-btn--outline:hover {
-  background: #1a5276;
-  color: #ffffff;
+  background: #f7f7f7;
+  color: #222222;
 }
 
 .admin-btn--danger {
@@ -595,23 +592,23 @@ onUnmounted(() => {
   inset-inline-start: 14px;
   top: 50%;
   transform: translateY(-50%);
-  color: #adb5bd;
+  color: #6a6a6a;
   font-size: 14px;
   pointer-events: none;
 }
 
 .search-input {
   padding-inline-start: 40px;
-  border-radius: 10px;
-  border: 1px solid #dee2e6;
+  border-radius: 12px;
+  border: 1px solid #c1c1c1;
   height: 42px;
   font-size: 14px;
   background: #ffffff;
 }
 
 .search-input:focus {
-  border-color: #1a5276;
-  box-shadow: 0 0 0 3px rgba(26, 82, 118, 0.1);
+  border-color: #222222;
+  box-shadow: none;
 }
 
 .filter-select-wrapper {
@@ -619,15 +616,16 @@ onUnmounted(() => {
 }
 
 .filter-select {
-  border-radius: 10px;
-  border: 1px solid #dee2e6;
+  border-radius: 12px;
+  border: 1px solid #c1c1c1;
   height: 42px;
   font-size: 14px;
+  background: #ffffff;
 }
 
 .filter-select:focus {
-  border-color: #1a5276;
-  box-shadow: 0 0 0 3px rgba(26, 82, 118, 0.1);
+  border-color: #222222;
+  box-shadow: none;
 }
 
 /* ── Empty State ── */
@@ -636,14 +634,14 @@ onUnmounted(() => {
   padding: 60px 20px;
   background: #ffffff;
   border-radius: 12px;
-  border: 1px solid #e9ecef;
+  box-shadow: rgba(0,0,0,0.02) 0px 0px 0px 1px, rgba(0,0,0,0.04) 0px 2px 6px, rgba(0,0,0,0.1) 0px 4px 8px;
 }
 
 .empty-state-icon {
   width: 80px;
   height: 80px;
   border-radius: 50%;
-  background: #f0f4f8;
+  background: #f7f7f7;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -653,12 +651,12 @@ onUnmounted(() => {
 }
 
 .empty-state-title {
-  color: #2c3e50;
+  color: #222222;
   font-weight: 600;
 }
 
 .empty-state-text {
-  color: #6c757d;
+  color: #6a6a6a;
   max-width: 400px;
   margin: 0 auto;
 }
@@ -667,8 +665,8 @@ onUnmounted(() => {
 .data-card {
   background: #ffffff;
   border-radius: 12px;
-  border: 1px solid #e9ecef;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  border: none;
+  box-shadow: rgba(0,0,0,0.02) 0px 0px 0px 1px, rgba(0,0,0,0.04) 0px 2px 6px, rgba(0,0,0,0.1) 0px 4px 8px;
   overflow: hidden;
 }
 
@@ -678,9 +676,9 @@ onUnmounted(() => {
 }
 
 .admin-table thead th {
-  background: #f8f9fb;
-  border-bottom: 2px solid #e9ecef;
-  color: #1a5276;
+  background: #ffffff;
+  border-bottom: 1px solid #ebebeb;
+  color: #222222;
   font-weight: 600;
   font-size: 12px;
   text-transform: uppercase;
@@ -692,19 +690,15 @@ onUnmounted(() => {
 .admin-table tbody td {
   padding: 12px 16px;
   vertical-align: middle;
-  border-bottom: 1px solid #f0f2f5;
+  border-bottom: 1px solid #f0f0f0;
 }
 
 .admin-table tbody tr:hover {
-  background: #f8fafc;
+  background: #f7f7f7;
 }
 
-.admin-table tbody tr:nth-child(even) {
-  background: #fafbfc;
-}
-
-.admin-table tbody tr:nth-child(even):hover {
-  background: #f0f4f8;
+.cell-muted {
+  color: #6a6a6a;
 }
 
 .row-inactive {
@@ -721,7 +715,7 @@ onUnmounted(() => {
 .user-avatar {
   width: 34px;
   height: 34px;
-  border-radius: 8px;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -731,13 +725,13 @@ onUnmounted(() => {
   flex-shrink: 0;
 }
 
-.user-avatar--admin { background: linear-gradient(135deg, #c62828, #e53935); }
-.user-avatar--teacher { background: linear-gradient(135deg, #1a5276, #2980b9); }
-.user-avatar--student { background: linear-gradient(135deg, #0f7b5f, #27ae60); }
+.user-avatar--admin { background: #c62828; }
+.user-avatar--teacher { background: #1a5276; }
+.user-avatar--student { background: #2e7d32; }
 
 .user-name {
   font-weight: 600;
-  color: #2c3e50;
+  color: #222222;
 }
 
 /* ── Role Select ── */
@@ -749,24 +743,20 @@ onUnmounted(() => {
   border-radius: 8px;
   padding: 4px 28px 4px 10px;
   height: 32px;
+  border: 1px solid #c1c1c1;
+  background: #ffffff;
 }
 
 .role-select--admin {
   color: #c62828;
-  border-color: rgba(198, 40, 40, 0.3);
-  background-color: rgba(198, 40, 40, 0.04);
 }
 
 .role-select--teacher {
   color: #1a5276;
-  border-color: rgba(26, 82, 118, 0.3);
-  background-color: rgba(26, 82, 118, 0.04);
 }
 
 .role-select--student {
-  color: #0f7b5f;
-  border-color: rgba(15, 123, 95, 0.3);
-  background-color: rgba(15, 123, 95, 0.04);
+  color: #2e7d32;
 }
 
 /* ── Credit Badge ── */
@@ -774,7 +764,7 @@ onUnmounted(() => {
   display: inline-flex;
   align-items: center;
   padding: 4px 10px;
-  border-radius: 6px;
+  border-radius: 14px;
   font-size: 13px;
   font-weight: 600;
   background: rgba(192, 152, 43, 0.1);
@@ -793,8 +783,8 @@ onUnmounted(() => {
 }
 
 .custom-switch:checked {
-  background-color: #1a5276;
-  border-color: #1a5276;
+  background-color: #222222;
+  border-color: #222222;
 }
 
 .status-label {
@@ -814,8 +804,8 @@ onUnmounted(() => {
 .status-label--active { color: #2e7d32; }
 .status-label--active .status-indicator { background: #43a047; }
 
-.status-label--inactive { color: #9e9e9e; }
-.status-label--inactive .status-indicator { background: #bdbdbd; }
+.status-label--inactive { color: #6a6a6a; }
+.status-label--inactive .status-indicator { background: #c1c1c1; }
 
 /* ── Action Buttons ── */
 .action-buttons {
@@ -828,7 +818,7 @@ onUnmounted(() => {
   width: 32px;
   height: 32px;
   border-radius: 8px;
-  border: 1px solid transparent;
+  border: none;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -838,9 +828,8 @@ onUnmounted(() => {
 }
 
 .action-btn--credits {
-  background: rgba(192, 152, 43, 0.08);
+  background: #f7f7f7;
   color: #c0982b;
-  border-color: rgba(192, 152, 43, 0.15);
 }
 .action-btn--credits:hover {
   background: #c0982b;
@@ -848,9 +837,8 @@ onUnmounted(() => {
 }
 
 .action-btn--delete {
-  background: rgba(198, 40, 40, 0.08);
+  background: #f7f7f7;
   color: #c62828;
-  border-color: rgba(198, 40, 40, 0.15);
 }
 .action-btn--delete:hover {
   background: #c62828;
@@ -860,67 +848,89 @@ onUnmounted(() => {
 /* ── Modal ── */
 .admin-modal {
   border: none;
-  border-radius: 14px;
+  border-radius: 20px;
   overflow: hidden;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+  box-shadow: rgba(0,0,0,0.02) 0px 0px 0px 1px, rgba(0,0,0,0.04) 0px 2px 6px, rgba(0,0,0,0.1) 0px 4px 8px;
 }
 
 .admin-modal-header {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 18px 24px;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-bottom: 1px solid #ebebeb;
+  background: #ffffff;
+}
+
+.admin-modal-header .modal-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #222222;
+  margin: 0;
+}
+
+.modal-close-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
   border: none;
-  color: #ffffff;
-}
-
-.admin-modal-header--primary {
-  background: linear-gradient(135deg, #1a5276, #2980b9);
-}
-
-.admin-modal-header--danger {
-  background: linear-gradient(135deg, #c62828, #e53935);
-}
-
-.modal-header-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.2);
+  background: #f7f7f7;
+  color: #222222;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.modal-close-btn:hover {
+  background: #ebebeb;
 }
 
 .admin-input {
-  border-radius: 10px;
-  border: 1px solid #dee2e6;
+  border-radius: 12px;
+  border: 1px solid #c1c1c1;
   height: 42px;
   font-size: 14px;
+  background: #ffffff;
 }
 
 .admin-input:focus {
-  border-color: #1a5276;
-  box-shadow: 0 0 0 3px rgba(26, 82, 118, 0.1);
+  border-color: #222222;
+  box-shadow: none;
 }
 
 .admin-alert {
-  border-radius: 10px;
+  border-radius: 12px;
   border: none;
   font-size: 14px;
 }
 
 .admin-modal-footer {
-  border-top: 1px solid #f0f0f0;
+  border-top: 1px solid #ebebeb;
   padding: 16px 24px;
   gap: 8px;
+  background: #ffffff;
+}
+
+.btn-cancel {
+  border-radius: 8px;
+  font-weight: 600;
+  padding: 8px 20px;
+  font-size: 14px;
+  border: 1px solid #c1c1c1;
+  background: #ffffff;
+  color: #222222;
+}
+
+.btn-cancel:hover {
+  background: #f7f7f7;
 }
 
 .delete-user-info {
   padding: 10px 14px;
   background: #fce4ec;
-  border-radius: 8px;
+  border-radius: 12px;
   color: #c62828;
   font-size: 14px;
   font-weight: 500;

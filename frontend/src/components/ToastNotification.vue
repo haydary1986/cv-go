@@ -66,18 +66,18 @@ function iconClass(type: string) {
   border-radius: 12px;
   font-size: 0.88rem;
   pointer-events: auto;
-  background: #fff;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1), 0 1px 4px rgba(0, 0, 0, 0.06);
+  background: #ffffff;
+  box-shadow: rgba(0,0,0,0.02) 0px 0px 0px 1px, rgba(0,0,0,0.04) 0px 2px 6px, rgba(0,0,0,0.1) 0px 4px 8px;
   border-left: 4px solid transparent;
   overflow: hidden;
 }
 
 .toast-item--success {
-  border-left-color: #28a745;
+  border-left-color: #2e7d32;
 }
 
 .toast-item--error {
-  border-left-color: #dc3545;
+  border-left-color: #c62828;
 }
 
 .toast-item--warning {
@@ -98,11 +98,11 @@ function iconClass(type: string) {
 }
 
 .toast-item--success .toast-icon-wrap {
-  color: #28a745;
+  color: #2e7d32;
 }
 
 .toast-item--error .toast-icon-wrap {
-  color: #dc3545;
+  color: #c62828;
 }
 
 .toast-item--warning .toast-icon-wrap {
@@ -115,14 +115,15 @@ function iconClass(type: string) {
 
 .toast-message {
   padding: 0.75rem 0.25rem;
-  color: #2c3e50;
+  color: #222222;
   line-height: 1.4;
+  font-weight: 500;
 }
 
 .toast-close {
   background: none;
   border: none;
-  color: #adb5bd;
+  color: #c1c1c1;
   padding: 0.75rem;
   cursor: pointer;
   font-size: 0.75rem;
@@ -131,7 +132,7 @@ function iconClass(type: string) {
 }
 
 .toast-close:hover {
-  color: #495057;
+  color: #222222;
 }
 
 /* RTL border flip */
@@ -141,11 +142,11 @@ function iconClass(type: string) {
 }
 
 .toast-container--rtl .toast-item--success {
-  border-right-color: #28a745;
+  border-right-color: #2e7d32;
 }
 
 .toast-container--rtl .toast-item--error {
-  border-right-color: #dc3545;
+  border-right-color: #c62828;
 }
 
 .toast-container--rtl .toast-item--warning {

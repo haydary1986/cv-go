@@ -28,7 +28,7 @@
                   <i class="fas fa-building"></i>
                 </div>
                 <div>
-                  <div class="faculty-name">{{ f.name_ar }} <span class="text-muted">/</span> {{ f.name_en }}</div>
+                  <div class="faculty-name">{{ f.name_ar }} <span class="text-separator">/</span> {{ f.name_en }}</div>
                   <div class="faculty-meta">
                     <span class="dept-count-badge">
                       <i class="fas fa-sitemap me-1"></i>{{ f.departments?.length || 0 }} {{ t('admin.manageDepartments') }}
@@ -56,7 +56,7 @@
       <!-- Departments Panel -->
       <div class="col-lg-6">
         <div class="panel-card">
-          <div class="panel-card-header panel-card-header--secondary">
+          <div class="panel-card-header">
             <div class="panel-card-title">
               <i class="fas fa-sitemap me-2"></i>{{ t('admin.manageDepartments') }}
             </div>
@@ -74,7 +74,7 @@
                   <i class="fas fa-folder"></i>
                 </div>
                 <div>
-                  <div class="faculty-name">{{ d.name_ar }} <span class="text-muted">/</span> {{ d.name_en }}</div>
+                  <div class="faculty-name">{{ d.name_ar }} <span class="text-separator">/</span> {{ d.name_en }}</div>
                   <div class="faculty-meta">
                     <span class="parent-badge">
                       <i class="fas fa-university me-1"></i>{{ d.faculty?.name_en }}
@@ -104,12 +104,11 @@
     <div class="modal fade" :class="{ show: showFacultyModal }" :style="{ display: showFacultyModal ? 'block' : 'none' }">
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content admin-modal">
-          <div class="modal-header admin-modal-header admin-modal-header--primary">
-            <div class="modal-header-icon">
-              <i class="fas fa-university"></i>
-            </div>
+          <div class="modal-header admin-modal-header">
             <h5 class="modal-title">{{ editFaculty ? t('app.edit') : t('admin.addFaculty') }}</h5>
-            <button class="btn-close btn-close-white" @click="showFacultyModal = false"></button>
+            <button class="modal-close-btn" @click="showFacultyModal = false">
+              <i class="fas fa-times"></i>
+            </button>
           </div>
           <div class="modal-body p-4">
             <div class="mb-4">
@@ -122,7 +121,7 @@
             </div>
           </div>
           <div class="modal-footer admin-modal-footer">
-            <button class="btn btn-light" @click="showFacultyModal = false">{{ t('app.cancel') || 'Cancel' }}</button>
+            <button class="btn btn-cancel" @click="showFacultyModal = false">{{ t('app.cancel') || 'Cancel' }}</button>
             <button class="btn admin-btn admin-btn--primary" @click="saveFaculty">
               <i class="fas fa-save me-1"></i>{{ t('app.save') }}
             </button>
@@ -136,12 +135,11 @@
     <div class="modal fade" :class="{ show: showDeptModal }" :style="{ display: showDeptModal ? 'block' : 'none' }">
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content admin-modal">
-          <div class="modal-header admin-modal-header admin-modal-header--secondary">
-            <div class="modal-header-icon">
-              <i class="fas fa-sitemap"></i>
-            </div>
+          <div class="modal-header admin-modal-header">
             <h5 class="modal-title">{{ editDept ? t('app.edit') : t('admin.addDepartment') }}</h5>
-            <button class="btn-close btn-close-white" @click="showDeptModal = false"></button>
+            <button class="modal-close-btn" @click="showDeptModal = false">
+              <i class="fas fa-times"></i>
+            </button>
           </div>
           <div class="modal-body p-4">
             <div class="mb-4">
@@ -160,7 +158,7 @@
             </div>
           </div>
           <div class="modal-footer admin-modal-footer">
-            <button class="btn btn-light" @click="showDeptModal = false">{{ t('app.cancel') || 'Cancel' }}</button>
+            <button class="btn btn-cancel" @click="showDeptModal = false">{{ t('app.cancel') || 'Cancel' }}</button>
             <button class="btn admin-btn admin-btn--primary" @click="saveDept">
               <i class="fas fa-save me-1"></i>{{ t('app.save') }}
             </button>
@@ -252,12 +250,12 @@ onMounted(loadData)
 .page-title {
   font-size: 24px;
   font-weight: 700;
-  color: #1a5276;
+  color: #222222;
   margin: 0;
 }
 
 .page-subtitle {
-  color: #6c757d;
+  color: #6a6a6a;
   font-size: 14px;
   margin: 4px 0 0;
 }
@@ -266,8 +264,8 @@ onMounted(loadData)
 .panel-card {
   background: #ffffff;
   border-radius: 12px;
-  border: 1px solid #e9ecef;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  border: none;
+  box-shadow: rgba(0,0,0,0.02) 0px 0px 0px 1px, rgba(0,0,0,0.04) 0px 2px 6px, rgba(0,0,0,0.1) 0px 4px 8px;
   overflow: hidden;
 }
 
@@ -276,25 +274,22 @@ onMounted(loadData)
   align-items: center;
   justify-content: space-between;
   padding: 18px 24px;
-  background: linear-gradient(135deg, #1a5276, #2980b9);
-  color: #ffffff;
-}
-
-.panel-card-header--secondary {
-  background: linear-gradient(135deg, #2c3e50, #4a6274);
+  border-bottom: 1px solid #ebebeb;
+  background: #ffffff;
 }
 
 .panel-card-title {
   font-size: 15px;
   font-weight: 600;
+  color: #222222;
 }
 
 .panel-add-btn {
   width: 34px;
   height: 34px;
-  border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  background: rgba(255, 255, 255, 0.15);
+  border-radius: 50%;
+  border: none;
+  background: #222222;
   color: #ffffff;
   display: flex;
   align-items: center;
@@ -305,7 +300,7 @@ onMounted(loadData)
 }
 
 .panel-add-btn:hover {
-  background: rgba(255, 255, 255, 0.3);
+  background: #000000;
 }
 
 .panel-card-body {
@@ -318,17 +313,17 @@ onMounted(loadData)
   align-items: center;
   justify-content: space-between;
   padding: 14px 16px;
-  border-radius: 8px;
+  border-radius: 12px;
   transition: background 0.15s;
   margin: 2px 0;
 }
 
 .faculty-item:hover {
-  background: #f8fafc;
+  background: #f7f7f7;
 }
 
 .faculty-item + .faculty-item {
-  border-top: 1px solid #f0f2f5;
+  border-top: 1px solid #f0f0f0;
 }
 
 .faculty-item-info {
@@ -342,8 +337,8 @@ onMounted(loadData)
 .faculty-icon {
   width: 38px;
   height: 38px;
-  border-radius: 10px;
-  background: linear-gradient(135deg, rgba(26, 82, 118, 0.1), rgba(26, 82, 118, 0.05));
+  border-radius: 50%;
+  background: rgba(26, 82, 118, 0.08);
   color: #1a5276;
   display: flex;
   align-items: center;
@@ -355,9 +350,9 @@ onMounted(loadData)
 .dept-icon {
   width: 38px;
   height: 38px;
-  border-radius: 10px;
-  background: linear-gradient(135deg, rgba(44, 62, 80, 0.1), rgba(44, 62, 80, 0.05));
-  color: #2c3e50;
+  border-radius: 50%;
+  background: rgba(192, 152, 43, 0.08);
+  color: #c0982b;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -368,7 +363,11 @@ onMounted(loadData)
 .faculty-name {
   font-weight: 600;
   font-size: 14px;
-  color: #2c3e50;
+  color: #222222;
+}
+
+.text-separator {
+  color: #c1c1c1;
 }
 
 .faculty-meta {
@@ -380,13 +379,13 @@ onMounted(loadData)
   color: #1a5276;
   background: rgba(26, 82, 118, 0.06);
   padding: 2px 8px;
-  border-radius: 4px;
+  border-radius: 14px;
   font-weight: 500;
 }
 
 .parent-badge {
   font-size: 12px;
-  color: #6c757d;
+  color: #6a6a6a;
   font-weight: 500;
 }
 
@@ -400,8 +399,8 @@ onMounted(loadData)
 .action-btn {
   width: 30px;
   height: 30px;
-  border-radius: 6px;
-  border: 1px solid transparent;
+  border-radius: 8px;
+  border: none;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -411,16 +410,14 @@ onMounted(loadData)
 }
 
 .action-btn--edit {
-  background: rgba(26, 82, 118, 0.08);
+  background: #f7f7f7;
   color: #1a5276;
-  border-color: rgba(26, 82, 118, 0.15);
 }
 .action-btn--edit:hover { background: #1a5276; color: #fff; }
 
 .action-btn--delete {
-  background: rgba(198, 40, 40, 0.08);
+  background: #f7f7f7;
   color: #c62828;
-  border-color: rgba(198, 40, 40, 0.15);
 }
 .action-btn--delete:hover { background: #c62828; color: #fff; }
 
@@ -428,61 +425,83 @@ onMounted(loadData)
 .empty-panel {
   text-align: center;
   padding: 40px 20px;
-  color: #adb5bd;
+  color: #c1c1c1;
 }
 
 /* ── Modal ── */
 .admin-modal {
   border: none;
-  border-radius: 14px;
+  border-radius: 20px;
   overflow: hidden;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+  box-shadow: rgba(0,0,0,0.02) 0px 0px 0px 1px, rgba(0,0,0,0.04) 0px 2px 6px, rgba(0,0,0,0.1) 0px 4px 8px;
 }
 
 .admin-modal-header {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 18px 24px;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-bottom: 1px solid #ebebeb;
+  background: #ffffff;
+}
+
+.admin-modal-header .modal-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #222222;
+  margin: 0;
+}
+
+.modal-close-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
   border: none;
-  color: #ffffff;
-}
-
-.admin-modal-header--primary {
-  background: linear-gradient(135deg, #1a5276, #2980b9);
-}
-
-.admin-modal-header--secondary {
-  background: linear-gradient(135deg, #2c3e50, #4a6274);
-}
-
-.modal-header-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.2);
+  background: #f7f7f7;
+  color: #222222;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.modal-close-btn:hover {
+  background: #ebebeb;
 }
 
 .admin-input {
-  border-radius: 10px;
-  border: 1px solid #dee2e6;
+  border-radius: 12px;
+  border: 1px solid #c1c1c1;
   height: 42px;
   font-size: 14px;
+  background: #ffffff;
 }
 
 .admin-input:focus {
-  border-color: #1a5276;
-  box-shadow: 0 0 0 3px rgba(26, 82, 118, 0.1);
+  border-color: #222222;
+  box-shadow: none;
 }
 
 .admin-modal-footer {
-  border-top: 1px solid #f0f0f0;
+  border-top: 1px solid #ebebeb;
   padding: 16px 24px;
   gap: 8px;
+  background: #ffffff;
+}
+
+.btn-cancel {
+  border-radius: 8px;
+  font-weight: 600;
+  padding: 8px 20px;
+  font-size: 14px;
+  border: 1px solid #c1c1c1;
+  background: #ffffff;
+  color: #222222;
+}
+
+.btn-cancel:hover {
+  background: #f7f7f7;
 }
 
 .admin-btn {
@@ -495,10 +514,10 @@ onMounted(loadData)
 }
 
 .admin-btn--primary {
-  background: #1a5276;
+  background: #222222;
 }
 .admin-btn--primary:hover {
-  background: #154360;
+  background: #000000;
   color: #ffffff;
 }
 </style>

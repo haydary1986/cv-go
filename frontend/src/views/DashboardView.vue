@@ -1,91 +1,71 @@
 <template>
   <div class="dashboard-page">
-    <div class="container py-4">
+    <div class="container py-5">
       <!-- Welcome Header -->
-      <div class="welcome-section mb-4">
-        <div class="row align-items-center">
-          <div class="col-lg-6">
-            <div class="d-flex align-items-center mb-2">
-              <div class="welcome-avatar me-3">
-                <i class="fas fa-user-graduate"></i>
-              </div>
-              <div>
-                <p class="welcome-date mb-1">{{ new Date().toLocaleDateString(locale === 'ar' ? 'ar-IQ' : 'en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) }}</p>
-                <h2 class="welcome-title mb-0">
-                  {{ locale === 'ar' ? 'مرحباً' : 'Welcome' }}<span v-if="userName" class="welcome-name">, {{ userName }}</span>
-                </h2>
-                <p class="welcome-subtitle mb-0">{{ t('dashboard.subtitle') }}</p>
-              </div>
-            </div>
+      <div class="welcome-section mb-5">
+        <div class="d-flex align-items-center mb-1">
+          <div>
+            <p class="welcome-date mb-0">{{ new Date().toLocaleDateString(locale === 'ar' ? 'ar-IQ' : 'en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) }}</p>
+            <h2 class="welcome-title mb-0">
+              {{ locale === 'ar' ? 'مرحباً' : 'Hello' }}<span v-if="userName" class="welcome-name">, {{ userName }}</span>
+            </h2>
+            <p class="welcome-subtitle mb-0">{{ t('dashboard.subtitle') }}</p>
           </div>
-          <div class="col-lg-6">
-            <div class="row g-3 mt-2 mt-lg-0">
-              <div class="col-6 col-sm-3">
-                <div class="stat-card stat-total">
-                  <div class="stat-icon-wrap"><i class="fas fa-file-alt"></i></div>
-                  <div class="stat-number">{{ totalCount }}</div>
-                  <div class="stat-label">{{ t('dashboard.totalCVs') }}</div>
-                </div>
-              </div>
-              <div class="col-6 col-sm-3">
-                <div class="stat-card stat-approved">
-                  <div class="stat-icon-wrap"><i class="fas fa-check-circle"></i></div>
-                  <div class="stat-number">{{ approvedCount }}</div>
-                  <div class="stat-label">{{ t('cv.approved') }}</div>
-                </div>
-              </div>
-              <div class="col-6 col-sm-3">
-                <div class="stat-card stat-pending">
-                  <div class="stat-icon-wrap"><i class="fas fa-clock"></i></div>
-                  <div class="stat-number">{{ pendingCount }}</div>
-                  <div class="stat-label">{{ t('cv.pending') }}</div>
-                </div>
-              </div>
-              <div class="col-6 col-sm-3">
-                <div class="stat-card stat-rejected">
-                  <div class="stat-icon-wrap"><i class="fas fa-times-circle"></i></div>
-                  <div class="stat-number">{{ cvStore.cvs.filter(cv => cv.status === 'rejected').length }}</div>
-                  <div class="stat-label">{{ t('cv.rejected') }}</div>
-                </div>
-              </div>
+        </div>
+      </div>
+
+      <!-- Stats Row -->
+      <div class="row g-3 mb-5">
+        <div class="col-6 col-sm-3">
+          <div class="stat-card">
+            <div class="stat-icon-circle stat-icon-blue">
+              <i class="fas fa-file-alt"></i>
             </div>
+            <div class="stat-number">{{ totalCount }}</div>
+            <div class="stat-label">{{ t('dashboard.totalCVs') }}</div>
+          </div>
+        </div>
+        <div class="col-6 col-sm-3">
+          <div class="stat-card">
+            <div class="stat-icon-circle stat-icon-green">
+              <i class="fas fa-check-circle"></i>
+            </div>
+            <div class="stat-number">{{ approvedCount }}</div>
+            <div class="stat-label">{{ t('cv.approved') }}</div>
+          </div>
+        </div>
+        <div class="col-6 col-sm-3">
+          <div class="stat-card">
+            <div class="stat-icon-circle stat-icon-gold">
+              <i class="fas fa-clock"></i>
+            </div>
+            <div class="stat-number">{{ pendingCount }}</div>
+            <div class="stat-label">{{ t('cv.pending') }}</div>
+          </div>
+        </div>
+        <div class="col-6 col-sm-3">
+          <div class="stat-card">
+            <div class="stat-icon-circle stat-icon-red">
+              <i class="fas fa-times-circle"></i>
+            </div>
+            <div class="stat-number">{{ cvStore.cvs.filter(cv => cv.status === 'rejected').length }}</div>
+            <div class="stat-label">{{ t('cv.rejected') }}</div>
           </div>
         </div>
       </div>
 
       <!-- Quick Actions -->
-      <div class="quick-actions mb-4">
-        <div class="row g-3">
-          <div class="col-sm-4">
-            <router-link to="/cv/create" class="quick-action-card">
-              <div class="qa-icon"><i class="fas fa-plus-circle"></i></div>
-              <div class="qa-text">
-                <h6 class="mb-0">{{ t('app.createCV') }}</h6>
-                <small>{{ locale === 'ar' ? 'ابدأ سيرتك الذاتية الجديدة' : 'Start a new CV from scratch' }}</small>
-              </div>
-              <i class="fas fa-arrow-right qa-arrow"></i>
-            </router-link>
-          </div>
-          <div class="col-sm-4">
-            <div class="quick-action-card" @click="exportJSON" role="button">
-              <div class="qa-icon qa-icon-export"><i class="fas fa-download"></i></div>
-              <div class="qa-text">
-                <h6 class="mb-0">{{ t('admin.exportJSON') }}</h6>
-                <small>{{ locale === 'ar' ? 'تصدير السير الذاتية' : 'Export your CVs as JSON' }}</small>
-              </div>
-              <i class="fas fa-arrow-right qa-arrow"></i>
-            </div>
-          </div>
-          <div class="col-sm-4">
-            <router-link to="/cv/create" class="quick-action-card">
-              <div class="qa-icon qa-icon-template"><i class="fas fa-palette"></i></div>
-              <div class="qa-text">
-                <h6 class="mb-0">{{ locale === 'ar' ? 'تصفح القوالب' : 'Browse Templates' }}</h6>
-                <small>{{ locale === 'ar' ? 'اختر من القوالب الجاهزة' : 'Choose from ready templates' }}</small>
-              </div>
-              <i class="fas fa-arrow-right qa-arrow"></i>
-            </router-link>
-          </div>
+      <div class="quick-actions mb-5">
+        <div class="d-flex flex-wrap gap-3">
+          <router-link to="/cv/create" class="quick-action-btn">
+            <i class="fas fa-plus-circle me-2"></i>{{ t('app.createCV') }}
+          </router-link>
+          <button class="quick-action-btn quick-action-btn--secondary" @click="exportJSON">
+            <i class="fas fa-download me-2"></i>{{ t('admin.exportJSON') }}
+          </button>
+          <router-link to="/cv/create" class="quick-action-btn quick-action-btn--secondary">
+            <i class="fas fa-palette me-2"></i>{{ locale === 'ar' ? 'تصفح القوالب' : 'Browse Templates' }}
+          </router-link>
         </div>
       </div>
 
@@ -132,19 +112,13 @@
       <!-- Loading Skeleton -->
       <div v-if="cvStore.loading" class="row g-4">
         <div class="col-sm-6 col-lg-4" v-for="n in 6" :key="n">
-          <div class="card cv-card-skeleton">
+          <div class="cv-card-skeleton">
             <div class="skeleton-thumbnail"></div>
-            <div class="card-body">
+            <div class="skeleton-body">
               <div class="skeleton-line skeleton-title"></div>
               <div class="skeleton-line skeleton-badge"></div>
               <div class="skeleton-line skeleton-text"></div>
               <div class="skeleton-line skeleton-text short"></div>
-            </div>
-            <div class="card-footer bg-transparent border-0">
-              <div class="d-flex gap-2">
-                <div class="skeleton-btn flex-fill"></div>
-                <div class="skeleton-btn flex-fill"></div>
-              </div>
             </div>
           </div>
         </div>
@@ -164,8 +138,8 @@
           </div>
         </div>
         <h3 class="empty-title mb-2">{{ t('dashboard.emptyTitle') }}</h3>
-        <p class="empty-description text-muted mb-4 mx-auto">{{ t('dashboard.emptyDescription') }}</p>
-        <router-link to="/cv/create" class="btn btn-primary btn-lg btn-create-empty">
+        <p class="empty-description mb-4 mx-auto">{{ t('dashboard.emptyDescription') }}</p>
+        <router-link to="/cv/create" class="btn-create-first">
           <i class="fas fa-plus-circle me-2"></i>{{ t('dashboard.createFirst') }}
         </router-link>
         <div class="empty-features mt-5">
@@ -174,21 +148,21 @@
               <div class="feature-item">
                 <div class="feature-icon"><i class="fas fa-palette"></i></div>
                 <h6>{{ t('dashboard.featureTemplates') }}</h6>
-                <p class="text-muted small mb-0">{{ t('dashboard.featureTemplatesDesc') }}</p>
+                <p class="feature-desc mb-0">{{ t('dashboard.featureTemplatesDesc') }}</p>
               </div>
             </div>
             <div class="col-md-4">
               <div class="feature-item">
                 <div class="feature-icon"><i class="fas fa-robot"></i></div>
                 <h6>{{ t('dashboard.featureAI') }}</h6>
-                <p class="text-muted small mb-0">{{ t('dashboard.featureAIDesc') }}</p>
+                <p class="feature-desc mb-0">{{ t('dashboard.featureAIDesc') }}</p>
               </div>
             </div>
             <div class="col-md-4">
               <div class="feature-item">
                 <div class="feature-icon"><i class="fas fa-share-alt"></i></div>
                 <h6>{{ t('dashboard.featureShare') }}</h6>
-                <p class="text-muted small mb-0">{{ t('dashboard.featureShareDesc') }}</p>
+                <p class="feature-desc mb-0">{{ t('dashboard.featureShareDesc') }}</p>
               </div>
             </div>
           </div>
@@ -198,10 +172,10 @@
       <!-- No results for filter -->
       <div v-else-if="filteredCVs.length === 0" class="text-center py-5">
         <div class="empty-filter-icon mb-3">
-          <i class="fas fa-filter fa-3x text-muted"></i>
+          <i class="fas fa-filter fa-3x" style="color: #6a6a6a;"></i>
         </div>
-        <h5 class="text-muted">{{ t('dashboard.noResults') }}</h5>
-        <button class="btn btn-outline-primary mt-2" @click="activeFilter = 'all'; searchQuery = ''">
+        <h5 style="color: #6a6a6a;">{{ t('dashboard.noResults') }}</h5>
+        <button class="filter-pill active mt-2" @click="activeFilter = 'all'; searchQuery = ''">
           {{ t('dashboard.clearFilters') }}
         </button>
       </div>
@@ -209,11 +183,11 @@
       <!-- CV Cards Grid -->
       <div v-else class="row g-4">
         <div class="col-sm-6 col-lg-4" v-for="cv in filteredCVs" :key="cv.id">
-          <div class="card cv-card h-100" @click="$router.push(`/cv/${cv.id}`)">
+          <div class="cv-card h-100" @click="$router.push(`/cv/${cv.id}`)">
             <!-- Template Preview Thumbnail -->
             <div class="cv-card-thumbnail" :class="`thumb-${cv.template}`">
               <div class="thumb-overlay">
-                <button class="btn btn-light btn-sm rounded-pill" @click.stop="$router.push(`/cv/${cv.id}`)">
+                <button class="btn-preview-overlay" @click.stop="$router.push(`/cv/${cv.id}`)">
                   <i class="fas fa-eye me-1"></i>{{ t('app.preview') }}
                 </button>
               </div>
@@ -223,12 +197,13 @@
                 </div>
                 <div class="thumb-template-name">{{ t(`templates.${cv.template}`) }}</div>
               </div>
-              <span class="status-pill" :class="`status-${cv.status}`">
-                <i :class="statusIcon(cv.status)" class="me-1"></i>{{ t(`cv.${cv.status}`) }}
+              <span class="status-dot-label" :class="`status-${cv.status}`">
+                <span class="status-dot"></span>
+                {{ t(`cv.${cv.status}`) }}
               </span>
             </div>
 
-            <div class="card-body pb-2">
+            <div class="cv-card-body">
               <h5 class="cv-card-title mb-2">{{ cv.title || t('cv.title') }}</h5>
               <div class="cv-card-meta">
                 <span class="meta-item" :title="t('cv.language')">
@@ -243,20 +218,20 @@
               </div>
             </div>
 
-            <div class="card-footer bg-transparent border-top-0 pt-0 pb-3">
+            <div class="cv-card-footer">
               <div class="cv-card-actions d-flex gap-2">
-                <router-link :to="`/cv/${cv.id}`" class="btn btn-sm btn-action btn-action-view flex-fill" @click.stop :title="t('app.view')">
+                <router-link :to="`/cv/${cv.id}`" class="btn-action btn-action-view flex-fill" @click.stop :title="t('app.view')">
                   <i class="fas fa-eye"></i>
                   <span class="d-none d-xl-inline ms-1">{{ t('app.view') }}</span>
                 </router-link>
-                <router-link :to="`/cv/${cv.id}/edit`" class="btn btn-sm btn-action btn-action-edit flex-fill" @click.stop :title="t('app.edit')">
+                <router-link :to="`/cv/${cv.id}/edit`" class="btn-action btn-action-edit flex-fill" @click.stop :title="t('app.edit')">
                   <i class="fas fa-edit"></i>
                   <span class="d-none d-xl-inline ms-1">{{ t('app.edit') }}</span>
                 </router-link>
-                <button @click.stop="handleShare(cv)" class="btn btn-sm btn-action btn-action-share" :title="t('app.share')">
+                <button @click.stop="handleShare(cv)" class="btn-action btn-action-share" :title="t('app.share')">
                   <i class="fas fa-share-alt"></i>
                 </button>
-                <button @click.stop="handleDelete(cv.id)" class="btn btn-sm btn-action btn-action-delete" :title="t('app.delete')">
+                <button @click.stop="handleDelete(cv.id)" class="btn-action btn-action-delete" :title="t('app.delete')">
                   <i class="fas fa-trash-alt"></i>
                 </button>
               </div>
@@ -276,8 +251,8 @@
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content share-modal-content">
           <div class="modal-header border-0 pb-0">
-            <h5 class="modal-title fw-bold">
-              <i class="fas fa-share-alt text-primary me-2"></i>{{ t('cv.shareCV') }}
+            <h5 class="modal-title" style="font-weight: 700; color: #222222;">
+              <i class="fas fa-share-alt me-2" style="color: #1a5276;"></i>{{ t('cv.shareCV') }}
             </h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
           </div>
@@ -288,6 +263,7 @@
                 :class="selectedCV.is_shared ? 'btn-danger' : 'btn-success'"
                 :disabled="sharingLoading"
                 @click="toggleShare"
+                style="border-radius: 8px; font-weight: 600;"
               >
                 <span v-if="sharingLoading" class="spinner-border spinner-border-sm me-2"></span>
                 <i v-else :class="selectedCV.is_shared ? 'fas fa-lock' : 'fas fa-share-alt'" class="me-2"></i>
@@ -297,10 +273,10 @@
 
             <div v-if="selectedCV.is_shared">
               <div class="mb-3">
-                <label class="form-label text-muted small text-uppercase fw-bold">{{ t('cv.shareLink') }}</label>
+                <label class="form-label" style="color: #6a6a6a; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">{{ t('cv.shareLink') }}</label>
                 <div class="input-group input-group-lg">
                   <input type="text" class="form-control share-link-input" :value="shareUrl" readonly />
-                  <button @click="copyShareLink" class="btn btn-primary">
+                  <button @click="copyShareLink" class="btn" style="background: #1a5276; color: white; border-radius: 0 8px 8px 0; font-weight: 600;">
                     <i :class="copied ? 'fas fa-check' : 'fas fa-copy'" class="me-1"></i>
                     {{ copied ? t('dashboard.copied') : t('cv.copyLink') }}
                   </button>
@@ -308,7 +284,7 @@
               </div>
 
               <div class="text-center mb-3" v-if="qrCodeImage">
-                <label class="form-label text-muted small text-uppercase fw-bold d-block">{{ t('cv.qrCode') }}</label>
+                <label class="form-label" style="color: #6a6a6a; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; display: block;">{{ t('cv.qrCode') }}</label>
                 <div class="qr-code-wrapper">
                   <img :src="qrCodeImage" alt="QR Code" class="img-fluid" />
                 </div>
@@ -401,15 +377,6 @@ onMounted(() => {
   cvStore.fetchCVs()
 })
 
-function statusIcon(status: string) {
-  const map: Record<string, string> = {
-    draft: 'fas fa-pencil-alt',
-    pending: 'fas fa-clock',
-    approved: 'fas fa-check-circle',
-    rejected: 'fas fa-times-circle',
-  }
-  return map[status] || 'fas fa-circle'
-}
 
 function formatDate(date: string) {
   return new Date(date).toLocaleDateString()
@@ -468,212 +435,138 @@ async function exportJSON() {
 </script>
 
 <style scoped>
-/* === Color Variables === */
+/* === Page === */
 .dashboard-page {
-  --uni-primary: #1a5276;
-  --uni-accent: #c0982b;
-  --uni-secondary: #2c3e50;
-  --uni-primary-light: #e8f0f7;
-  --uni-accent-light: #fdf5e6;
-  --uni-success: #1e8449;
-  --uni-warning: #d4a017;
-  --uni-danger: #c0392b;
-  --uni-bg: #f5f7fa;
   min-height: 100vh;
-  background: var(--uni-bg);
+  background: #ffffff;
 }
 
 /* === Welcome Section === */
 .welcome-section {
-  background: linear-gradient(135deg, var(--uni-primary) 0%, var(--uni-secondary) 100%);
-  border-radius: 16px;
-  padding: 28px 32px;
-  color: white;
-  position: relative;
-  overflow: hidden;
-}
-
-.welcome-section::before {
-  content: '';
-  position: absolute;
-  top: -50%;
-  right: -10%;
-  width: 300px;
-  height: 300px;
-  background: radial-gradient(circle, rgba(192, 152, 43, 0.15) 0%, transparent 70%);
-  border-radius: 50%;
-}
-
-[dir="rtl"] .welcome-section::before {
-  right: auto;
-  left: -10%;
-}
-
-.welcome-avatar {
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.15);
-  border: 2px solid var(--uni-accent);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.6rem;
-  color: var(--uni-accent);
-  flex-shrink: 0;
+  padding: 0;
 }
 
 .welcome-date {
-  font-size: 0.82rem;
-  opacity: 0.75;
-  letter-spacing: 0.3px;
+  font-size: 0.88rem;
+  color: #6a6a6a;
+  font-weight: 500;
 }
 
 .welcome-title {
-  font-size: 1.6rem;
+  font-size: 1.75rem;
   font-weight: 700;
-  color: white;
+  color: #222222;
 }
 
 .welcome-name {
-  color: var(--uni-accent);
+  color: #222222;
 }
 
 .welcome-subtitle {
-  font-size: 0.9rem;
-  opacity: 0.8;
-  margin-top: 2px;
+  font-size: 0.95rem;
+  color: #6a6a6a;
+  margin-top: 4px;
+  font-weight: 500;
 }
 
-/* Stats Cards */
+/* === Stats Cards === */
 .stat-card {
-  text-align: center;
-  background: rgba(255, 255, 255, 0.12);
-  backdrop-filter: blur(8px);
+  background: #ffffff;
   border-radius: 12px;
-  padding: 16px 8px;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  transition: transform 0.2s, background 0.2s;
+  padding: 24px 16px;
+  text-align: center;
+  box-shadow:
+    rgba(0, 0, 0, 0.02) 0px 0px 0px 1px,
+    rgba(0, 0, 0, 0.04) 0px 2px 6px,
+    rgba(0, 0, 0, 0.1) 0px 4px 8px;
+  transition: box-shadow 0.2s ease;
 }
 
 .stat-card:hover {
-  transform: translateY(-2px);
-  background: rgba(255, 255, 255, 0.18);
+  box-shadow: rgba(0, 0, 0, 0.08) 0px 4px 12px;
 }
 
-.stat-icon-wrap {
-  font-size: 1.1rem;
-  margin-bottom: 6px;
-  opacity: 0.8;
-}
-
-.stat-total .stat-icon-wrap { color: #93c5fd; }
-.stat-approved .stat-icon-wrap { color: #86efac; }
-.stat-pending .stat-icon-wrap { color: #fde68a; }
-.stat-rejected .stat-icon-wrap { color: #fca5a5; }
-
-.stat-number {
-  font-size: 1.7rem;
-  font-weight: 800;
-  line-height: 1.2;
-  color: white;
-}
-
-.stat-label {
-  font-size: 0.7rem;
-  color: rgba(255, 255, 255, 0.7);
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-top: 2px;
-}
-
-/* === Quick Actions === */
-.quick-action-card {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 18px 20px;
-  background: white;
-  border-radius: 14px;
-  border: 1px solid #e4e8f0;
-  text-decoration: none;
-  color: var(--uni-secondary);
-  transition: all 0.25s ease;
-  cursor: pointer;
-  height: 100%;
-}
-
-.quick-action-card:hover {
-  border-color: var(--uni-accent);
-  box-shadow: 0 6px 20px rgba(26, 82, 118, 0.1);
-  transform: translateY(-2px);
-  color: var(--uni-secondary);
-}
-
-.qa-icon {
-  width: 46px;
-  height: 46px;
-  border-radius: 12px;
-  background: linear-gradient(135deg, var(--uni-primary) 0%, #2471a3 100%);
-  color: white;
+.stat-icon-circle {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.15rem;
-  flex-shrink: 0;
+  font-size: 1.1rem;
+  margin: 0 auto 12px;
 }
 
-.qa-icon-export {
-  background: linear-gradient(135deg, var(--uni-accent) 0%, #d4a017 100%);
+.stat-icon-blue {
+  background: rgba(26, 82, 118, 0.1);
+  color: #1a5276;
 }
 
-.qa-icon-template {
-  background: linear-gradient(135deg, var(--uni-secondary) 0%, #34495e 100%);
+.stat-icon-green {
+  background: rgba(30, 132, 73, 0.1);
+  color: #1e8449;
 }
 
-.qa-text {
-  flex: 1;
-  min-width: 0;
+.stat-icon-gold {
+  background: rgba(192, 152, 43, 0.1);
+  color: #c0982b;
 }
 
-.qa-text h6 {
-  font-weight: 600;
-  font-size: 0.92rem;
-  color: var(--uni-secondary);
+.stat-icon-red {
+  background: rgba(192, 57, 43, 0.1);
+  color: #c0392b;
 }
 
-.qa-text small {
-  color: #7f8c8d;
+.stat-number {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #222222;
+  line-height: 1.2;
+}
+
+.stat-label {
   font-size: 0.78rem;
+  color: #6a6a6a;
+  font-weight: 500;
+  margin-top: 4px;
 }
 
-.qa-arrow {
-  color: #bdc3c7;
-  font-size: 0.85rem;
-  transition: transform 0.2s;
+/* === Quick Actions === */
+.quick-action-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border: 1px solid #222222;
+  background: #222222;
+  color: #ffffff;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
-[dir="rtl"] .qa-arrow {
-  transform: scaleX(-1);
+.quick-action-btn:hover {
+  background: #000000;
+  color: #ffffff;
 }
 
-.quick-action-card:hover .qa-arrow {
-  color: var(--uni-accent);
-  transform: translateX(3px);
+.quick-action-btn--secondary {
+  background: #ffffff;
+  color: #222222;
+  border: 1px solid #dddddd;
 }
 
-[dir="rtl"] .quick-action-card:hover .qa-arrow {
-  transform: scaleX(-1) translateX(3px);
+.quick-action-btn--secondary:hover {
+  background: #f7f7f7;
+  border-color: #222222;
+  color: #222222;
 }
 
 /* === Toolbar === */
 .toolbar-section {
-  background: white;
-  border-radius: 14px;
-  padding: 16px 20px;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
-  border: 1px solid #e4e8f0;
+  padding: 0;
 }
 
 .search-box {
@@ -685,7 +578,7 @@ async function exportJSON() {
   top: 50%;
   left: 14px;
   transform: translateY(-50%);
-  color: #94a3b8;
+  color: #6a6a6a;
   font-size: 0.9rem;
   z-index: 2;
 }
@@ -697,12 +590,13 @@ async function exportJSON() {
 
 .search-input {
   padding-left: 40px;
-  border-radius: 24px;
-  border: 1px solid #e2e8f0;
+  border-radius: 40px;
+  border: 1px solid #dddddd;
   font-size: 0.9rem;
-  background: #f8fafc;
-  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
-  height: 42px;
+  background: #ffffff;
+  height: 44px;
+  color: #222222;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 [dir="rtl"] .search-input {
@@ -711,9 +605,8 @@ async function exportJSON() {
 }
 
 .search-input:focus {
-  background: white;
-  border-color: var(--uni-primary);
-  box-shadow: 0 0 0 3px rgba(26, 82, 118, 0.1);
+  border-color: #222222;
+  box-shadow: none;
 }
 
 .search-clear {
@@ -723,7 +616,7 @@ async function exportJSON() {
   transform: translateY(-50%);
   border: none;
   background: none;
-  color: #94a3b8;
+  color: #6a6a6a;
   cursor: pointer;
   padding: 4px;
   z-index: 2;
@@ -734,7 +627,7 @@ async function exportJSON() {
   left: 12px;
 }
 
-.search-clear:hover { color: #64748b; }
+.search-clear:hover { color: #222222; }
 
 /* Filter Pills */
 .filter-pill {
@@ -743,9 +636,9 @@ async function exportJSON() {
   gap: 4px;
   padding: 6px 14px;
   border-radius: 20px;
-  border: 1px solid #e2e8f0;
-  background: #f8fafc;
-  color: #64748b;
+  border: 1px solid #dddddd;
+  background: #ffffff;
+  color: #6a6a6a;
   font-size: 0.82rem;
   font-weight: 500;
   cursor: pointer;
@@ -754,15 +647,14 @@ async function exportJSON() {
 }
 
 .filter-pill:hover {
-  border-color: var(--uni-primary);
-  color: var(--uni-primary);
-  background: var(--uni-primary-light);
+  border-color: #222222;
+  color: #222222;
 }
 
 .filter-pill.active {
-  background: var(--uni-primary);
-  color: white;
-  border-color: var(--uni-primary);
+  background: #222222;
+  color: #ffffff;
+  border-color: #222222;
 }
 
 .filter-count {
@@ -774,16 +666,16 @@ async function exportJSON() {
 }
 
 .filter-pill:not(.active) .filter-count {
-  background: #e2e8f0;
-  color: #475569;
+  background: #f0f0f0;
+  color: #6a6a6a;
 }
 
 .btn-create {
   font-weight: 600;
-  border-radius: 10px;
+  border-radius: 8px;
   padding: 8px 20px;
-  background: var(--uni-primary);
-  border-color: var(--uni-primary);
+  background: #1a5276;
+  border-color: #1a5276;
   display: inline-flex;
   align-items: center;
   font-size: 0.88rem;
@@ -796,23 +688,29 @@ async function exportJSON() {
 
 /* === Loading Skeleton === */
 .cv-card-skeleton {
-  border: none;
-  border-radius: 16px;
+  border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  box-shadow:
+    rgba(0, 0, 0, 0.02) 0px 0px 0px 1px,
+    rgba(0, 0, 0, 0.04) 0px 2px 6px,
+    rgba(0, 0, 0, 0.1) 0px 4px 8px;
 }
 
 .skeleton-thumbnail {
   height: 140px;
-  background: linear-gradient(90deg, #eef2f7 25%, #e4e9f0 50%, #eef2f7 75%);
+  background: linear-gradient(90deg, #f0f0f0 25%, #e8e8e8 50%, #f0f0f0 75%);
   background-size: 200% 100%;
   animation: skeleton-shimmer 1.5s infinite;
+}
+
+.skeleton-body {
+  padding: 16px;
 }
 
 .skeleton-line {
   height: 14px;
   border-radius: 6px;
-  background: linear-gradient(90deg, #eef2f7 25%, #e4e9f0 50%, #eef2f7 75%);
+  background: linear-gradient(90deg, #f0f0f0 25%, #e8e8e8 50%, #f0f0f0 75%);
   background-size: 200% 100%;
   animation: skeleton-shimmer 1.5s infinite;
   margin-bottom: 10px;
@@ -822,13 +720,6 @@ async function exportJSON() {
 .skeleton-badge { width: 35%; height: 24px; border-radius: 12px; }
 .skeleton-text { width: 90%; }
 .skeleton-text.short { width: 55%; }
-.skeleton-btn {
-  height: 32px;
-  border-radius: 6px;
-  background: linear-gradient(90deg, #eef2f7 25%, #e4e9f0 50%, #eef2f7 75%);
-  background-size: 200% 100%;
-  animation: skeleton-shimmer 1.5s infinite;
-}
 
 @keyframes skeleton-shimmer {
   0% { background-position: 200% 0; }
@@ -842,50 +733,47 @@ async function exportJSON() {
 }
 
 .empty-icon-circle {
-  width: 140px;
-  height: 140px;
+  width: 120px;
+  height: 120px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--uni-primary-light) 0%, #d5e8f7 100%);
+  background: #f7f7f7;
   display: flex;
   align-items: center;
   justify-content: center;
   margin: 0 auto;
-  color: var(--uni-primary);
-  animation: empty-float 3s ease-in-out infinite;
-}
-
-@keyframes empty-float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-8px); }
+  color: #6a6a6a;
 }
 
 .empty-title {
   font-size: 1.5rem;
   font-weight: 700;
-  color: var(--uni-secondary);
+  color: #222222;
 }
 
 .empty-description {
   max-width: 400px;
   font-size: 1rem;
   line-height: 1.6;
+  color: #6a6a6a;
 }
 
-.btn-create-empty {
-  background: var(--uni-primary);
-  border-color: var(--uni-primary);
-  border-radius: 12px;
+.btn-create-first {
+  display: inline-flex;
+  align-items: center;
+  background: #1a5276;
+  color: #ffffff;
+  border-radius: 8px;
   padding: 12px 32px;
   font-weight: 600;
   font-size: 1.05rem;
-  transition: transform 0.2s, box-shadow 0.2s;
+  text-decoration: none;
+  transition: all 0.2s ease;
 }
 
-.btn-create-empty:hover {
+.btn-create-first:hover {
   background: #154360;
-  border-color: #154360;
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(26, 82, 118, 0.3);
+  color: #ffffff;
+  box-shadow: rgba(0, 0, 0, 0.08) 0px 4px 12px;
 }
 
 .feature-item {
@@ -897,31 +785,46 @@ async function exportJSON() {
   width: 48px;
   height: 48px;
   border-radius: 12px;
-  background: var(--uni-primary-light);
+  background: #f7f7f7;
   display: flex;
   align-items: center;
   justify-content: center;
   margin: 0 auto 12px;
   font-size: 1.2rem;
-  color: var(--uni-primary);
+  color: #1a5276;
+}
+
+.feature-item h6 {
+  font-weight: 600;
+  color: #222222;
+}
+
+.feature-desc {
+  color: #6a6a6a;
+  font-size: 0.88rem;
 }
 
 /* === CV Cards === */
 .cv-card {
-  border: none;
-  border-radius: 16px;
+  background: #ffffff;
+  border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(26, 82, 118, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  box-shadow:
+    rgba(0, 0, 0, 0.02) 0px 0px 0px 1px,
+    rgba(0, 0, 0, 0.04) 0px 2px 6px,
+    rgba(0, 0, 0, 0.1) 0px 4px 8px;
+  transition: box-shadow 0.25s ease, transform 0.25s ease;
   cursor: pointer;
+  display: flex;
+  flex-direction: column;
 }
 
 .cv-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 12px 28px rgba(26, 82, 118, 0.12), 0 4px 10px rgba(0, 0, 0, 0.06);
+  transform: translateY(-4px);
+  box-shadow: rgba(0, 0, 0, 0.08) 0px 4px 12px;
 }
 
-/* Thumbnail Backgrounds by Template */
+/* Thumbnail */
 .cv-card-thumbnail {
   height: 140px;
   position: relative;
@@ -929,13 +832,13 @@ async function exportJSON() {
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  background: linear-gradient(135deg, var(--uni-primary) 0%, var(--uni-secondary) 100%);
+  background: #f7f7f7;
 }
 
 .thumb-modern { background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%); }
 .thumb-professional { background: linear-gradient(135deg, #1a237e 0%, #3949ab 100%); }
-.thumb-minimalist { background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%); }
-.thumb-minimalist .thumb-content { color: #333; }
+.thumb-minimalist { background: #f0f0f0; }
+.thumb-minimalist .thumb-content { color: #222222; }
 .thumb-academic { background: linear-gradient(135deg, #3e2723 0%, #795548 100%); }
 .thumb-creative { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
 .thumb-ats { background: linear-gradient(135deg, #37474f 0%, #546e7a 100%); }
@@ -973,7 +876,7 @@ async function exportJSON() {
 .thumb-overlay {
   position: absolute;
   inset: 0;
-  background: rgba(26, 82, 118, 0.6);
+  background: rgba(0, 0, 0, 0.5);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -986,8 +889,19 @@ async function exportJSON() {
   opacity: 1;
 }
 
-/* Status Pills */
-.status-pill {
+.btn-preview-overlay {
+  background: #ffffff;
+  color: #222222;
+  border: none;
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* Status Dot + Label */
+.status-dot-label {
   position: absolute;
   top: 10px;
   right: 10px;
@@ -995,42 +909,42 @@ async function exportJSON() {
   border-radius: 20px;
   font-size: 0.72rem;
   font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
   z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(4px);
+  color: #222222;
 }
 
-[dir="rtl"] .status-pill {
+[dir="rtl"] .status-dot-label {
   right: auto;
   left: 10px;
 }
 
-.status-draft {
-  background: rgba(100, 116, 139, 0.9);
-  color: white;
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
 }
 
-.status-pending {
-  background: rgba(212, 160, 23, 0.95);
-  color: #1e293b;
-}
-
-.status-approved {
-  background: rgba(30, 132, 73, 0.9);
-  color: white;
-}
-
-.status-rejected {
-  background: rgba(192, 57, 43, 0.9);
-  color: white;
-}
+.status-draft .status-dot { background: #6a6a6a; }
+.status-pending .status-dot { background: #c0982b; }
+.status-approved .status-dot { background: #1e8449; }
+.status-rejected .status-dot { background: #c0392b; }
 
 /* Card Body */
+.cv-card-body {
+  padding: 16px 16px 8px;
+  flex: 1;
+}
+
 .cv-card-title {
   font-size: 1.05rem;
-  font-weight: 700;
-  color: var(--uni-secondary);
+  font-weight: 600;
+  color: #222222;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -1044,21 +958,26 @@ async function exportJSON() {
 
 .meta-item {
   font-size: 0.82rem;
-  color: #64748b;
+  color: #6a6a6a;
 }
 
 .meta-item i {
-  color: #94a3b8;
+  color: #6a6a6a;
 }
 
 .shared-indicator {
   display: inline-flex;
   align-items: center;
   font-size: 0.8rem;
-  color: var(--uni-primary);
-  background: var(--uni-primary-light);
+  color: #1a5276;
+  background: rgba(26, 82, 118, 0.08);
   padding: 3px 10px;
   border-radius: 8px;
+}
+
+/* Card Footer */
+.cv-card-footer {
+  padding: 0 16px 16px;
 }
 
 /* Card Actions */
@@ -1071,54 +990,40 @@ async function exportJSON() {
   align-items: center;
   justify-content: center;
   padding: 6px 10px;
+  border: 1px solid #dddddd;
+  background: #ffffff;
+  color: #222222;
+  text-decoration: none;
+  cursor: pointer;
 }
 
 .btn-action:hover {
-  transform: translateY(-1px);
-}
-
-.btn-action-view {
-  background: transparent;
-  border: 1px solid var(--uni-primary);
-  color: var(--uni-primary);
+  border-color: #222222;
+  color: #222222;
 }
 
 .btn-action-view:hover {
-  background: var(--uni-primary);
-  color: white;
-}
-
-.btn-action-edit {
-  background: transparent;
-  border: 1px solid var(--uni-accent);
-  color: #9a7b22;
+  background: #1a5276;
+  border-color: #1a5276;
+  color: #ffffff;
 }
 
 .btn-action-edit:hover {
-  background: var(--uni-accent);
-  color: white;
-}
-
-.btn-action-share {
-  background: transparent;
-  border: 1px solid #7fb3d8;
-  color: #2980b9;
+  background: #c0982b;
+  border-color: #c0982b;
+  color: #ffffff;
 }
 
 .btn-action-share:hover {
-  background: #2980b9;
-  color: white;
-}
-
-.btn-action-delete {
-  background: transparent;
-  border: 1px solid #e8a9a3;
-  color: var(--uni-danger);
+  background: #1a5276;
+  border-color: #1a5276;
+  color: #ffffff;
 }
 
 .btn-action-delete:hover {
-  background: var(--uni-danger);
-  color: white;
+  background: #c0392b;
+  border-color: #c0392b;
+  color: #ffffff;
 }
 
 /* === Floating Action Button === */
@@ -1129,13 +1034,16 @@ async function exportJSON() {
   width: 56px;
   height: 56px;
   border-radius: 50%;
-  background: var(--uni-primary);
+  background: #1a5276;
   color: white;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 1.3rem;
-  box-shadow: 0 6px 20px rgba(26, 82, 118, 0.4);
+  box-shadow:
+    rgba(0, 0, 0, 0.02) 0px 0px 0px 1px,
+    rgba(0, 0, 0, 0.04) 0px 2px 6px,
+    rgba(0, 0, 0, 0.1) 0px 4px 8px;
   text-decoration: none;
   transition: transform 0.2s, box-shadow 0.2s;
   z-index: 1000;
@@ -1148,31 +1056,30 @@ async function exportJSON() {
 
 .fab-create:hover {
   transform: scale(1.1);
-  box-shadow: 0 8px 28px rgba(26, 82, 118, 0.5);
+  box-shadow: rgba(0, 0, 0, 0.08) 0px 4px 12px;
   color: white;
 }
 
 /* === Share Modal === */
 .share-modal-content {
   border: none;
-  border-radius: 16px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
-}
-
-.share-toggle-input {
-  width: 3em;
-  height: 1.5em;
-  cursor: pointer;
+  border-radius: 12px;
+  box-shadow:
+    rgba(0, 0, 0, 0.02) 0px 0px 0px 1px,
+    rgba(0, 0, 0, 0.04) 0px 2px 6px,
+    rgba(0, 0, 0, 0.1) 0px 4px 8px;
 }
 
 .share-link-input {
-  border-radius: 10px 0 0 10px;
-  background: #f8fafc;
+  border-radius: 8px 0 0 8px;
+  background: #f7f7f7;
   font-size: 0.9rem;
+  border: 1px solid #dddddd;
+  color: #222222;
 }
 
 [dir="rtl"] .share-link-input {
-  border-radius: 0 10px 10px 0;
+  border-radius: 0 8px 8px 0;
 }
 
 .qr-code-wrapper {
@@ -1180,7 +1087,7 @@ async function exportJSON() {
   padding: 12px;
   background: white;
   border-radius: 12px;
-  border: 2px solid #e4e8f0;
+  border: 1px solid #dddddd;
 }
 
 .qr-code-wrapper img {
@@ -1190,8 +1097,8 @@ async function exportJSON() {
 .view-count-badge {
   display: inline-flex;
   align-items: center;
-  background: var(--uni-primary-light);
-  color: var(--uni-primary);
+  background: rgba(26, 82, 118, 0.08);
+  color: #1a5276;
   padding: 6px 16px;
   border-radius: 20px;
   font-size: 0.88rem;
@@ -1200,16 +1107,12 @@ async function exportJSON() {
 
 /* === Responsive === */
 @media (max-width: 768px) {
-  .welcome-section {
-    padding: 18px 20px;
-  }
-
   .welcome-title {
-    font-size: 1.2rem;
+    font-size: 1.3rem;
   }
 
   .stat-card {
-    padding: 10px 4px;
+    padding: 16px 8px;
   }
 
   .stat-number {
@@ -1217,7 +1120,7 @@ async function exportJSON() {
   }
 
   .stat-label {
-    font-size: 0.6rem;
+    font-size: 0.65rem;
   }
 
   .filter-pills {
@@ -1228,16 +1131,6 @@ async function exportJSON() {
 
   .cv-card-thumbnail {
     height: 120px;
-  }
-
-  .quick-action-card {
-    padding: 14px 16px;
-  }
-
-  .qa-icon {
-    width: 38px;
-    height: 38px;
-    font-size: 1rem;
   }
 }
 </style>

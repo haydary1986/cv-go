@@ -1,269 +1,226 @@
 <template>
   <div class="reg-page">
-    <div class="reg-split">
-      <!-- Left: Form -->
-      <div class="reg-form-side">
-        <div class="reg-form-container">
-          <h2 class="reg-heading">{{ t('auth.createYourAccount') }}</h2>
-          <p class="reg-subtitle">{{ t('auth.registerSubtitle') }}</p>
-
-          <!-- Error Alert -->
-          <div v-if="error" class="alert alert-danger d-flex align-items-center border-0 reg-alert" role="alert">
-            <i class="fas fa-exclamation-circle me-2 flex-shrink-0"></i>
-            <div>{{ error }}</div>
-          </div>
-
-          <form @submit.prevent="handleRegister">
-            <!-- Step 1: Account Info -->
-            <div class="reg-section">
-              <div class="reg-section-header">
-                <span class="reg-step-badge">1</span>
-                <span class="reg-step-title">{{ locale === 'ar' ? 'معلومات الحساب' : 'Account Information' }}</span>
-              </div>
-
-              <div class="mb-3">
-                <label class="reg-label">{{ t('auth.email') }}</label>
-                <div class="reg-input-wrap">
-                  <i class="fas fa-envelope reg-input-icon"></i>
-                  <input
-                    type="email"
-                    class="form-control reg-input"
-                    v-model="form.email"
-                    required
-                    autocomplete="email"
-                  />
-                </div>
-              </div>
-
-              <div class="row g-3">
-                <div class="col-md-6">
-                  <label class="reg-label">{{ t('auth.password') }}</label>
-                  <div class="reg-input-wrap">
-                    <i class="fas fa-lock reg-input-icon"></i>
-                    <input
-                      :type="showPassword ? 'text' : 'password'"
-                      class="form-control reg-input reg-input-pw"
-                      v-model="form.password"
-                      required
-                      minlength="6"
-                      autocomplete="new-password"
-                    />
-                    <button
-                      type="button"
-                      class="reg-toggle-pw"
-                      @click="showPassword = !showPassword"
-                    >
-                      <i class="fas" :class="showPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
-                    </button>
-                  </div>
-                  <!-- Password Strength -->
-                  <div class="mt-2" v-if="form.password">
-                    <div class="reg-strength-bar">
-                      <div class="reg-strength-seg" :class="passwordStrength >= 1 ? strengthColorClass : ''"></div>
-                      <div class="reg-strength-seg" :class="passwordStrength >= 2 ? strengthColorClass : ''"></div>
-                      <div class="reg-strength-seg" :class="passwordStrength >= 3 ? strengthColorClass : ''"></div>
-                    </div>
-                    <div class="d-flex justify-content-between align-items-center mt-1">
-                      <small :class="passwordStrengthTextClass" class="fw-medium">{{ passwordStrengthLabel }}</small>
-                    </div>
-                    <div class="reg-pw-reqs mt-2">
-                      <div class="reg-req" :class="form.password.length >= 6 ? 'met' : 'unmet'">
-                        <i class="fas" :class="form.password.length >= 6 ? 'fa-check-circle' : 'fa-circle'"></i>
-                        <span>{{ t('auth.minChars') }}</span>
-                      </div>
-                      <div class="reg-req" :class="/[A-Z]/.test(form.password) ? 'met' : 'unmet'">
-                        <i class="fas" :class="/[A-Z]/.test(form.password) ? 'fa-check-circle' : 'fa-circle'"></i>
-                        <span>{{ t('auth.uppercase') }}</span>
-                      </div>
-                      <div class="reg-req" :class="/[0-9]/.test(form.password) ? 'met' : 'unmet'">
-                        <i class="fas" :class="/[0-9]/.test(form.password) ? 'fa-check-circle' : 'fa-circle'"></i>
-                        <span>{{ t('auth.number') }}</span>
-                      </div>
-                      <div class="reg-req" :class="/[^A-Za-z0-9]/.test(form.password) ? 'met' : 'unmet'">
-                        <i class="fas" :class="/[^A-Za-z0-9]/.test(form.password) ? 'fa-check-circle' : 'fa-circle'"></i>
-                        <span>{{ t('auth.specialChar') }}</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="col-md-6">
-                  <label class="reg-label">{{ t('auth.confirmPassword') }}</label>
-                  <div class="reg-input-wrap">
-                    <i class="fas fa-lock reg-input-icon"></i>
-                    <input
-                      :type="showConfirmPassword ? 'text' : 'password'"
-                      class="form-control reg-input reg-input-pw"
-                      :class="confirmPasswordInputClass"
-                      v-model="form.confirm_password"
-                      required
-                      autocomplete="new-password"
-                    />
-                    <button
-                      type="button"
-                      class="reg-toggle-pw"
-                      @click="showConfirmPassword = !showConfirmPassword"
-                    >
-                      <i class="fas" :class="showConfirmPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
-                    </button>
-                  </div>
-                  <div class="mt-2" v-if="form.confirm_password">
-                    <small v-if="passwordsMatch" class="text-success d-flex align-items-center gap-1">
-                      <i class="fas fa-check-circle"></i> {{ locale === 'ar' ? 'كلمات المرور متطابقة' : 'Passwords match' }}
-                    </small>
-                    <small v-else class="text-danger d-flex align-items-center gap-1">
-                      <i class="fas fa-times-circle"></i> {{ t('auth.passwordMismatch') }}
-                    </small>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Step 2: Personal Info -->
-            <div class="reg-section">
-              <div class="reg-section-header">
-                <span class="reg-step-badge">2</span>
-                <span class="reg-step-title">{{ locale === 'ar' ? 'المعلومات الشخصية' : 'Personal Information' }}</span>
-              </div>
-
-              <div class="row g-3">
-                <div class="col-md-6">
-                  <label class="reg-label">{{ t('auth.fullNameAr') }}</label>
-                  <div class="reg-input-wrap">
-                    <i class="fas fa-user reg-input-icon"></i>
-                    <input
-                      type="text"
-                      class="form-control reg-input"
-                      v-model="form.full_name_ar"
-                      required
-                    />
-                  </div>
-                </div>
-
-                <div class="col-md-6">
-                  <label class="reg-label">{{ t('auth.fullNameEn') }}</label>
-                  <div class="reg-input-wrap">
-                    <i class="fas fa-user reg-input-icon"></i>
-                    <input
-                      type="text"
-                      class="form-control reg-input"
-                      v-model="form.full_name_en"
-                      required
-                    />
-                  </div>
-                </div>
-
-                <div class="col-md-6">
-                  <label class="reg-label">{{ t('auth.phone') }}</label>
-                  <div class="reg-input-wrap">
-                    <i class="fas fa-phone reg-input-icon"></i>
-                    <input
-                      type="tel"
-                      class="form-control reg-input"
-                      v-model="form.phone"
-                      placeholder="+964XXXXXXXXXX"
-                      dir="ltr"
-                    />
-                  </div>
-                  <small class="text-muted mt-1 d-block" style="font-size: 0.75rem;">
-                    <i class="fas fa-info-circle me-1"></i>{{ t('auth.phoneHint') }}
-                  </small>
-                </div>
-              </div>
-            </div>
-
-            <!-- Step 3: University -->
-            <div class="reg-section">
-              <div class="reg-section-header">
-                <span class="reg-step-badge">3</span>
-                <span class="reg-step-title">{{ locale === 'ar' ? 'المعلومات الجامعية' : 'University Details' }}</span>
-              </div>
-
-              <div class="row g-3">
-                <div class="col-md-6">
-                  <label class="reg-label">{{ t('auth.faculty') }}</label>
-                  <div class="reg-input-wrap">
-                    <i class="fas fa-university reg-input-icon"></i>
-                    <select
-                      class="form-select reg-input reg-select"
-                      v-model="form.faculty_id"
-                      @change="loadDepartments"
-                      :disabled="loadingFaculties"
-                    >
-                      <option value="">{{ t('auth.selectFaculty') }}</option>
-                      <option v-for="f in faculties" :key="f.id" :value="f.id">
-                        {{ locale === 'ar' ? f.name_ar : f.name_en }}
-                      </option>
-                    </select>
-                    <span v-if="loadingFaculties" class="reg-spinner">
-                      <span class="spinner-border spinner-border-sm text-primary"></span>
-                    </span>
-                  </div>
-                </div>
-
-                <div class="col-md-6" v-if="departments.length || loadingDepartments">
-                  <label class="reg-label">{{ t('auth.department') }}</label>
-                  <div class="reg-input-wrap">
-                    <i class="fas fa-building reg-input-icon"></i>
-                    <select
-                      class="form-select reg-input reg-select"
-                      v-model="form.department_id"
-                      :disabled="loadingDepartments"
-                    >
-                      <option value="">{{ t('auth.selectDepartment') }}</option>
-                      <option v-for="d in departments" :key="d.id" :value="d.id">
-                        {{ locale === 'ar' ? d.name_ar : d.name_en }}
-                      </option>
-                    </select>
-                    <span v-if="loadingDepartments" class="reg-spinner">
-                      <span class="spinner-border spinner-border-sm text-primary"></span>
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Submit -->
-            <button type="submit" class="btn reg-submit-btn w-100 fw-semibold" :disabled="loading || !canSubmit">
-              <span v-if="loading" class="spinner-border spinner-border-sm me-2" role="status"></span>
-              <i v-else class="fas fa-user-plus me-2"></i>
-              {{ loading ? t('app.loading') : t('auth.registerBtn') }}
-            </button>
-          </form>
-
-          <!-- Login Link -->
-          <div class="reg-login-link">
-            <span>{{ t('auth.hasAccount') }}</span>
-            <router-link to="/login" class="fw-semibold">
-              {{ t('auth.loginBtn') }}
-            </router-link>
-          </div>
-        </div>
+    <div class="reg-card">
+      <!-- Logo -->
+      <div class="reg-logo">
+        <img :src="brandingStore.logoUrl || '/logo.svg'" alt="Logo" />
       </div>
 
-      <!-- Right: University Branding -->
-      <div class="reg-brand-side">
-        <div class="reg-brand-content">
-          <div class="reg-brand-logo">
-            <img :src="brandingStore.logoUrl || '/logo.svg'" alt="Logo" />
+      <h2 class="reg-heading">{{ t('auth.createYourAccount') }}</h2>
+      <p class="reg-subtitle">{{ t('auth.registerSubtitle') }}</p>
+
+      <!-- Error Alert -->
+      <div v-if="error" class="reg-alert" role="alert">
+        <i class="fas fa-exclamation-circle"></i>
+        <span>{{ error }}</span>
+      </div>
+
+      <form @submit.prevent="handleRegister">
+        <!-- Step 1: Account Info -->
+        <div class="reg-section">
+          <div class="reg-section-header">
+            <span class="reg-step-badge">1</span>
+            <span class="reg-step-title">{{ locale === 'ar' ? 'معلومات الحساب' : 'Account Information' }}</span>
           </div>
-          <h1 class="reg-brand-name">{{ brandingStore.systemName }}</h1>
-          <p class="reg-brand-tagline">{{ t('auth.registerSubtitle') }}</p>
-          <div class="reg-brand-features">
-            <div class="reg-brand-feature">
-              <i class="fas fa-file-alt"></i>
-              <span>{{ locale === 'ar' ? 'سيرة ذاتية احترافية' : 'Professional CV' }}</span>
+
+          <div class="reg-field">
+            <label class="reg-label">{{ t('auth.email') }}</label>
+            <input
+              type="email"
+              class="reg-input"
+              v-model="form.email"
+              required
+              autocomplete="email"
+            />
+          </div>
+
+          <div class="reg-row">
+            <div class="reg-col">
+              <label class="reg-label">{{ t('auth.password') }}</label>
+              <div class="reg-input-wrap">
+                <input
+                  :type="showPassword ? 'text' : 'password'"
+                  class="reg-input reg-input-pw"
+                  v-model="form.password"
+                  required
+                  minlength="6"
+                  autocomplete="new-password"
+                />
+                <button
+                  type="button"
+                  class="reg-toggle-pw"
+                  @click="showPassword = !showPassword"
+                >
+                  <i class="fas" :class="showPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
+                </button>
+              </div>
+              <!-- Password Strength -->
+              <div class="reg-strength-area" v-if="form.password">
+                <div class="reg-strength-bar">
+                  <div class="reg-strength-seg" :class="passwordStrength >= 1 ? strengthColorClass : ''"></div>
+                  <div class="reg-strength-seg" :class="passwordStrength >= 2 ? strengthColorClass : ''"></div>
+                  <div class="reg-strength-seg" :class="passwordStrength >= 3 ? strengthColorClass : ''"></div>
+                </div>
+                <small :class="passwordStrengthTextClass" class="reg-strength-label">{{ passwordStrengthLabel }}</small>
+                <div class="reg-pw-reqs">
+                  <div class="reg-req" :class="form.password.length >= 6 ? 'met' : 'unmet'">
+                    <i class="fas" :class="form.password.length >= 6 ? 'fa-check-circle' : 'fa-circle'"></i>
+                    <span>{{ t('auth.minChars') }}</span>
+                  </div>
+                  <div class="reg-req" :class="/[A-Z]/.test(form.password) ? 'met' : 'unmet'">
+                    <i class="fas" :class="/[A-Z]/.test(form.password) ? 'fa-check-circle' : 'fa-circle'"></i>
+                    <span>{{ t('auth.uppercase') }}</span>
+                  </div>
+                  <div class="reg-req" :class="/[0-9]/.test(form.password) ? 'met' : 'unmet'">
+                    <i class="fas" :class="/[0-9]/.test(form.password) ? 'fa-check-circle' : 'fa-circle'"></i>
+                    <span>{{ t('auth.number') }}</span>
+                  </div>
+                  <div class="reg-req" :class="/[^A-Za-z0-9]/.test(form.password) ? 'met' : 'unmet'">
+                    <i class="fas" :class="/[^A-Za-z0-9]/.test(form.password) ? 'fa-check-circle' : 'fa-circle'"></i>
+                    <span>{{ t('auth.specialChar') }}</span>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div class="reg-brand-feature">
-              <i class="fas fa-robot"></i>
-              <span>{{ locale === 'ar' ? 'مدعوم بالذكاء الاصطناعي' : 'AI-Powered' }}</span>
-            </div>
-            <div class="reg-brand-feature">
-              <i class="fas fa-globe"></i>
-              <span>{{ locale === 'ar' ? 'عربي وإنجليزي' : 'Arabic & English' }}</span>
+
+            <div class="reg-col">
+              <label class="reg-label">{{ t('auth.confirmPassword') }}</label>
+              <div class="reg-input-wrap">
+                <input
+                  :type="showConfirmPassword ? 'text' : 'password'"
+                  class="reg-input reg-input-pw"
+                  :class="confirmPasswordInputClass"
+                  v-model="form.confirm_password"
+                  required
+                  autocomplete="new-password"
+                />
+                <button
+                  type="button"
+                  class="reg-toggle-pw"
+                  @click="showConfirmPassword = !showConfirmPassword"
+                >
+                  <i class="fas" :class="showConfirmPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
+                </button>
+              </div>
+              <div v-if="form.confirm_password" class="reg-match-status">
+                <small v-if="passwordsMatch" class="reg-match-ok">
+                  <i class="fas fa-check-circle"></i> {{ locale === 'ar' ? 'كلمات المرور متطابقة' : 'Passwords match' }}
+                </small>
+                <small v-else class="reg-match-err">
+                  <i class="fas fa-times-circle"></i> {{ t('auth.passwordMismatch') }}
+                </small>
+              </div>
             </div>
           </div>
         </div>
+
+        <!-- Step 2: Personal Info -->
+        <div class="reg-section">
+          <div class="reg-section-header">
+            <span class="reg-step-badge">2</span>
+            <span class="reg-step-title">{{ locale === 'ar' ? 'المعلومات الشخصية' : 'Personal Information' }}</span>
+          </div>
+
+          <div class="reg-row">
+            <div class="reg-col">
+              <label class="reg-label">{{ t('auth.fullNameAr') }}</label>
+              <input
+                type="text"
+                class="reg-input"
+                v-model="form.full_name_ar"
+                required
+              />
+            </div>
+
+            <div class="reg-col">
+              <label class="reg-label">{{ t('auth.fullNameEn') }}</label>
+              <input
+                type="text"
+                class="reg-input"
+                v-model="form.full_name_en"
+                required
+              />
+            </div>
+          </div>
+
+          <div class="reg-field" style="max-width: 50%;">
+            <label class="reg-label">{{ t('auth.phone') }}</label>
+            <input
+              type="tel"
+              class="reg-input"
+              v-model="form.phone"
+              placeholder="+964XXXXXXXXXX"
+              dir="ltr"
+            />
+            <small class="reg-hint">
+              <i class="fas fa-info-circle me-1"></i>{{ t('auth.phoneHint') }}
+            </small>
+          </div>
+        </div>
+
+        <!-- Step 3: University -->
+        <div class="reg-section reg-section-last">
+          <div class="reg-section-header">
+            <span class="reg-step-badge">3</span>
+            <span class="reg-step-title">{{ locale === 'ar' ? 'المعلومات الجامعية' : 'University Details' }}</span>
+          </div>
+
+          <div class="reg-row">
+            <div class="reg-col">
+              <label class="reg-label">{{ t('auth.faculty') }}</label>
+              <div class="reg-input-wrap">
+                <select
+                  class="reg-input reg-select"
+                  v-model="form.faculty_id"
+                  @change="loadDepartments"
+                  :disabled="loadingFaculties"
+                >
+                  <option value="">{{ t('auth.selectFaculty') }}</option>
+                  <option v-for="f in faculties" :key="f.id" :value="f.id">
+                    {{ locale === 'ar' ? f.name_ar : f.name_en }}
+                  </option>
+                </select>
+                <span v-if="loadingFaculties" class="reg-spinner">
+                  <span class="spinner-border spinner-border-sm"></span>
+                </span>
+              </div>
+            </div>
+
+            <div class="reg-col" v-if="departments.length || loadingDepartments">
+              <label class="reg-label">{{ t('auth.department') }}</label>
+              <div class="reg-input-wrap">
+                <select
+                  class="reg-input reg-select"
+                  v-model="form.department_id"
+                  :disabled="loadingDepartments"
+                >
+                  <option value="">{{ t('auth.selectDepartment') }}</option>
+                  <option v-for="d in departments" :key="d.id" :value="d.id">
+                    {{ locale === 'ar' ? d.name_ar : d.name_en }}
+                  </option>
+                </select>
+                <span v-if="loadingDepartments" class="reg-spinner">
+                  <span class="spinner-border spinner-border-sm"></span>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Submit -->
+        <button type="submit" class="reg-submit-btn" :disabled="loading || !canSubmit">
+          <span v-if="loading" class="spinner-border spinner-border-sm me-2" role="status"></span>
+          <i v-else class="fas fa-user-plus me-2"></i>
+          {{ loading ? t('app.loading') : t('auth.registerBtn') }}
+        </button>
+      </form>
+
+      <!-- Login Link -->
+      <div class="reg-login-link">
+        <span>{{ t('auth.hasAccount') }}</span>
+        <router-link to="/login">
+          {{ t('auth.loginBtn') }}
+        </router-link>
       </div>
     </div>
   </div>
@@ -397,68 +354,86 @@ async function handleRegister() {
 </script>
 
 <style scoped>
-/* ── Layout ── */
 .reg-page {
   min-height: 100vh;
-}
-
-.reg-split {
-  display: flex;
-  min-height: 100vh;
-}
-
-/* ── Left: Form Side ── */
-.reg-form-side {
-  flex: 1.3;
   display: flex;
   align-items: flex-start;
   justify-content: center;
-  padding: 2.5rem 2rem;
-  background: #fff;
-  overflow-y: auto;
-  animation: regFadeIn 0.7s ease-out both;
+  background: #ffffff;
+  padding: 40px 24px;
+}
+
+.reg-card {
+  width: 100%;
+  max-width: 560px;
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 48px 40px;
+  box-shadow:
+    rgba(0, 0, 0, 0.02) 0px 0px 0px 1px,
+    rgba(0, 0, 0, 0.04) 0px 2px 6px,
+    rgba(0, 0, 0, 0.1) 0px 4px 8px;
+  animation: regFadeIn 0.5s ease-out both;
 }
 
 @keyframes regFadeIn {
-  from { opacity: 0; transform: translateY(20px); }
+  from { opacity: 0; transform: translateY(12px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
-.reg-form-container {
-  width: 100%;
-  max-width: 580px;
-  padding-bottom: 2rem;
+/* Logo */
+.reg-logo {
+  text-align: center;
+  margin-bottom: 32px;
 }
 
+.reg-logo img {
+  height: 48px;
+  width: auto;
+  object-fit: contain;
+}
+
+/* Heading */
 .reg-heading {
-  font-size: 1.85rem;
-  font-weight: 800;
-  color: #1a5276;
-  margin-bottom: 0.25rem;
-  letter-spacing: -0.5px;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #222222;
+  margin-bottom: 4px;
+  text-align: center;
 }
 
 .reg-subtitle {
-  color: #6c757d;
+  color: #6a6a6a;
   font-size: 0.95rem;
-  margin-bottom: 2rem;
+  margin-bottom: 32px;
+  text-align: center;
 }
 
+/* Alert */
 .reg-alert {
-  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  border-radius: 12px;
   background: #fef2f2;
   color: #b91c1c;
-  margin-bottom: 1.5rem;
+  font-size: 0.9rem;
+  margin-bottom: 24px;
 }
 
-/* ── Sections ── */
+.reg-alert i {
+  flex-shrink: 0;
+}
+
+/* Sections */
 .reg-section {
-  margin-bottom: 1.75rem;
-  padding-bottom: 1.75rem;
+  margin-bottom: 24px;
+  padding-bottom: 24px;
   border-bottom: 1px solid #f0f0f0;
 }
 
-.reg-section:last-of-type {
+.reg-section-last {
   border-bottom: none;
   padding-bottom: 0;
 }
@@ -467,7 +442,7 @@ async function handleRegister() {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-bottom: 1rem;
+  margin-bottom: 16px;
 }
 
 .reg-step-badge {
@@ -477,67 +452,81 @@ async function handleRegister() {
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #1a5276, #0d6efd);
-  color: #fff;
+  background: #1a5276;
+  color: #ffffff;
   font-size: 0.8rem;
   font-weight: 700;
   flex-shrink: 0;
 }
 
 .reg-step-title {
-  font-size: 1rem;
-  font-weight: 700;
-  color: #2c3e50;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #222222;
 }
 
-/* ── Inputs ── */
+/* Layout helpers */
+.reg-row {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.reg-col {
+  flex: 1;
+  min-width: 0;
+}
+
+.reg-field {
+  margin-bottom: 16px;
+}
+
+/* Inputs */
 .reg-label {
-  font-weight: 600;
-  font-size: 0.85rem;
-  color: #2c3e50;
-  margin-bottom: 0.35rem;
   display: block;
+  font-weight: 500;
+  font-size: 0.85rem;
+  color: #222222;
+  margin-bottom: 6px;
 }
 
 .reg-input-wrap {
   position: relative;
 }
 
-.reg-input-icon {
-  position: absolute;
-  top: 50%;
-  inset-inline-start: 14px;
-  transform: translateY(-50%);
-  color: #9ca3af;
-  font-size: 0.9rem;
-  pointer-events: none;
-  z-index: 2;
-}
-
 .reg-input {
-  height: 46px;
-  padding-inline-start: 42px;
-  padding-inline-end: 14px;
-  border: 2px solid #e5e7eb;
-  border-radius: 10px;
+  width: 100%;
+  height: 48px;
+  padding: 0 16px;
+  border: 1px solid #c1c1c1;
+  border-radius: 12px;
   font-size: 0.95rem;
-  background: #f9fafb;
-  transition: border-color 0.2s, background-color 0.2s, box-shadow 0.2s;
+  color: #222222;
+  background: #ffffff;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  outline: none;
 }
 
 .reg-input-pw {
-  padding-inline-end: 42px;
+  padding-inline-end: 44px;
 }
 
 .reg-select {
   cursor: pointer;
+  appearance: auto;
 }
 
 .reg-input:focus {
   border-color: #1a5276;
-  background: #fff;
-  box-shadow: 0 0 0 3px rgba(26, 82, 118, 0.1);
-  outline: none;
+  box-shadow: 0 0 0 2px rgba(26, 82, 118, 0.15);
+}
+
+.reg-input.is-valid {
+  border-color: #198754;
+}
+
+.reg-input.is-invalid {
+  border-color: #dc3545;
 }
 
 .reg-toggle-pw {
@@ -547,7 +536,7 @@ async function handleRegister() {
   transform: translateY(-50%);
   background: none;
   border: none;
-  color: #9ca3af;
+  color: #b0b0b0;
   cursor: pointer;
   padding: 4px;
   z-index: 2;
@@ -564,9 +553,21 @@ async function handleRegister() {
   inset-inline-end: 12px;
   transform: translateY(-50%);
   z-index: 2;
+  color: #1a5276;
 }
 
-/* ── Strength Bar ── */
+.reg-hint {
+  font-size: 0.78rem;
+  color: #6a6a6a;
+  margin-top: 4px;
+  display: block;
+}
+
+/* Strength Bar */
+.reg-strength-area {
+  margin-top: 8px;
+}
+
 .reg-strength-bar {
   display: flex;
   gap: 4px;
@@ -574,9 +575,9 @@ async function handleRegister() {
 
 .reg-strength-seg {
   flex: 1;
-  height: 5px;
-  border-radius: 3px;
-  background: #e9ecef;
+  height: 4px;
+  border-radius: 2px;
+  background: #e8e8e8;
   transition: background-color 0.3s ease;
 }
 
@@ -584,11 +585,18 @@ async function handleRegister() {
 .reg-strength-seg.strength-medium { background-color: #ffc107; }
 .reg-strength-seg.strength-strong { background-color: #198754; }
 
-/* ── Password Requirements ── */
+.reg-strength-label {
+  display: block;
+  margin-top: 4px;
+  font-weight: 500;
+}
+
+/* Password Requirements */
 .reg-pw-reqs {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 2px;
+  margin-top: 8px;
 }
 
 .reg-req {
@@ -600,46 +608,73 @@ async function handleRegister() {
 }
 
 .reg-req.met { color: #198754; }
-.reg-req.unmet { color: #adb5bd; }
+.reg-req.unmet { color: #b0b0b0; }
 .reg-req i { font-size: 0.65rem; }
 
-/* ── Submit ── */
+/* Match status */
+.reg-match-status {
+  margin-top: 6px;
+}
+
+.reg-match-ok {
+  color: #198754;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.8rem;
+}
+
+.reg-match-err {
+  color: #dc3545;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.8rem;
+}
+
+/* Submit */
 .reg-submit-btn {
-  height: 50px;
-  font-size: 1.05rem;
-  border-radius: 12px;
-  background: linear-gradient(135deg, #c0982b 0%, #d4a933 100%);
+  width: 100%;
+  height: 48px;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 8px;
+  background: #c0982b;
   border: none;
-  color: #fff;
-  letter-spacing: 0.3px;
-  transition: transform 0.15s, box-shadow 0.2s;
-  margin-top: 0.5rem;
+  color: #ffffff;
+  cursor: pointer;
+  transition: background-color 0.2s, box-shadow 0.2s;
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .reg-submit-btn:hover:not(:disabled) {
-  transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(192, 152, 43, 0.35);
-  background: linear-gradient(135deg, #b08a24 0%, #c0982b 100%);
-  color: #fff;
+  background: #a98825;
+  box-shadow:
+    rgba(0, 0, 0, 0.04) 0px 2px 6px,
+    rgba(0, 0, 0, 0.12) 0px 4px 12px;
 }
 
 .reg-submit-btn:disabled {
   opacity: 0.55;
-  color: #fff;
+  cursor: not-allowed;
 }
 
-/* ── Login Link ── */
+/* Login Link */
 .reg-login-link {
   text-align: center;
-  margin-top: 1.75rem;
-  color: #6c757d;
-  font-size: 0.95rem;
+  margin-top: 28px;
+  color: #6a6a6a;
+  font-size: 0.9rem;
 }
 
 .reg-login-link a {
   color: #1a5276;
   text-decoration: none;
-  margin-inline-start: 6px;
+  font-weight: 600;
+  margin-inline-start: 4px;
   transition: color 0.15s;
 }
 
@@ -647,120 +682,28 @@ async function handleRegister() {
   color: #c0982b;
 }
 
-/* ── Right: Branding ── */
-.reg-brand-side {
-  flex: 0.7;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(160deg, #1a5276 0%, #0d6efd 100%);
-  position: relative;
-  overflow: hidden;
-  position: sticky;
-  top: 0;
-  height: 100vh;
-}
-
-.reg-brand-side::before {
-  content: '';
-  position: absolute;
-  top: -25%;
-  right: -15%;
-  width: 450px;
-  height: 450px;
-  border-radius: 50%;
-  background: rgba(192, 152, 43, 0.08);
-}
-
-.reg-brand-content {
-  position: relative;
-  z-index: 1;
-  text-align: center;
-  padding: 3rem;
-  animation: regBrandFade 0.9s ease-out 0.3s both;
-}
-
-@keyframes regBrandFade {
-  from { opacity: 0; transform: scale(0.95); }
-  to { opacity: 1; transform: scale(1); }
-}
-
-.reg-brand-logo {
-  margin-bottom: 2rem;
-}
-
-.reg-brand-logo img {
-  height: 110px;
-  width: auto;
-  object-fit: contain;
-  filter: drop-shadow(0 4px 20px rgba(0, 0, 0, 0.15));
-}
-
-.reg-brand-name {
-  font-size: 1.75rem;
-  font-weight: 800;
-  color: #fff;
-  margin-bottom: 0.5rem;
-}
-
-.reg-brand-tagline {
-  color: rgba(255, 255, 255, 0.7);
-  font-size: 1rem;
-  max-width: 280px;
-  margin: 0 auto 2.5rem;
-  line-height: 1.5;
-}
-
-.reg-brand-features {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  align-items: center;
-}
-
-.reg-brand-feature {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  color: rgba(255, 255, 255, 0.85);
-  font-size: 0.95rem;
-}
-
-.reg-brand-feature i {
-  width: 36px;
-  height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 10px;
-  background: rgba(192, 152, 43, 0.2);
-  color: #c0982b;
-  font-size: 0.85rem;
-}
-
-/* ── Responsive ── */
-@media (max-width: 991.98px) {
-  .reg-brand-side {
-    display: none;
-  }
-
-  .reg-form-side {
-    padding: 2rem 1.25rem;
-  }
-}
-
+/* Responsive */
 @media (max-width: 576px) {
+  .reg-card {
+    padding: 32px 24px;
+    border-radius: 16px;
+  }
+
   .reg-heading {
-    font-size: 1.4rem;
+    font-size: 1.5rem;
   }
 
-  .reg-form-container {
-    max-width: 100%;
+  .reg-row {
+    flex-direction: column;
+    gap: 0;
   }
-}
 
-/* ── RTL ── */
-[dir="rtl"] .reg-split {
-  flex-direction: row-reverse;
+  .reg-col {
+    margin-bottom: 16px;
+  }
+
+  .reg-field[style] {
+    max-width: 100% !important;
+  }
 }
 </style>

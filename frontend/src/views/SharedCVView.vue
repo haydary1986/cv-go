@@ -22,7 +22,7 @@
             <i class="fas fa-print me-1"></i>
             {{ t('shared.printCV') }}
           </button>
-          <button @click="exportPDF" class="btn-pill btn-pill--accent d-inline-flex" :disabled="exporting || !cv">
+          <button @click="exportPDF" class="btn-pill btn-pill--primary d-inline-flex" :disabled="exporting || !cv">
             <span v-if="exporting" class="spinner-border spinner-border-sm me-1"></span>
             <i v-else class="fas fa-file-pdf me-1"></i>
             {{ t('shared.downloadPDF') }}
@@ -31,7 +31,7 @@
       </div>
     </nav>
 
-    <div class="container-fluid py-4 px-3 px-md-5">
+    <div class="shared-body py-5 px-3 px-md-5">
       <!-- Loading State -->
       <div v-if="loading" class="shared-loading text-center">
         <div class="loading-ring mb-4">
@@ -39,8 +39,8 @@
             <span class="visually-hidden">Loading...</span>
           </div>
         </div>
-        <h5 class="fw-normal mb-2">{{ t('shared.loadingCV') }}</h5>
-        <p class="text-muted small">{{ t('shared.loadingDesc') }}</p>
+        <h5 class="loading-title mb-2">{{ t('shared.loadingCV') }}</h5>
+        <p class="loading-desc">{{ t('shared.loadingDesc') }}</p>
       </div>
 
       <!-- Error State -->
@@ -50,10 +50,10 @@
             <i class="fas fa-exclamation-triangle"></i>
           </div>
         </div>
-        <h4 class="fw-bold mb-2" style="color: var(--uni-primary);">{{ t('shared.cvNotFound') }}</h4>
-        <p class="text-muted mb-4 mx-auto" style="max-width: 400px;">{{ t('shared.cvNotFoundDesc') }}</p>
+        <h4 class="error-title mb-2">{{ t('shared.cvNotFound') }}</h4>
+        <p class="error-desc mb-4 mx-auto">{{ t('shared.cvNotFoundDesc') }}</p>
         <div class="d-flex gap-2 justify-content-center">
-          <router-link to="/" class="btn-pill btn-pill--outline">
+          <router-link to="/" class="btn-pill btn-pill--outline-dark">
             <i class="fas fa-home me-2"></i>{{ t('shared.goHome') }}
           </router-link>
           <router-link to="/dashboard" class="btn-pill btn-pill--primary">
@@ -79,7 +79,7 @@
 
     <!-- CTA Banner -->
     <div v-if="cv && !loading" class="cta-banner text-center">
-      <p class="mb-2 fw-semibold">{{ t('shared.createYourCV') }}</p>
+      <p class="cta-text mb-2">{{ t('shared.createYourCV') }}</p>
       <router-link to="/dashboard" class="btn-pill btn-pill--primary">
         <i class="fas fa-plus me-1"></i>
         {{ t('shared.createYourCV') }}
@@ -166,70 +166,59 @@ async function exportPDF() {
 </script>
 
 <style scoped>
-:root {
-  --uni-primary: #1a5276;
-  --uni-accent: #c0982b;
-  --uni-secondary: #2c3e50;
-}
-
 .shared-cv-page {
-  --uni-primary: #1a5276;
-  --uni-accent: #c0982b;
-  --uni-secondary: #2c3e50;
   min-height: 100vh;
-  background: linear-gradient(135deg, #f0f2f5 0%, #e8ecf1 100%);
+  background: #ffffff;
   display: flex;
   flex-direction: column;
 }
 
 /* Top Bar */
 .shared-topbar {
-  background: var(--uni-primary);
+  background: #ffffff;
   padding: 0.65rem 0;
-  box-shadow: 0 2px 12px rgba(26, 82, 118, 0.18);
+  border-bottom: 1px solid #ebebeb;
   z-index: 1030;
 }
 
 .topbar-brand {
-  color: #fff;
+  color: #222222;
 }
 
 .topbar-logo {
   height: 34px;
   width: auto;
   object-fit: contain;
-  filter: brightness(0) invert(1);
 }
 
 .topbar-logo-fallback {
   width: 38px;
   height: 38px;
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  background: rgba(26, 82, 118, 0.08);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--uni-accent);
+  color: #1a5276;
   font-size: 18px;
 }
 
 .topbar-name {
   font-size: 1.05rem;
   font-weight: 700;
-  color: #fff;
-  letter-spacing: 0.01em;
+  color: #222222;
 }
 
 /* Shared Badge */
 .shared-badge {
   display: inline-flex;
   align-items: center;
-  background: rgba(255, 255, 255, 0.15);
-  color: var(--uni-accent);
+  background: #f7f7f7;
+  color: #6a6a6a;
   font-size: 0.75rem;
   font-weight: 600;
   padding: 0.3rem 0.75rem;
-  border-radius: 999px;
+  border-radius: 20px;
   letter-spacing: 0.02em;
   text-transform: uppercase;
 }
@@ -239,7 +228,7 @@ async function exportPDF() {
   display: inline-flex;
   align-items: center;
   padding: 0.4rem 1.1rem;
-  border-radius: 999px;
+  border-radius: 8px;
   font-size: 0.85rem;
   font-weight: 600;
   border: none;
@@ -251,43 +240,45 @@ async function exportPDF() {
 
 .btn-pill--outline {
   background: transparent;
-  border: 1.5px solid rgba(255, 255, 255, 0.4);
-  color: #fff;
+  border: 1px solid #dddddd;
+  color: #222222;
 }
 
 .btn-pill--outline:hover {
-  background: rgba(255, 255, 255, 0.12);
-  border-color: rgba(255, 255, 255, 0.7);
-  color: #fff;
+  background: #f7f7f7;
+  border-color: #222222;
+  color: #222222;
 }
 
-.btn-pill--accent {
-  background: var(--uni-accent);
-  color: #fff;
-  box-shadow: 0 2px 8px rgba(192, 152, 43, 0.3);
+.btn-pill--outline-dark {
+  background: transparent;
+  border: 1px solid #222222;
+  color: #222222;
 }
 
-.btn-pill--accent:hover {
-  background: #d4a82f;
-  box-shadow: 0 4px 14px rgba(192, 152, 43, 0.4);
-  color: #fff;
+.btn-pill--outline-dark:hover {
+  background: #222222;
+  color: #ffffff;
 }
 
 .btn-pill--primary {
-  background: var(--uni-primary);
-  color: #fff;
-  box-shadow: 0 2px 8px rgba(26, 82, 118, 0.25);
+  background: #1a5276;
+  color: #ffffff;
 }
 
 .btn-pill--primary:hover {
-  background: #1e6291;
-  box-shadow: 0 4px 14px rgba(26, 82, 118, 0.35);
-  color: #fff;
+  background: #154360;
+  color: #ffffff;
 }
 
 .btn-pill:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+/* Shared Body */
+.shared-body {
+  flex: 1;
 }
 
 /* Loading State */
@@ -300,8 +291,18 @@ async function exportPDF() {
 .loading-ring .spinner-border {
   width: 3rem;
   height: 3rem;
-  color: var(--uni-accent);
+  color: #1a5276;
   border-width: 3px;
+}
+
+.loading-title {
+  color: #222222;
+  font-weight: 500;
+}
+
+.loading-desc {
+  color: #6a6a6a;
+  font-size: 0.9rem;
 }
 
 /* Error State */
@@ -316,74 +317,73 @@ async function exportPDF() {
   width: 90px;
   height: 90px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #fff8e1, #fff3cd);
-  color: var(--uni-accent);
+  background: #f7f7f7;
+  color: #c0982b;
   font-size: 2.2rem;
-  box-shadow: 0 6px 20px rgba(192, 152, 43, 0.15);
+}
+
+.error-title {
+  font-weight: 700;
+  color: #222222;
+}
+
+.error-desc {
+  color: #6a6a6a;
+  max-width: 400px;
 }
 
 /* CV Title */
 .cv-title-label {
-  color: var(--uni-secondary);
-  font-weight: 500;
+  color: #222222;
+  font-weight: 600;
 }
 
 .cv-title-label i {
-  color: var(--uni-accent);
+  color: #c0982b;
 }
 
 /* CV Frame */
 .cv-frame {
-  max-width: 220mm;
-  background: #fff;
-  border-radius: 8px;
+  max-width: 800px;
+  background: #ffffff;
+  border-radius: 12px;
   padding: 8px;
   box-shadow:
-    0 1px 3px rgba(0, 0, 0, 0.06),
-    0 8px 30px rgba(26, 82, 118, 0.08);
-  border: 1px solid rgba(26, 82, 118, 0.08);
+    rgba(0, 0, 0, 0.02) 0px 0px 0px 1px,
+    rgba(0, 0, 0, 0.04) 0px 2px 6px,
+    rgba(0, 0, 0, 0.1) 0px 4px 8px;
 }
 
 .cv-preview-container {
   max-width: 210mm;
   min-height: 297mm;
-  border-radius: 4px;
+  border-radius: 8px;
   overflow: hidden;
 }
 
 /* CTA Banner */
 .cta-banner {
-  background: linear-gradient(135deg, var(--uni-primary), var(--uni-secondary));
-  color: #fff;
-  padding: 1.5rem 1rem;
+  background: #f7f7f7;
+  padding: 2rem 1rem;
   margin-top: 2rem;
+  border-top: 1px solid #ebebeb;
 }
 
-.cta-banner p {
+.cta-text {
   font-size: 1rem;
-  opacity: 0.9;
-}
-
-.cta-banner .btn-pill--primary {
-  background: var(--uni-accent);
-  box-shadow: 0 2px 10px rgba(192, 152, 43, 0.3);
-}
-
-.cta-banner .btn-pill--primary:hover {
-  background: #d4a82f;
+  color: #222222;
+  font-weight: 600;
 }
 
 /* Footer */
 .shared-footer {
   margin-top: auto;
-  background: var(--uni-primary);
-  color: rgba(255, 255, 255, 0.7);
-  padding: 0.85rem 0;
-  border-top: 3px solid var(--uni-accent);
+  padding: 1rem 0;
+  border-top: 1px solid #ebebeb;
 }
 
 .shared-footer small {
-  color: rgba(255, 255, 255, 0.7);
+  color: #6a6a6a;
 }
 
 /* Print styles */
@@ -413,7 +413,8 @@ async function exportPDF() {
     max-width: 100% !important;
   }
 
-  .container-fluid {
+  .container-fluid,
+  .shared-body {
     padding: 0 !important;
   }
 }

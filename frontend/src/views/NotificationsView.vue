@@ -1,32 +1,27 @@
 <template>
   <div class="notifications-page">
-    <div class="container py-4">
+    <div class="container py-5">
       <div class="row justify-content-center">
         <div class="col-lg-8 col-xl-7">
           <!-- Header -->
           <div class="notif-header mb-4">
             <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-3">
-              <div class="d-flex align-items-center gap-3">
-                <div class="notif-header-icon">
-                  <i class="fas fa-bell"></i>
-                </div>
-                <div>
-                  <h3 class="fw-bold mb-0 notif-title">
-                    {{ t('notifications.title') }}
-                    <span v-if="unreadCount > 0" class="unread-badge">{{ unreadCount }}</span>
-                  </h3>
-                  <p class="text-muted-light mb-0 small mt-1" v-if="notifStore.notifications.length">
-                    {{ unreadCount > 0
-                      ? (locale === 'ar' ? `${unreadCount} إشعار غير مقروء` : `${unreadCount} unread notification${unreadCount > 1 ? 's' : ''}`)
-                      : (locale === 'ar' ? 'جميع الإشعارات مقروءة' : 'All notifications read')
-                    }}
-                  </p>
-                </div>
+              <div>
+                <h3 class="notif-title mb-0">
+                  {{ t('notifications.title') }}
+                  <span v-if="unreadCount > 0" class="unread-badge">{{ unreadCount }}</span>
+                </h3>
+                <p class="notif-subtitle mb-0 mt-1" v-if="notifStore.notifications.length">
+                  {{ unreadCount > 0
+                    ? (locale === 'ar' ? `${unreadCount} إشعار غير مقروء` : `${unreadCount} unread notification${unreadCount > 1 ? 's' : ''}`)
+                    : (locale === 'ar' ? 'جميع الإشعارات مقروءة' : 'All notifications read')
+                  }}
+                </p>
               </div>
               <div class="d-flex gap-2" v-if="notifStore.notifications.length">
                 <button
                   @click="deleteAllRead"
-                  class="btn btn-notif-action btn-notif-delete d-inline-flex align-items-center"
+                  class="btn-notif-action btn-notif-delete d-inline-flex align-items-center"
                   v-if="hasReadNotifications"
                 >
                   <i class="fas fa-trash-alt me-1"></i>
@@ -34,7 +29,7 @@
                 </button>
                 <button
                   @click="markAllRead"
-                  class="btn btn-notif-action btn-notif-markread d-inline-flex align-items-center"
+                  class="btn-notif-action btn-notif-markread d-inline-flex align-items-center"
                   v-if="unreadCount > 0"
                 >
                   <i class="fas fa-check-double me-1"></i>
@@ -54,8 +49,8 @@
                   <line x1="1" y1="1" x2="23" y2="23"></line>
                 </svg>
               </div>
-              <h5 class="fw-semibold empty-title mb-2">{{ t('notifications.noNotifications') }}</h5>
-              <p class="text-muted small mb-0">{{ t('notifications.noNotificationsDesc') }}</p>
+              <h5 class="empty-title mb-2">{{ t('notifications.noNotifications') }}</h5>
+              <p class="empty-desc mb-0">{{ t('notifications.noNotificationsDesc') }}</p>
             </div>
           </div>
 
@@ -194,42 +189,18 @@ async function deleteAllRead() {
 <style scoped>
 /* === Page === */
 .notifications-page {
-  --uni-primary: #1a5276;
-  --uni-accent: #c0982b;
-  --uni-secondary: #2c3e50;
-  --uni-primary-light: #e8f0f7;
-  --uni-success: #1e8449;
-  --uni-warning: #d4a017;
-  --uni-danger: #c0392b;
-  --uni-info: #2471a3;
   min-height: 100vh;
-  background: #f5f7fa;
+  background: #ffffff;
 }
 
 /* === Header === */
 .notif-header {
-  background: linear-gradient(135deg, var(--uni-primary) 0%, var(--uni-secondary) 100%);
-  border-radius: 16px;
-  padding: 24px 28px;
-  color: white;
-}
-
-.notif-header-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 14px;
-  background: rgba(255, 255, 255, 0.15);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.2rem;
-  color: var(--uni-accent);
-  flex-shrink: 0;
+  padding: 0;
 }
 
 .notif-title {
-  color: white;
+  font-weight: 700;
+  color: #222222;
   display: inline-flex;
   align-items: center;
   gap: 10px;
@@ -242,55 +213,58 @@ async function deleteAllRead() {
   min-width: 24px;
   height: 24px;
   border-radius: 12px;
-  background: var(--uni-accent);
-  color: var(--uni-primary);
+  background: #c0982b;
+  color: #ffffff;
   font-size: 0.75rem;
   font-weight: 700;
   padding: 0 7px;
 }
 
-.text-muted-light {
-  color: rgba(255, 255, 255, 0.65);
+.notif-subtitle {
+  color: #6a6a6a;
+  font-size: 0.88rem;
+  font-weight: 500;
 }
 
 .btn-notif-action {
   font-size: 0.82rem;
-  font-weight: 500;
+  font-weight: 600;
   border-radius: 8px;
   padding: 6px 14px;
   transition: all 0.2s;
+  cursor: pointer;
+  border: none;
 }
 
 .btn-notif-delete {
-  background: rgba(192, 57, 43, 0.15);
-  color: #f1a9a0;
-  border: 1px solid rgba(241, 169, 160, 0.3);
+  background: rgba(192, 57, 43, 0.08);
+  color: #c0392b;
 }
 
 .btn-notif-delete:hover {
-  background: var(--uni-danger);
-  color: white;
-  border-color: var(--uni-danger);
+  background: #c0392b;
+  color: #ffffff;
 }
 
 .btn-notif-markread {
-  background: rgba(192, 152, 43, 0.15);
-  color: var(--uni-accent);
-  border: 1px solid rgba(192, 152, 43, 0.3);
+  background: transparent;
+  color: #1a5276;
+  border: none;
+  padding: 6px 14px;
 }
 
 .btn-notif-markread:hover {
-  background: var(--uni-accent);
-  color: var(--uni-primary);
-  border-color: var(--uni-accent);
+  background: rgba(26, 82, 118, 0.06);
 }
 
 /* === Empty State === */
 .empty-state {
-  background: white;
-  border-radius: 16px;
-  border: 1px solid #e4e8f0;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow:
+    rgba(0, 0, 0, 0.02) 0px 0px 0px 1px,
+    rgba(0, 0, 0, 0.04) 0px 2px 6px,
+    rgba(0, 0, 0, 0.1) 0px 4px 8px;
 }
 
 .empty-bell-wrap {
@@ -300,36 +274,41 @@ async function deleteAllRead() {
   width: 100px;
   height: 100px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--uni-primary-light) 0%, #d5e8f7 100%);
-  color: var(--uni-primary);
+  background: #f7f7f7;
+  color: #6a6a6a;
 }
 
 .empty-title {
-  color: var(--uni-secondary);
+  color: #222222;
+  font-weight: 600;
+}
+
+.empty-desc {
+  color: #6a6a6a;
+  font-size: 0.9rem;
 }
 
 /* === Notification Cards === */
 .notifications-list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
 }
 
 .notification-card {
   display: flex;
-  background: white;
-  border-radius: 14px;
+  background: #ffffff;
+  border-radius: 12px;
   overflow: hidden;
   transition: all 0.2s ease;
   cursor: pointer;
-  border: 1px solid #e4e8f0;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
+  box-shadow:
+    rgba(0, 0, 0, 0.02) 0px 0px 0px 1px,
+    rgba(0, 0, 0, 0.04) 0px 2px 6px;
 }
 
 .notification-card:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 16px rgba(26, 82, 118, 0.1);
-  border-color: #d0d8e4;
+  box-shadow: rgba(0, 0, 0, 0.08) 0px 4px 12px;
 }
 
 /* Color Strip */
@@ -338,21 +317,10 @@ async function deleteAllRead() {
   flex-shrink: 0;
 }
 
-.strip-approval {
-  background: var(--uni-success);
-}
-
-.strip-rejection {
-  background: var(--uni-danger);
-}
-
-.strip-revision {
-  background: var(--uni-warning);
-}
-
-.strip-announcement {
-  background: var(--uni-info);
-}
+.strip-approval { background: #1e8449; }
+.strip-rejection { background: #c0392b; }
+.strip-revision { background: #c0982b; }
+.strip-announcement { background: #1a5276; }
 
 [dir="rtl"] .notification-color-strip {
   order: 1;
@@ -360,8 +328,7 @@ async function deleteAllRead() {
 
 /* Unread state */
 .notification-unread {
-  background: #f8fbff;
-  border-color: rgba(26, 82, 118, 0.15);
+  background: #fafafa;
 }
 
 .notification-unread .notification-color-strip {
@@ -376,60 +343,60 @@ async function deleteAllRead() {
 }
 
 .notification-icon-wrapper {
-  width: 42px;
-  height: 42px;
-  border-radius: 12px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   flex-shrink: 0;
 }
 
 .icon-success {
-  background: linear-gradient(135deg, #d4efdf, #a9dfbf);
-  color: var(--uni-success);
+  background: rgba(30, 132, 73, 0.1);
+  color: #1e8449;
 }
 
 .icon-danger {
-  background: linear-gradient(135deg, #fadbd8, #f1948a);
-  color: var(--uni-danger);
+  background: rgba(192, 57, 43, 0.1);
+  color: #c0392b;
 }
 
 .icon-warning {
-  background: linear-gradient(135deg, #fdebd0, #f9e79f);
-  color: #9a7d0a;
+  background: rgba(192, 152, 43, 0.1);
+  color: #c0982b;
 }
 
 .icon-info {
-  background: linear-gradient(135deg, #d4e6f1, #a9cce3);
-  color: var(--uni-info);
+  background: rgba(26, 82, 118, 0.1);
+  color: #1a5276;
 }
 
 .icon-primary {
-  background: linear-gradient(135deg, var(--uni-primary-light), #bdd7ea);
-  color: var(--uni-primary);
+  background: rgba(26, 82, 118, 0.1);
+  color: #1a5276;
 }
 
 .notification-title {
-  color: var(--uni-secondary);
+  color: #222222;
   font-size: 0.92rem;
   line-height: 1.4;
 }
 
 .link-indicator {
-  color: #aeb6bf;
+  color: #6a6a6a;
   font-size: 0.7rem;
 }
 
 .notification-message {
-  color: #7f8c8d;
+  color: #6a6a6a;
   font-size: 0.84rem;
   line-height: 1.5;
 }
 
 .notification-time {
-  color: #aeb6bf;
+  color: #6a6a6a;
   font-size: 0.78rem;
 }
 
@@ -437,9 +404,8 @@ async function deleteAllRead() {
   width: 9px;
   height: 9px;
   border-radius: 50%;
-  background: var(--uni-accent);
+  background: #c0982b;
   display: inline-block;
-  box-shadow: 0 0 0 3px rgba(192, 152, 43, 0.2);
 }
 
 .text-truncate-2 {
@@ -453,18 +419,12 @@ async function deleteAllRead() {
   min-width: 0;
 }
 
+.fw-medium {
+  font-weight: 500;
+}
+
 /* === Responsive === */
 @media (max-width: 576px) {
-  .notif-header {
-    padding: 18px 20px;
-  }
-
-  .notif-header-icon {
-    width: 40px;
-    height: 40px;
-    font-size: 1rem;
-  }
-
   .notification-body {
     padding: 12px 14px;
   }
@@ -473,7 +433,6 @@ async function deleteAllRead() {
     width: 36px;
     height: 36px;
     font-size: 0.85rem;
-    border-radius: 10px;
   }
 
   .notification-title {

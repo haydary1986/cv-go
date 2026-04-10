@@ -12,7 +12,9 @@
         <div class="chart-card">
           <div class="chart-card-header">
             <div class="chart-card-title">
-              <i class="fas fa-university me-2 chart-icon chart-icon--primary"></i>
+              <span class="chart-icon chart-icon--blue">
+                <i class="fas fa-university"></i>
+              </span>
               {{ t('admin.byFaculty') }}
             </div>
           </div>
@@ -27,7 +29,9 @@
         <div class="chart-card">
           <div class="chart-card-header">
             <div class="chart-card-title">
-              <i class="fas fa-language me-2 chart-icon chart-icon--accent"></i>
+              <span class="chart-icon chart-icon--gold">
+                <i class="fas fa-language"></i>
+              </span>
               {{ t('admin.byLanguage') }}
             </div>
           </div>
@@ -42,7 +46,9 @@
         <div class="chart-card">
           <div class="chart-card-header">
             <div class="chart-card-title">
-              <i class="fas fa-chart-pie me-2 chart-icon chart-icon--green"></i>
+              <span class="chart-icon chart-icon--green">
+                <i class="fas fa-chart-pie"></i>
+              </span>
               {{ t('admin.byStatus') }}
             </div>
           </div>
@@ -57,7 +63,9 @@
         <div class="chart-card">
           <div class="chart-card-header">
             <div class="chart-card-title">
-              <i class="fas fa-chart-line me-2 chart-icon chart-icon--purple"></i>
+              <span class="chart-icon chart-icon--purple">
+                <i class="fas fa-chart-line"></i>
+              </span>
               {{ t('admin.monthlyTrends') }}
             </div>
           </div>
@@ -72,7 +80,9 @@
         <div class="chart-card">
           <div class="chart-card-header">
             <div class="chart-card-title">
-              <i class="fas fa-trophy me-2 chart-icon chart-icon--gold"></i>
+              <span class="chart-icon chart-icon--gold">
+                <i class="fas fa-trophy"></i>
+              </span>
               {{ t('admin.topUsers') }}
             </div>
           </div>
@@ -92,8 +102,8 @@
                     <td>
                       <span class="rank-badge" :class="'rank-badge--' + (index + 1)">{{ index + 1 }}</span>
                     </td>
-                    <td class="text-muted">{{ u.email }}</td>
-                    <td class="fw-semibold text-dark">{{ u.name }}</td>
+                    <td class="cell-muted">{{ u.email }}</td>
+                    <td class="fw-semibold cell-dark">{{ u.name }}</td>
                     <td class="text-end">
                       <span class="count-badge">{{ u.count }}</span>
                     </td>
@@ -186,12 +196,12 @@ onMounted(async () => {
 .page-title {
   font-size: 24px;
   font-weight: 700;
-  color: #1a5276;
+  color: #222222;
   margin: 0;
 }
 
 .page-subtitle {
-  color: #6c757d;
+  color: #6a6a6a;
   font-size: 14px;
   margin: 4px 0 0;
 }
@@ -200,14 +210,9 @@ onMounted(async () => {
 .chart-card {
   background: #ffffff;
   border-radius: 12px;
-  border: 1px solid #e9ecef;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  border: none;
+  box-shadow: rgba(0,0,0,0.02) 0px 0px 0px 1px, rgba(0,0,0,0.04) 0px 2px 6px, rgba(0,0,0,0.1) 0px 4px 8px;
   overflow: hidden;
-  transition: box-shadow 0.2s;
-}
-
-.chart-card:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 .chart-card-header {
@@ -218,26 +223,26 @@ onMounted(async () => {
 .chart-card-title {
   font-size: 15px;
   font-weight: 600;
-  color: #2c3e50;
+  color: #222222;
   display: flex;
   align-items: center;
+  gap: 10px;
 }
 
 .chart-icon {
-  width: 28px;
-  height: 28px;
-  border-radius: 6px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 13px;
+  font-size: 14px;
 }
 
-.chart-icon--primary { background: rgba(26, 82, 118, 0.1); color: #1a5276; }
-.chart-icon--accent { background: rgba(192, 152, 43, 0.1); color: #c0982b; }
-.chart-icon--green { background: rgba(25, 135, 84, 0.1); color: #198754; }
-.chart-icon--purple { background: rgba(102, 16, 242, 0.1); color: #6610f2; }
-.chart-icon--gold { background: rgba(192, 152, 43, 0.1); color: #c0982b; }
+.chart-icon--blue { background: rgba(26, 82, 118, 0.08); color: #1a5276; }
+.chart-icon--gold { background: rgba(192, 152, 43, 0.08); color: #c0982b; }
+.chart-icon--green { background: rgba(46, 125, 50, 0.08); color: #2e7d32; }
+.chart-icon--purple { background: rgba(102, 16, 242, 0.08); color: #6610f2; }
 
 .chart-card-body {
   padding: 24px;
@@ -249,9 +254,9 @@ onMounted(async () => {
 }
 
 .admin-table thead th {
-  background: #f8f9fb;
-  border-bottom: 2px solid #e9ecef;
-  color: #1a5276;
+  background: #ffffff;
+  border-bottom: 1px solid #ebebeb;
+  color: #222222;
   font-weight: 600;
   font-size: 12px;
   text-transform: uppercase;
@@ -262,11 +267,19 @@ onMounted(async () => {
 .admin-table tbody td {
   padding: 12px 20px;
   vertical-align: middle;
-  border-bottom: 1px solid #f0f2f5;
+  border-bottom: 1px solid #f0f0f0;
 }
 
 .admin-table tbody tr:hover {
-  background: #f8fafc;
+  background: #f7f7f7;
+}
+
+.cell-muted {
+  color: #6a6a6a;
+}
+
+.cell-dark {
+  color: #222222;
 }
 
 /* ── Rank Badge ── */
@@ -279,13 +292,13 @@ onMounted(async () => {
   justify-content: center;
   font-size: 12px;
   font-weight: 700;
-  background: #f0f2f5;
-  color: #6c757d;
+  background: #f7f7f7;
+  color: #6a6a6a;
 }
 
-.rank-badge--1 { background: linear-gradient(135deg, #c0982b, #d4a93a); color: #fff; }
-.rank-badge--2 { background: linear-gradient(135deg, #95a5a6, #bdc3c7); color: #fff; }
-.rank-badge--3 { background: linear-gradient(135deg, #cd7f32, #d4943a); color: #fff; }
+.rank-badge--1 { background: #c0982b; color: #fff; }
+.rank-badge--2 { background: #95a5a6; color: #fff; }
+.rank-badge--3 { background: #cd7f32; color: #fff; }
 
 /* ── Count Badge ── */
 .count-badge {
@@ -294,7 +307,7 @@ onMounted(async () => {
   justify-content: center;
   min-width: 32px;
   padding: 4px 10px;
-  border-radius: 6px;
+  border-radius: 14px;
   font-size: 13px;
   font-weight: 700;
   background: rgba(26, 82, 118, 0.08);

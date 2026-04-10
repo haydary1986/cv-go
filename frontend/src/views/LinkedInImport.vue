@@ -1,13 +1,13 @@
 <template>
   <div class="linkedin-page">
-    <div class="container py-4" style="max-width: 720px;">
+    <div class="container py-5" style="max-width: 720px;">
 
       <!-- Page Header -->
       <div class="text-center mb-4">
         <div class="linkedin-icon-wrap mb-3">
           <i class="fab fa-linkedin-in"></i>
         </div>
-        <h3 class="fw-bold" style="color: var(--uni-primary);">
+        <h3 class="page-title">
           {{ locale === 'ar' ? 'استيراد من LinkedIn' : 'Import from LinkedIn' }}
         </h3>
       </div>
@@ -60,10 +60,10 @@
 
       <!-- Loading / Progress -->
       <div v-if="loading" class="loading-card text-center my-4">
-        <div class="progress mb-3" style="height: 6px; border-radius: 6px;">
-          <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: 70%; background: var(--uni-accent);"></div>
+        <div class="progress-track mb-3">
+          <div class="progress-track-fill" style="width: 70%;"></div>
         </div>
-        <p class="text-muted mb-0">
+        <p class="loading-text mb-0">
           <i class="fas fa-cog fa-spin me-1"></i>
           {{ locale === 'ar' ? 'جاري تحليل البيانات...' : 'Analyzing data...' }}
         </p>
@@ -72,7 +72,7 @@
       <!-- Data Preview -->
       <div v-if="preview" class="preview-section mt-4">
         <h5 class="preview-title mb-3">
-          <i class="fas fa-check-circle me-2" style="color: #28a745;"></i>
+          <i class="fas fa-check-circle me-2" style="color: #1e8449;"></i>
           {{ locale === 'ar' ? 'معاينة البيانات المستوردة:' : 'Imported Data Preview:' }}
         </h5>
         <div class="row g-3 mb-4">
@@ -182,37 +182,41 @@ async function createCV() {
 
 <style scoped>
 .linkedin-page {
-  --uni-primary: #1a5276;
-  --uni-accent: #c0982b;
-  --uni-secondary: #2c3e50;
   min-height: 80vh;
+  background: #ffffff;
 }
 
 .linkedin-icon-wrap {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 64px;
-  height: 64px;
-  border-radius: 16px;
-  background: linear-gradient(135deg, #0077b5, #005582);
-  color: #fff;
-  font-size: 1.8rem;
-  box-shadow: 0 4px 16px rgba(0, 119, 181, 0.25);
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: rgba(0, 119, 181, 0.08);
+  color: #0077b5;
+  font-size: 1.5rem;
+}
+
+.page-title {
+  font-weight: 700;
+  color: #222222;
 }
 
 /* Instructions Card */
 .instructions-card {
-  border-radius: 14px;
+  border-radius: 12px;
   overflow: hidden;
-  border: 1px solid rgba(26, 82, 118, 0.1);
-  background: #fff;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+  background: #ffffff;
+  box-shadow:
+    rgba(0, 0, 0, 0.02) 0px 0px 0px 1px,
+    rgba(0, 0, 0, 0.04) 0px 2px 6px,
+    rgba(0, 0, 0, 0.1) 0px 4px 8px;
 }
 
 .instructions-header {
-  background: linear-gradient(135deg, var(--uni-primary), #1e6291);
-  color: #fff;
+  background: #222222;
+  color: #ffffff;
   padding: 0.75rem 1.25rem;
   font-weight: 600;
   font-size: 0.9rem;
@@ -228,11 +232,11 @@ async function createCV() {
   gap: 0.75rem;
   padding: 0.6rem 0;
   font-size: 0.9rem;
-  color: var(--uni-secondary);
+  color: #222222;
 }
 
 .instruction-step + .instruction-step {
-  border-top: 1px solid #f0f0f0;
+  border-top: 1px solid #ebebeb;
 }
 
 .step-number {
@@ -240,8 +244,8 @@ async function createCV() {
   height: 28px;
   min-width: 28px;
   border-radius: 50%;
-  background: var(--uni-accent);
-  color: #fff;
+  background: #1a5276;
+  color: #ffffff;
   font-weight: 700;
   font-size: 0.8rem;
   display: flex;
@@ -251,47 +255,46 @@ async function createCV() {
 
 /* Upload Zone */
 .upload-zone {
-  border: 2.5px dashed rgba(26, 82, 118, 0.25);
-  border-radius: 16px;
+  border: 2px dashed #c1c1c1;
+  border-radius: 12px;
   padding: 2.5rem 1.5rem;
   text-align: center;
-  background: rgba(26, 82, 118, 0.02);
+  background: #fafafa;
   transition: all 0.25s ease;
   cursor: pointer;
 }
 
 .upload-zone--active {
-  border-color: var(--uni-accent);
-  background: rgba(192, 152, 43, 0.06);
-  transform: scale(1.01);
+  border-color: #1a5276;
+  background: rgba(26, 82, 118, 0.03);
 }
 
 .upload-icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 64px;
-  height: 64px;
+  width: 56px;
+  height: 56px;
   border-radius: 50%;
-  background: rgba(26, 82, 118, 0.08);
-  color: var(--uni-primary);
-  font-size: 1.8rem;
+  background: #f0f0f0;
+  color: #6a6a6a;
+  font-size: 1.5rem;
   margin-bottom: 1rem;
 }
 
 .upload-zone--active .upload-icon {
-  background: rgba(192, 152, 43, 0.15);
-  color: var(--uni-accent);
+  background: rgba(26, 82, 118, 0.1);
+  color: #1a5276;
 }
 
 .upload-title {
   font-weight: 600;
-  color: var(--uni-secondary);
+  color: #222222;
   font-size: 1rem;
 }
 
 .upload-subtitle {
-  color: #adb5bd;
+  color: #6a6a6a;
   font-size: 0.85rem;
 }
 
@@ -299,9 +302,9 @@ async function createCV() {
   display: inline-flex;
   align-items: center;
   padding: 0.5rem 1.5rem;
-  border-radius: 999px;
-  background: var(--uni-primary);
-  color: #fff;
+  border-radius: 8px;
+  background: #1a5276;
+  color: #ffffff;
   font-weight: 600;
   font-size: 0.88rem;
   cursor: pointer;
@@ -310,62 +313,88 @@ async function createCV() {
 }
 
 .upload-browse-btn:hover {
-  background: #1e6291;
-  box-shadow: 0 4px 12px rgba(26, 82, 118, 0.2);
+  background: #154360;
 }
 
 .upload-hint {
   font-size: 0.75rem;
-  color: #adb5bd;
+  color: #6a6a6a;
 }
 
 /* Loading */
 .loading-card {
-  background: #fff;
+  background: #ffffff;
   border-radius: 12px;
   padding: 1.5rem;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+  box-shadow:
+    rgba(0, 0, 0, 0.02) 0px 0px 0px 1px,
+    rgba(0, 0, 0, 0.04) 0px 2px 6px;
+}
+
+.progress-track {
+  height: 6px;
+  background: #f0f0f0;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.progress-track-fill {
+  height: 100%;
+  background: #1a5276;
+  border-radius: 6px;
+  animation: progress-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes progress-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+.loading-text {
+  color: #6a6a6a;
+  font-size: 0.9rem;
 }
 
 /* Preview */
 .preview-title {
-  color: var(--uni-primary);
+  color: #222222;
   font-weight: 700;
 }
 
 .preview-stat-card {
-  background: #fff;
+  background: #ffffff;
   border-radius: 12px;
   padding: 1rem;
   text-align: center;
-  border: 1px solid #eee;
-  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.04);
-  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow:
+    rgba(0, 0, 0, 0.02) 0px 0px 0px 1px,
+    rgba(0, 0, 0, 0.04) 0px 2px 6px;
+  transition: box-shadow 0.2s;
 }
 
 .preview-stat-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  box-shadow: rgba(0, 0, 0, 0.08) 0px 4px 12px;
 }
 
 .preview-stat-card i {
   font-size: 1.25rem;
-  color: var(--uni-accent);
+  color: #1a5276;
   margin-bottom: 0.5rem;
   display: block;
 }
 
 .preview-stat-label {
   font-size: 0.72rem;
-  color: #8c8c8c;
+  color: #6a6a6a;
   text-transform: uppercase;
   letter-spacing: 0.04em;
+  font-weight: 600;
   margin-bottom: 0.2rem;
 }
 
 .preview-stat-value {
   font-weight: 700;
-  color: var(--uni-secondary);
+  color: #222222;
   font-size: 0.9rem;
   word-break: break-all;
 }
@@ -374,19 +403,17 @@ async function createCV() {
   display: inline-flex;
   align-items: center;
   padding: 0.65rem 2rem;
-  border-radius: 999px;
-  background: linear-gradient(135deg, var(--uni-primary), #1e6291);
-  color: #fff;
+  border-radius: 8px;
+  background: #1a5276;
+  color: #ffffff;
   font-weight: 600;
   font-size: 0.95rem;
   border: none;
   cursor: pointer;
-  box-shadow: 0 4px 14px rgba(26, 82, 118, 0.25);
-  transition: all 0.25s ease;
+  transition: all 0.2s ease;
 }
 
 .create-cv-btn:hover {
-  box-shadow: 0 6px 20px rgba(26, 82, 118, 0.35);
-  transform: translateY(-1px);
+  background: #154360;
 }
 </style>

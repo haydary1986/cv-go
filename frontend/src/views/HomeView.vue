@@ -2,15 +2,9 @@
   <div class="home-page">
     <!-- Hero Section -->
     <section class="hero-section">
-      <div class="hero-bg-shapes">
-        <div class="shape shape-1"></div>
-        <div class="shape shape-2"></div>
-        <div class="shape shape-3"></div>
-        <div class="shape shape-4"></div>
-      </div>
-      <div class="container position-relative">
-        <div class="row align-items-center min-vh-75">
-          <div class="col-lg-7 text-white py-5">
+      <div class="container">
+        <div class="row align-items-center hero-row">
+          <div class="col-lg-7 py-5">
             <!-- University Logo + Name -->
             <div class="d-flex align-items-center mb-4 fade-in">
               <img
@@ -19,41 +13,41 @@
                 class="hero-university-logo"
               />
               <div class="ms-3">
-                <h4 class="mb-0 fw-bold text-white" style="letter-spacing: 0.02em;">{{ brandingStore.systemName || 'جامعة التراث' }}</h4>
-                <small class="text-white-50">University of Heritage</small>
+                <h4 class="mb-0 hero-uni-name">{{ brandingStore.systemName || 'جامعة التراث' }}</h4>
+                <small class="hero-uni-subtitle">University of Heritage</small>
               </div>
             </div>
 
             <div class="hero-badge mb-3 fade-in">
-              <span class="badge bg-white bg-opacity-25 px-3 py-2 rounded-pill fs-6">
+              <span class="hero-badge-pill">
                 <i class="fas fa-star me-1"></i> {{ t('home.heroBadge') }}
               </span>
             </div>
-            <h1 class="display-3 fw-bold mb-3 hero-title fade-in">
+            <h1 class="hero-title fade-in">
               {{ t('home.heroTitle') }}
             </h1>
-            <p class="lead mb-4 opacity-90 hero-subtitle fade-in" style="max-width: 540px;">
+            <p class="hero-subtitle fade-in">
               {{ t('home.heroSubtitle') }}
             </p>
             <div class="d-flex gap-3 flex-wrap fade-in">
               <template v-if="authStore.isAuthenticated">
-                <router-link to="/cv/create" class="btn btn-gold btn-lg px-4 fw-semibold shadow-sm hero-btn">
+                <router-link to="/cv/create" class="btn btn-gold btn-lg hero-btn">
                   <i class="fas fa-plus-circle me-2"></i>{{ t('home.createCVBtn') }}
                 </router-link>
-                <router-link to="/dashboard" class="btn btn-outline-light btn-lg px-4 fw-semibold hero-btn">
+                <router-link to="/dashboard" class="btn btn-outline-dark btn-lg hero-btn">
                   <i class="fas fa-th-large me-2"></i>{{ t('home.dashboardBtn') }}
                 </router-link>
               </template>
               <template v-else>
-                <router-link to="/register" class="btn btn-gold btn-lg px-4 fw-semibold shadow-sm hero-btn">
+                <router-link to="/register" class="btn btn-gold btn-lg hero-btn">
                   <i class="fas fa-rocket me-2"></i>{{ t('home.getStartedBtn') }}
                 </router-link>
-                <router-link to="/cv/guest" class="btn btn-outline-light btn-lg px-4 fw-semibold hero-btn">
+                <router-link to="/cv/guest" class="btn btn-outline-dark btn-lg hero-btn">
                   <i class="fas fa-eye me-2"></i>{{ t('home.tryDemoBtn') }}
                 </router-link>
               </template>
             </div>
-            <div class="mt-4 d-flex align-items-center gap-4 hero-trust fade-in">
+            <div class="mt-5 d-flex align-items-center gap-4 hero-trust fade-in">
               <div class="d-flex align-items-center gap-3">
                 <div class="hero-stat-item">
                   <i class="fas fa-graduation-cap me-1"></i> 14 {{ t('home.faculties') || 'كلية' }}
@@ -91,12 +85,12 @@
     </section>
 
     <!-- Features Section -->
-    <section class="features-section py-5" id="features">
-      <div class="container py-4">
+    <section class="features-section" id="features">
+      <div class="container">
         <div class="text-center mb-5">
           <span class="section-label">{{ t('home.featuresLabel') }}</span>
-          <h2 class="display-5 fw-bold mt-2">{{ t('home.featuresTitle') }}</h2>
-          <p class="text-muted lead mx-auto" style="max-width: 600px;">{{ t('home.featuresSubtitle') }}</p>
+          <h2 class="section-title mt-2">{{ t('home.featuresTitle') }}</h2>
+          <p class="section-subtitle mx-auto">{{ t('home.featuresSubtitle') }}</p>
         </div>
         <div class="row g-4">
           <div class="col-md-6 col-lg-3" v-for="(feature, index) in features" :key="index">
@@ -106,8 +100,8 @@
                   <i :class="feature.icon" class="fa-lg text-white"></i>
                 </div>
               </div>
-              <h5 class="fw-bold mb-2">{{ t(feature.titleKey) }}</h5>
-              <p class="text-muted small mb-0">{{ t(feature.descKey) }}</p>
+              <h5 class="feature-title mb-2">{{ t(feature.titleKey) }}</h5>
+              <p class="feature-desc mb-0">{{ t(feature.descKey) }}</p>
             </div>
           </div>
         </div>
@@ -115,12 +109,12 @@
     </section>
 
     <!-- How It Works Section -->
-    <section class="how-it-works-section py-5 bg-light">
-      <div class="container py-4">
+    <section class="how-it-works-section">
+      <div class="container">
         <div class="text-center mb-5">
           <span class="section-label">{{ t('home.howItWorksLabel') }}</span>
-          <h2 class="display-5 fw-bold mt-2">{{ t('home.howItWorksTitle') }}</h2>
-          <p class="text-muted lead mx-auto" style="max-width: 600px;">{{ t('home.howItWorksSubtitle') }}</p>
+          <h2 class="section-title mt-2">{{ t('home.howItWorksTitle') }}</h2>
+          <p class="section-subtitle mx-auto">{{ t('home.howItWorksSubtitle') }}</p>
         </div>
         <div class="row g-4 justify-content-center">
           <div class="col-md-4" v-for="(step, index) in steps" :key="index">
@@ -128,13 +122,14 @@
               <div class="step-number-wrapper mb-3">
                 <div class="step-number">{{ index + 1 }}</div>
                 <div class="step-icon-bg">
-                  <i :class="step.icon" class="fa-2x text-primary"></i>
+                  <i :class="step.icon" class="fa-2x step-icon-inner"></i>
                 </div>
               </div>
-              <h5 class="fw-bold mb-2">{{ t(step.titleKey) }}</h5>
-              <p class="text-muted small mb-0">{{ t(step.descKey) }}</p>
-              <div v-if="index < steps.length - 1" class="step-arrow d-none d-md-block">
-                <i class="fas fa-chevron-right text-primary opacity-25 fa-2x"></i>
+              <h5 class="step-title mb-2">{{ t(step.titleKey) }}</h5>
+              <p class="step-desc mb-0">{{ t(step.descKey) }}</p>
+              <div v-if="index < steps.length - 1" class="step-connector d-none d-md-block">
+                <div class="step-connector-line"></div>
+                <i class="fas fa-chevron-right step-connector-arrow"></i>
               </div>
             </div>
           </div>
@@ -143,12 +138,12 @@
     </section>
 
     <!-- Templates Preview Section -->
-    <section class="templates-section py-5">
-      <div class="container py-4">
+    <section class="templates-section">
+      <div class="container">
         <div class="text-center mb-5">
           <span class="section-label">{{ t('home.templatesLabel') }}</span>
-          <h2 class="display-5 fw-bold mt-2">{{ t('home.templatesTitle') }}</h2>
-          <p class="text-muted lead mx-auto" style="max-width: 600px;">{{ t('home.templatesSubtitle') }}</p>
+          <h2 class="section-title mt-2">{{ t('home.templatesTitle') }}</h2>
+          <p class="section-subtitle mx-auto">{{ t('home.templatesSubtitle') }}</p>
         </div>
         <div class="row g-3">
           <div class="col-6 col-sm-4 col-md-3 col-lg-2" v-for="tmpl in templates" :key="tmpl.name">
@@ -165,10 +160,10 @@
             </div>
           </div>
         </div>
-        <div class="text-center mt-4">
+        <div class="text-center mt-5">
           <router-link
             :to="authStore.isAuthenticated ? '/cv/create' : '/register'"
-            class="btn btn-primary btn-lg px-5 rounded-pill shadow-sm">
+            class="btn btn-primary-uni btn-lg px-5">
             <i class="fas fa-palette me-2"></i>{{ t('home.browseTemplatesBtn') }}
           </router-link>
         </div>
@@ -176,16 +171,16 @@
     </section>
 
     <!-- Statistics Section -->
-    <section class="stats-section py-5">
-      <div class="container py-4">
+    <section class="stats-section">
+      <div class="container">
         <div class="row g-4 justify-content-center">
           <div class="col-6 col-md-3" v-for="stat in stats" :key="stat.labelKey">
             <div class="stat-card text-center p-4">
-              <div class="stat-icon mb-2">
+              <div class="stat-icon mb-3">
                 <i :class="stat.icon" class="fa-2x"></i>
               </div>
-              <div class="stat-value display-5 fw-bold">{{ stat.value }}</div>
-              <div class="stat-label text-muted small">{{ t(stat.labelKey) }}</div>
+              <div class="stat-value">{{ stat.value }}</div>
+              <div class="stat-label">{{ t(stat.labelKey) }}</div>
             </div>
           </div>
         </div>
@@ -193,28 +188,28 @@
     </section>
 
     <!-- Guest CTA Section -->
-    <section v-if="!authStore.isAuthenticated" class="guest-cta-section py-5 bg-light">
-      <div class="container py-4">
+    <section v-if="!authStore.isAuthenticated" class="guest-cta-section">
+      <div class="container">
         <div class="row justify-content-center">
           <div class="col-lg-8">
             <div class="guest-card p-5 text-center">
-              <div class="guest-icon mb-3">
-                <i class="fas fa-bolt fa-3x text-warning"></i>
+              <div class="guest-icon mb-4">
+                <i class="fas fa-bolt fa-2x"></i>
               </div>
-              <h3 class="fw-bold mb-3">{{ t('home.guestTitle') }}</h3>
-              <p class="text-muted mb-4 mx-auto" style="max-width: 500px;">{{ t('home.guestSubtitle') }}</p>
-              <router-link to="/cv/guest" class="btn btn-warning btn-lg px-5 shadow-sm rounded-pill fw-semibold mb-3">
+              <h3 class="guest-title mb-3">{{ t('home.guestTitle') }}</h3>
+              <p class="guest-desc mb-4 mx-auto">{{ t('home.guestSubtitle') }}</p>
+              <router-link to="/cv/guest" class="btn btn-gold btn-lg px-5 mb-3">
                 <i class="fas fa-bolt me-2"></i>{{ t('cv.createWithoutAccount') }}
               </router-link>
               <div class="mt-3">
-                <div class="d-flex align-items-center justify-content-center gap-2 text-muted small">
-                  <i class="fas fa-exclamation-triangle text-warning"></i>
+                <div class="d-flex align-items-center justify-content-center gap-2 guest-warning">
+                  <i class="fas fa-exclamation-triangle"></i>
                   <span>{{ t('home.guestWarningShort') }}</span>
                 </div>
               </div>
-              <div class="mt-4 pt-3 border-top">
-                <p class="mb-2 text-muted small">{{ t('home.guestOrRegister') }}</p>
-                <router-link to="/register" class="btn btn-outline-primary rounded-pill px-4">
+              <div class="mt-4 pt-3 guest-divider">
+                <p class="mb-2 guest-or-text">{{ t('home.guestOrRegister') }}</p>
+                <router-link to="/register" class="btn btn-outline-primary-uni px-4">
                   <i class="fas fa-user-plus me-2"></i>{{ t('home.createAccountBtn') }}
                 </router-link>
               </div>
@@ -225,29 +220,29 @@
     </section>
 
     <!-- Final CTA Section (for authenticated users) -->
-    <section v-if="authStore.isAuthenticated" class="final-cta-section py-5 bg-light">
-      <div class="container py-4 text-center">
-        <h3 class="fw-bold mb-3">{{ t('home.readyTitle') }}</h3>
-        <p class="text-muted mb-4">{{ t('home.readySubtitle') }}</p>
-        <router-link to="/cv/create" class="btn btn-primary btn-lg px-5 rounded-pill shadow-sm fw-semibold">
+    <section v-if="authStore.isAuthenticated" class="final-cta-section">
+      <div class="container text-center">
+        <h3 class="cta-title mb-3">{{ t('home.readyTitle') }}</h3>
+        <p class="cta-subtitle mb-4">{{ t('home.readySubtitle') }}</p>
+        <router-link to="/cv/create" class="btn btn-gold btn-lg px-5">
           <i class="fas fa-plus-circle me-2"></i>{{ t('home.createCVBtn') }}
         </router-link>
       </div>
     </section>
 
     <!-- Footer -->
-    <footer class="home-footer py-5">
+    <footer class="home-footer">
       <div class="container">
         <div class="row g-4">
           <div class="col-lg-4 mb-3">
             <div class="d-flex align-items-center mb-3">
-              <img :src="brandingStore.logoUrl || '/logo.svg'" alt="Logo" class="footer-logo me-2" style="width: 40px; height: 40px;" />
-              <h5 class="fw-bold mb-0">{{ brandingStore.systemName }}</h5>
+              <img :src="brandingStore.logoUrl || '/logo.svg'" alt="Logo" class="footer-logo me-2" />
+              <h5 class="footer-brand-name mb-0">{{ brandingStore.systemName }}</h5>
             </div>
-            <p class="text-muted small">{{ t('home.footerDesc') }}</p>
+            <p class="footer-desc">{{ t('home.footerDesc') }}</p>
           </div>
           <div class="col-6 col-lg-2">
-            <h6 class="fw-bold mb-3">{{ t('home.footerProduct') }}</h6>
+            <h6 class="footer-heading mb-3">{{ t('home.footerProduct') }}</h6>
             <ul class="list-unstyled footer-links">
               <li><router-link to="/">{{ t('app.home') }}</router-link></li>
               <li>
@@ -259,7 +254,7 @@
             </ul>
           </div>
           <div class="col-6 col-lg-2">
-            <h6 class="fw-bold mb-3">{{ t('home.footerAccount') }}</h6>
+            <h6 class="footer-heading mb-3">{{ t('home.footerAccount') }}</h6>
             <ul class="list-unstyled footer-links">
               <template v-if="authStore.isAuthenticated">
                 <li><router-link to="/dashboard">{{ t('app.dashboard') }}</router-link></li>
@@ -272,26 +267,26 @@
             </ul>
           </div>
           <div class="col-lg-4">
-            <h6 class="fw-bold mb-3">{{ t('home.footerFeatures') }}</h6>
+            <h6 class="footer-heading mb-3">{{ t('home.footerFeatures') }}</h6>
             <div class="d-flex flex-wrap gap-2">
-              <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill">
+              <span class="footer-feature-badge footer-feature-ai">
                 <i class="fas fa-magic me-1"></i>{{ t('home.featureAI') }}
               </span>
-              <span class="badge bg-success bg-opacity-10 text-success px-3 py-2 rounded-pill">
+              <span class="footer-feature-badge footer-feature-pdf">
                 <i class="fas fa-file-pdf me-1"></i>PDF
               </span>
-              <span class="badge bg-info bg-opacity-10 text-info px-3 py-2 rounded-pill">
+              <span class="footer-feature-badge footer-feature-qr">
                 <i class="fas fa-qrcode me-1"></i>QR
               </span>
-              <span class="badge bg-warning bg-opacity-10 text-warning px-3 py-2 rounded-pill">
+              <span class="footer-feature-badge footer-feature-rtl">
                 <i class="fas fa-language me-1"></i>{{ t('home.featureRTL') }}
               </span>
             </div>
           </div>
         </div>
-        <hr class="my-4 opacity-25" />
+        <hr class="footer-divider" />
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-center">
-          <p class="text-muted small mb-2 mb-md-0">
+          <p class="footer-copyright mb-2 mb-md-0">
             &copy; {{ new Date().getFullYear() }} {{ brandingStore.systemName }}. {{ t('home.footerRights') }}
           </p>
           <div class="d-flex gap-3">
@@ -381,10 +376,10 @@ const templates = [
 ]
 
 const stats = [
-  { icon: 'fas fa-file-alt text-primary', value: '10,000+', labelKey: 'home.statCVs' },
-  { icon: 'fas fa-palette text-success', value: '16', labelKey: 'home.statTemplates' },
-  { icon: 'fas fa-language text-info', value: '2', labelKey: 'home.statLanguages' },
-  { icon: 'fas fa-robot text-warning', value: '6', labelKey: 'home.statAITools' },
+  { icon: 'fas fa-file-alt', value: '10,000+', labelKey: 'home.statCVs' },
+  { icon: 'fas fa-palette', value: '16', labelKey: 'home.statTemplates' },
+  { icon: 'fas fa-language', value: '2', labelKey: 'home.statLanguages' },
+  { icon: 'fas fa-robot', value: '6', labelKey: 'home.statAITools' },
 ]
 
 // Intersection Observer for scroll animations
@@ -408,46 +403,125 @@ onMounted(() => {
 </script>
 
 <style scoped>
+/* ===== Design Tokens ===== */
+:root {
+  --uni-primary: #1a5276;
+  --uni-accent: #c0982b;
+  --uni-text: #222222;
+  --uni-text-secondary: #6a6a6a;
+  --uni-bg: #ffffff;
+  --uni-bg-light: #f7f7f7;
+  --shadow-card: rgba(0,0,0,0.02) 0px 0px 0px 1px, rgba(0,0,0,0.04) 0px 2px 6px, rgba(0,0,0,0.1) 0px 4px 8px;
+  --shadow-hover: rgba(0,0,0,0.08) 0px 4px 12px;
+  --radius-btn: 8px;
+  --radius-card: 12px;
+  --radius-large: 20px;
+}
+
 /* ===== Hero Section ===== */
 .hero-section {
-  background: linear-gradient(135deg, #0a1628 0%, #0d2e4d 25%, #1a5276 50%, #0d6efd 85%, #4da3ff 100%);
+  background: linear-gradient(180deg, #f0f6fb 0%, #ffffff 100%);
   position: relative;
   overflow: hidden;
-  min-height: 85vh;
-  display: flex;
-  align-items: center;
+  padding: 40px 0 0;
+}
+
+.hero-row {
+  min-height: 75vh;
 }
 
 .hero-university-logo {
-  width: 64px;
-  height: 64px;
+  width: 56px;
+  height: 56px;
   object-fit: contain;
-  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.3));
+}
+
+.hero-uni-name {
+  font-weight: 700;
+  color: var(--uni-text);
+  letter-spacing: 0.02em;
+}
+
+.hero-uni-subtitle {
+  color: var(--uni-text-secondary);
+  font-size: 0.85rem;
+}
+
+.hero-badge-pill {
+  display: inline-block;
+  background: rgba(26, 82, 118, 0.08);
+  color: var(--uni-primary);
+  padding: 6px 16px;
+  border-radius: 999px;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.hero-title {
+  font-size: 3.25rem;
+  font-weight: 700;
+  color: var(--uni-text);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  margin-bottom: 16px;
+}
+
+.hero-subtitle {
+  font-size: 1.15rem;
+  color: var(--uni-text-secondary);
+  max-width: 540px;
+  line-height: 1.6;
+  margin-bottom: 32px;
 }
 
 .btn-gold {
-  background: linear-gradient(135deg, #c0982b, #d4aa3c);
-  color: #1a1a2e;
+  background: var(--uni-accent);
+  color: #ffffff;
   border: none;
-  font-weight: 700;
+  font-weight: 600;
+  border-radius: var(--radius-btn);
+  padding: 12px 28px;
+  transition: all 0.2s ease;
 }
 
 .btn-gold:hover {
-  background: linear-gradient(135deg, #d4aa3c, #e0bc4e);
-  color: #1a1a2e;
+  background: #d4a82f;
+  color: #ffffff;
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(192, 152, 43, 0.35);
+  box-shadow: 0 8px 24px rgba(192, 152, 43, 0.3);
+}
+
+.btn-outline-dark {
+  border: 1.5px solid var(--uni-text);
+  color: var(--uni-text);
+  font-weight: 600;
+  border-radius: var(--radius-btn);
+  padding: 12px 28px;
+  background: transparent;
+  transition: all 0.2s ease;
+}
+
+.btn-outline-dark:hover {
+  background: var(--uni-text);
+  color: #ffffff;
+  transform: translateY(-2px);
+}
+
+.hero-btn {
+  border-radius: var(--radius-btn);
+  font-size: 1rem;
 }
 
 .hero-stat-item {
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--uni-text-secondary);
   font-size: 0.9rem;
+  font-weight: 500;
 }
 
 .hero-stat-divider {
   width: 1px;
   height: 16px;
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(0, 0, 0, 0.12);
 }
 
 .hero-logo-showcase {
@@ -461,243 +535,63 @@ onMounted(() => {
   width: 280px;
   height: 280px;
   object-fit: contain;
-  filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.4));
+  filter: drop-shadow(0 16px 32px rgba(0, 0, 0, 0.08));
   animation: logoFloat 6s ease-in-out infinite;
 }
 
 @keyframes logoFloat {
   0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-15px); }
-}
-
-.floating-badge-qr {
-  position: absolute;
-  bottom: 20%;
-  left: 5%;
-  background: linear-gradient(135deg, #00BCD4, #009688);
-  color: white;
-  padding: 8px 14px;
-  border-radius: 20px;
-  font-weight: 700;
-  font-size: 0.85rem;
-  box-shadow: 0 8px 20px rgba(0, 188, 212, 0.3);
-  animation: floatBadge 4s ease-in-out infinite 2s;
-}
-
-.min-vh-75 {
-  min-height: 75vh;
-}
-
-.hero-bg-shapes .shape {
-  position: absolute;
-  border-radius: 50%;
-  opacity: 0.06;
-  background: white;
-}
-
-.shape-1 {
-  width: 500px;
-  height: 500px;
-  top: -150px;
-  right: -100px;
-  animation: floatShape 20s ease-in-out infinite;
-}
-
-.shape-2 {
-  width: 300px;
-  height: 300px;
-  bottom: -80px;
-  left: -60px;
-  animation: floatShape 15s ease-in-out infinite reverse;
-}
-
-.shape-3 {
-  width: 200px;
-  height: 200px;
-  top: 40%;
-  left: 20%;
-  animation: floatShape 18s ease-in-out infinite;
-}
-
-.shape-4 {
-  width: 150px;
-  height: 150px;
-  top: 20%;
-  right: 30%;
-  animation: floatShape 12s ease-in-out infinite reverse;
-}
-
-@keyframes floatShape {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  25% { transform: translate(30px, -30px) scale(1.05); }
-  50% { transform: translate(-20px, 20px) scale(0.95); }
-  75% { transform: translate(10px, -10px) scale(1.02); }
-}
-
-.hero-title {
-  line-height: 1.15;
-  letter-spacing: -0.02em;
-}
-
-.hero-btn {
-  transition: all 0.3s ease;
-  border-radius: 50px;
-}
-
-.hero-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-}
-
-.trust-avatar {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-  font-weight: 700;
-  color: white;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-}
-
-/* Hero Visual - CV Preview Card */
-.hero-visual {
-  position: relative;
-  padding: 20px;
-}
-
-.cv-preview-card {
-  background: white;
-  border-radius: 16px;
-  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.3);
-  overflow: hidden;
-  transform: perspective(800px) rotateY(-5deg) rotateX(3deg);
-  transition: transform 0.5s ease;
-}
-
-.cv-preview-card:hover {
-  transform: perspective(800px) rotateY(0deg) rotateX(0deg);
-}
-
-.cv-preview-header {
-  background: #f1f3f5;
-  padding: 12px 16px;
-  display: flex;
-  align-items: center;
-}
-
-.cv-dots {
-  display: flex;
-  gap: 6px;
-}
-
-.dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-}
-
-.dot-red { background: #ff5f57; }
-.dot-yellow { background: #febc2e; }
-.dot-green { background: #28c840; }
-
-.cv-preview-body {
-  padding: 24px;
-}
-
-.cv-line {
-  height: 8px;
-  border-radius: 4px;
-  margin-bottom: 8px;
-  animation: shimmerLine 2s ease-in-out infinite;
-}
-
-.cv-line-title {
-  width: 60%;
-  height: 14px;
-  background: linear-gradient(90deg, #0d6efd, #4da3ff);
-}
-
-.cv-line-subtitle {
-  width: 40%;
-  height: 10px;
-  background: #dee2e6;
-}
-
-.cv-line-heading {
-  width: 35%;
-  height: 10px;
-  background: #495057;
-}
-
-.cv-line-text {
-  width: 90%;
-  background: #e9ecef;
-}
-
-.cv-line-text.short {
-  width: 55%;
-}
-
-.cv-line-text.medium {
-  width: 75%;
-}
-
-.cv-section-divider {
-  height: 1px;
-  background: #e9ecef;
-  margin: 12px 0;
-}
-
-.cv-skills-row {
-  display: flex;
-  gap: 6px;
-  margin-top: 8px;
-}
-
-.cv-skill-chip {
-  width: 50px;
-  height: 20px;
-  border-radius: 10px;
-  background: linear-gradient(135deg, #e3f2fd, #bbdefb);
-}
-
-@keyframes shimmerLine {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.7; }
+  50% { transform: translateY(-12px); }
 }
 
 .floating-badge {
   position: absolute;
   padding: 10px 18px;
-  border-radius: 12px;
+  border-radius: var(--radius-card);
   font-weight: 700;
   font-size: 14px;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--shadow-card);
   animation: floatBadge 3s ease-in-out infinite;
+  background: #ffffff;
 }
 
 .floating-badge-ai {
   top: 10px;
   right: 0;
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  color: white;
+  color: #667eea;
   animation-delay: 0s;
 }
 
 .floating-badge-pdf {
   bottom: 30px;
   left: 0;
-  background: linear-gradient(135deg, #f5576c, #ff6b6b);
-  color: white;
+  color: #f5576c;
   animation-delay: 1.5s;
+}
+
+.floating-badge-qr {
+  position: absolute;
+  bottom: 20%;
+  left: 5%;
+  color: #009688;
+  padding: 8px 14px;
+  border-radius: var(--radius-large);
+  font-weight: 700;
+  font-size: 0.85rem;
+  box-shadow: var(--shadow-card);
+  animation: floatBadge 4s ease-in-out infinite 2s;
+  background: #ffffff;
 }
 
 @keyframes floatBadge {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-10px); }
+}
+
+/* Hero Visual */
+.hero-visual {
+  position: relative;
+  padding: 20px;
 }
 
 /* ===== Animations ===== */
@@ -728,42 +622,54 @@ onMounted(() => {
   to { opacity: 1; transform: translateX(0); }
 }
 
-/* ===== Section Labels ===== */
+/* ===== Section Common ===== */
 .section-label {
   display: inline-block;
-  background: linear-gradient(135deg, #0d6efd, #6610f2);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: var(--uni-primary);
   font-weight: 700;
-  font-size: 0.875rem;
+  font-size: 0.8rem;
   text-transform: uppercase;
   letter-spacing: 2px;
 }
 
+.section-title {
+  font-size: 2.25rem;
+  font-weight: 700;
+  color: var(--uni-text);
+  letter-spacing: -0.01em;
+}
+
+.section-subtitle {
+  color: var(--uni-text-secondary);
+  font-size: 1.05rem;
+  max-width: 600px;
+  line-height: 1.6;
+}
+
 /* ===== Features Section ===== */
 .features-section {
-  background: white;
+  background: var(--uni-bg);
+  padding: 96px 0;
 }
 
 .feature-card {
-  background: white;
-  border-radius: 16px;
-  border: 1px solid #f0f0f0;
-  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  background: var(--uni-bg);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   cursor: default;
+  border: none;
 }
 
 .feature-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
-  border-color: transparent;
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-card), var(--shadow-hover);
 }
 
 .feature-icon {
   width: 56px;
   height: 56px;
-  border-radius: 16px;
+  border-radius: 50%;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -771,21 +677,39 @@ onMounted(() => {
 }
 
 .feature-card:hover .feature-icon {
-  transform: scale(1.1) rotate(5deg);
+  transform: scale(1.1);
+}
+
+.feature-title {
+  font-weight: 600;
+  color: var(--uni-text);
+  font-size: 1rem;
+}
+
+.feature-desc {
+  color: var(--uni-text-secondary);
+  font-size: 0.875rem;
+  line-height: 1.5;
 }
 
 /* ===== How It Works ===== */
+.how-it-works-section {
+  background: var(--uni-bg-light);
+  padding: 96px 0;
+}
+
 .step-card {
-  background: white;
-  border-radius: 16px;
-  border: 1px solid #f0f0f0;
+  background: var(--uni-bg);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
   position: relative;
-  transition: all 0.4s ease;
+  transition: all 0.3s ease;
+  border: none;
 }
 
 .step-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.06);
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-card), var(--shadow-hover);
 }
 
 .step-number-wrapper {
@@ -800,22 +724,22 @@ onMounted(() => {
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #0d6efd, #6610f2);
-  color: white;
+  background: var(--uni-primary);
+  color: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 700;
   font-size: 13px;
   z-index: 1;
-  box-shadow: 0 4px 10px rgba(13, 110, 253, 0.3);
+  box-shadow: 0 2px 8px rgba(26, 82, 118, 0.3);
 }
 
 .step-icon-bg {
   width: 80px;
   height: 80px;
   border-radius: 50%;
-  background: #f0f4ff;
+  background: rgba(26, 82, 118, 0.06);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -823,38 +747,71 @@ onMounted(() => {
   transition: background 0.3s ease;
 }
 
-.step-card:hover .step-icon-bg {
-  background: #e0e8ff;
+.step-icon-inner {
+  color: var(--uni-primary);
 }
 
-.step-arrow {
+.step-card:hover .step-icon-bg {
+  background: rgba(26, 82, 118, 0.1);
+}
+
+.step-title {
+  font-weight: 600;
+  color: var(--uni-text);
+}
+
+.step-desc {
+  color: var(--uni-text-secondary);
+  font-size: 0.875rem;
+}
+
+.step-connector {
   position: absolute;
   top: 50%;
   right: -25px;
   transform: translateY(-50%);
   z-index: 2;
+  display: flex;
+  align-items: center;
+}
+
+.step-connector-line {
+  width: 20px;
+  height: 2px;
+  background: rgba(26, 82, 118, 0.15);
+}
+
+.step-connector-arrow {
+  color: var(--uni-primary);
+  opacity: 0.3;
+  font-size: 0.8rem;
 }
 
 /* ===== Templates Section ===== */
+.templates-section {
+  background: var(--uni-bg);
+  padding: 96px 0;
+}
+
 .template-card {
-  border-radius: 12px;
+  border-radius: var(--radius-card);
   overflow: hidden;
-  transition: all 0.4s ease;
+  transition: all 0.3s ease;
   cursor: pointer;
-  border: 2px solid transparent;
+  box-shadow: var(--shadow-card);
+  background: var(--uni-bg);
 }
 
 .template-card:hover {
-  transform: translateY(-6px) scale(1.02);
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
-  border-color: #0d6efd;
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-card), var(--shadow-hover);
 }
 
 .template-preview {
   aspect-ratio: 160 / 220;
   position: relative;
   overflow: hidden;
-  background: #f8fafc;
+  background: #f8f9fa;
 }
 
 .template-preview img {
@@ -867,13 +824,13 @@ onMounted(() => {
 .template-overlay {
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.4);
+  background: rgba(26, 82, 118, 0.5);
   display: flex;
   align-items: center;
   justify-content: center;
   opacity: 0;
   transition: opacity 0.3s ease;
-  color: white;
+  color: #ffffff;
   font-size: 1.5rem;
 }
 
@@ -882,73 +839,178 @@ onMounted(() => {
 }
 
 .template-name {
-  padding: 8px;
+  padding: 10px;
   text-align: center;
-  background: white;
-  border-top: 1px solid #f0f0f0;
+  background: var(--uni-bg);
+  color: var(--uni-text);
+  font-size: 0.85rem;
+}
+
+.btn-primary-uni {
+  background: var(--uni-primary);
+  color: #ffffff;
+  border: none;
+  border-radius: var(--radius-btn);
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.btn-primary-uni:hover {
+  background: #154360;
+  color: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(26, 82, 118, 0.25);
 }
 
 /* ===== Stats Section ===== */
 .stats-section {
-  background: linear-gradient(135deg, #0a1628 0%, #0d3b66 50%, #0d6efd 100%);
+  background: var(--uni-bg-light);
+  padding: 96px 0;
 }
 
 .stat-card {
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-card);
+  background: var(--uni-bg);
+  box-shadow: var(--shadow-card);
   transition: all 0.3s ease;
 }
 
 .stat-card:hover {
-  background: rgba(255, 255, 255, 0.12);
   transform: translateY(-4px);
+  box-shadow: var(--shadow-card), var(--shadow-hover);
 }
 
 .stat-icon {
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--uni-primary);
+  opacity: 0.6;
 }
 
 .stat-value {
-  color: white;
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--uni-primary);
+  line-height: 1.2;
 }
 
 .stat-label {
-  color: rgba(255, 255, 255, 0.6) !important;
+  color: var(--uni-text-secondary);
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin-top: 4px;
 }
 
 /* ===== Guest CTA Section ===== */
+.guest-cta-section {
+  background: var(--uni-bg);
+  padding: 96px 0;
+}
+
 .guest-card {
-  background: white;
-  border-radius: 20px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.06);
-  border: 1px solid #f0f0f0;
+  background: var(--uni-bg);
+  border-radius: var(--radius-large);
+  box-shadow: var(--shadow-card);
 }
 
 .guest-icon {
-  width: 80px;
-  height: 80px;
+  width: 72px;
+  height: 72px;
   border-radius: 50%;
-  background: #fff8e1;
+  background: rgba(192, 152, 43, 0.08);
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  color: var(--uni-accent);
+}
+
+.guest-title {
+  font-weight: 700;
+  color: var(--uni-text);
+}
+
+.guest-desc {
+  color: var(--uni-text-secondary);
+  max-width: 500px;
+  line-height: 1.6;
+}
+
+.guest-warning {
+  color: var(--uni-text-secondary);
+  font-size: 0.85rem;
+}
+
+.guest-warning i {
+  color: var(--uni-accent);
+}
+
+.guest-divider {
+  border-top: 1px solid rgba(0,0,0,0.06);
+}
+
+.guest-or-text {
+  color: var(--uni-text-secondary);
+  font-size: 0.875rem;
+}
+
+.btn-outline-primary-uni {
+  border: 1.5px solid var(--uni-primary);
+  color: var(--uni-primary);
+  border-radius: var(--radius-btn);
+  font-weight: 600;
+  background: transparent;
+  transition: all 0.2s ease;
+}
+
+.btn-outline-primary-uni:hover {
+  background: var(--uni-primary);
+  color: #ffffff;
+}
+
+/* ===== Final CTA ===== */
+.final-cta-section {
+  background: var(--uni-bg-light);
+  padding: 96px 0;
+}
+
+.cta-title {
+  font-weight: 700;
+  color: var(--uni-text);
+}
+
+.cta-subtitle {
+  color: var(--uni-text-secondary);
 }
 
 /* ===== Footer ===== */
 .home-footer {
-  background: #1a2332;
-  color: #cbd5e1;
+  background: var(--uni-bg-light);
+  padding: 64px 0 32px;
+  border-top: 1px solid rgba(0,0,0,0.06);
 }
 
-.home-footer h5,
-.home-footer h6 {
-  color: #f1f5f9;
+.footer-logo {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
 }
 
-.home-footer p.text-muted {
-  color: #94a3b8 !important;
+.footer-brand-name {
+  font-weight: 700;
+  color: var(--uni-text);
+  font-size: 1rem;
+}
+
+.footer-desc {
+  color: var(--uni-text-secondary);
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+
+.footer-heading {
+  font-weight: 600;
+  color: var(--uni-text);
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .footer-links li {
@@ -956,78 +1018,73 @@ onMounted(() => {
 }
 
 .footer-links a {
-  color: #cbd5e1;
+  color: var(--uni-text-secondary);
   text-decoration: none;
   font-size: 0.875rem;
+  font-weight: 500;
   transition: color 0.2s ease;
 }
 
 .footer-links a:hover {
-  color: #c0982b;
+  color: var(--uni-primary);
 }
 
-.home-footer .badge {
+.footer-feature-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  border-radius: 999px;
   font-size: 0.8rem;
+  font-weight: 600;
 }
 
-.home-footer .text-primary {
-  color: #7ab3e0 !important;
+.footer-feature-ai {
+  background: rgba(26, 82, 118, 0.06);
+  color: var(--uni-primary);
 }
 
-.home-footer .text-success {
-  color: #6ee7b7 !important;
+.footer-feature-pdf {
+  background: rgba(229, 62, 62, 0.06);
+  color: #c53030;
 }
 
-.home-footer .text-info {
-  color: #67e8f9 !important;
+.footer-feature-qr {
+  background: rgba(0, 150, 136, 0.06);
+  color: #009688;
 }
 
-.home-footer .text-warning {
-  color: #fbbf24 !important;
+.footer-feature-rtl {
+  background: rgba(192, 152, 43, 0.06);
+  color: var(--uni-accent);
 }
 
-.home-footer .bg-primary {
-  background-color: rgba(122, 179, 224, 0.15) !important;
+.footer-divider {
+  border-color: rgba(0, 0, 0, 0.06);
+  margin: 32px 0;
 }
 
-.home-footer .bg-success {
-  background-color: rgba(110, 231, 183, 0.15) !important;
-}
-
-.home-footer .bg-info {
-  background-color: rgba(103, 232, 249, 0.15) !important;
-}
-
-.home-footer .bg-warning {
-  background-color: rgba(251, 191, 36, 0.15) !important;
-}
-
-.home-footer hr {
-  border-color: rgba(255, 255, 255, 0.15);
-}
-
-.home-footer .small,
-.home-footer small {
-  color: #94a3b8;
+.footer-copyright {
+  color: var(--uni-text-secondary);
+  font-size: 0.8rem;
 }
 
 .footer-social-link {
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.04);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #cbd5e1;
+  color: var(--uni-text-secondary);
   text-decoration: none;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   font-size: 1rem;
 }
 
 .footer-social-link:hover {
-  background: #c0982b;
-  color: white;
+  background: var(--uni-primary);
+  color: #ffffff;
   transform: translateY(-2px);
 }
 
@@ -1055,16 +1112,24 @@ onMounted(() => {
 /* ===== Responsive ===== */
 @media (max-width: 991.98px) {
   .hero-section {
-    min-height: auto;
-    padding: 60px 0;
+    padding: 40px 0;
   }
 
-  .min-vh-75 {
+  .hero-row {
     min-height: auto;
   }
 
   .hero-title {
     font-size: 2.5rem;
+  }
+
+  .features-section,
+  .how-it-works-section,
+  .templates-section,
+  .stats-section,
+  .guest-cta-section,
+  .final-cta-section {
+    padding: 72px 0;
   }
 }
 
@@ -1082,23 +1147,28 @@ onMounted(() => {
   }
 
   .stat-value {
-    font-size: 1.5rem !important;
+    font-size: 1.75rem;
+  }
+
+  .section-title {
+    font-size: 1.75rem;
+  }
+
+  .features-section,
+  .how-it-works-section,
+  .templates-section,
+  .stats-section,
+  .guest-cta-section,
+  .final-cta-section {
+    padding: 56px 0;
   }
 }
 
 /* ===== RTL Support ===== */
-:deep([dir="rtl"]) .step-arrow {
+:deep([dir="rtl"]) .step-connector {
   right: auto;
   left: -25px;
   transform: translateY(-50%) scaleX(-1);
-}
-
-:deep([dir="rtl"]) .cv-preview-card {
-  transform: perspective(800px) rotateY(5deg) rotateX(3deg);
-}
-
-:deep([dir="rtl"]) .cv-preview-card:hover {
-  transform: perspective(800px) rotateY(0deg) rotateX(0deg);
 }
 
 :deep([dir="rtl"]) .floating-badge-ai {
@@ -1109,11 +1179,5 @@ onMounted(() => {
 :deep([dir="rtl"]) .floating-badge-pdf {
   left: auto;
   right: 0;
-}
-
-.footer-logo {
-  height: 32px;
-  width: auto;
-  object-fit: contain;
 }
 </style>

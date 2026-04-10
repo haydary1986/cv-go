@@ -49,9 +49,9 @@
           </thead>
           <tbody>
             <tr v-for="cv in cvs" :key="cv.id">
-              <td class="text-muted fw-medium">{{ cv.id }}</td>
+              <td class="cell-muted fw-medium">{{ cv.id }}</td>
               <td>
-                <span class="fw-semibold text-dark">{{ cv.title }}</span>
+                <span class="fw-semibold cell-dark">{{ cv.title }}</span>
                 <span v-if="cv.is_guest" class="badge badge-guest ms-2">
                   <i class="fas fa-user-secret me-1"></i>{{ t('cv.guestMode') }}
                 </span>
@@ -59,24 +59,24 @@
               <td>
                 <template v-if="cv.is_guest">
                   <span class="fw-medium" style="color: #1a5276;">{{ cv.guest_name }}</span>
-                  <br v-if="cv.guest_email" /><small class="text-muted">{{ cv.guest_email }}</small>
-                  <br /><small class="text-muted"><i class="fas fa-globe me-1"></i>{{ cv.guest_ip }}</small>
+                  <br v-if="cv.guest_email" /><small class="cell-muted">{{ cv.guest_email }}</small>
+                  <br /><small class="cell-muted"><i class="fas fa-globe me-1"></i>{{ cv.guest_ip }}</small>
                 </template>
                 <template v-else>
-                  <span class="text-dark">{{ cv.user?.email }}</span>
+                  <span class="cell-dark">{{ cv.user?.email }}</span>
                 </template>
               </td>
               <td>
                 <span class="badge badge-lang">{{ cv.language }}</span>
               </td>
-              <td class="text-muted">{{ cv.template }}</td>
+              <td class="cell-muted">{{ cv.template }}</td>
               <td>
                 <span :class="'status-pill status-pill--' + cv.status">
                   <span class="status-dot"></span>
                   {{ cv.status }}
                 </span>
               </td>
-              <td class="text-muted">{{ new Date(cv.created_at).toLocaleDateString() }}</td>
+              <td class="cell-muted">{{ new Date(cv.created_at).toLocaleDateString() }}</td>
               <td>
                 <div class="action-buttons">
                   <router-link
@@ -120,12 +120,11 @@
     <div class="modal fade" :class="{ show: showRejectModal }" :style="{ display: showRejectModal ? 'block' : 'none' }">
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content admin-modal">
-          <div class="modal-header admin-modal-header admin-modal-header--danger">
-            <div class="modal-header-icon">
-              <i class="fas fa-times-circle"></i>
-            </div>
+          <div class="modal-header admin-modal-header">
             <h5 class="modal-title">{{ t('admin.reject') }}</h5>
-            <button class="btn-close btn-close-white" @click="showRejectModal = false"></button>
+            <button class="modal-close-btn" @click="showRejectModal = false">
+              <i class="fas fa-times"></i>
+            </button>
           </div>
           <div class="modal-body p-4">
             <label class="form-label fw-semibold mb-2">{{ t('admin.rejectReason') }}</label>
@@ -137,7 +136,7 @@
             ></textarea>
           </div>
           <div class="modal-footer admin-modal-footer">
-            <button class="btn btn-light" @click="showRejectModal = false">{{ t('app.cancel') || 'Cancel' }}</button>
+            <button class="btn btn-cancel" @click="showRejectModal = false">{{ t('app.cancel') || 'Cancel' }}</button>
             <button class="btn admin-btn admin-btn--danger" @click="reject">
               <i class="fas fa-times me-1"></i>{{ t('admin.reject') }}
             </button>
@@ -151,12 +150,11 @@
     <div class="modal fade" :class="{ show: showRevisionModal }" :style="{ display: showRevisionModal ? 'block' : 'none' }">
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content admin-modal">
-          <div class="modal-header admin-modal-header admin-modal-header--warning">
-            <div class="modal-header-icon">
-              <i class="fas fa-edit"></i>
-            </div>
+          <div class="modal-header admin-modal-header">
             <h5 class="modal-title">{{ t('admin.requestRevision') }}</h5>
-            <button class="btn-close btn-close-white" @click="showRevisionModal = false"></button>
+            <button class="modal-close-btn" @click="showRevisionModal = false">
+              <i class="fas fa-times"></i>
+            </button>
           </div>
           <div class="modal-body p-4">
             <label class="form-label fw-semibold mb-2">{{ t('admin.revisionNote') }}</label>
@@ -168,8 +166,8 @@
             ></textarea>
           </div>
           <div class="modal-footer admin-modal-footer">
-            <button class="btn btn-light" @click="showRevisionModal = false">{{ t('app.cancel') || 'Cancel' }}</button>
-            <button class="btn admin-btn admin-btn--warning" @click="requestRevision">
+            <button class="btn btn-cancel" @click="showRevisionModal = false">{{ t('app.cancel') || 'Cancel' }}</button>
+            <button class="btn admin-btn admin-btn--gold" @click="requestRevision">
               <i class="fas fa-paper-plane me-1"></i>{{ t('admin.requestRevision') }}
             </button>
           </div>
@@ -260,12 +258,12 @@ onMounted(fetchCVs)
 .page-title {
   font-size: 24px;
   font-weight: 700;
-  color: #1a5276;
+  color: #222222;
   margin: 0;
 }
 
 .page-subtitle {
-  color: #6c757d;
+  color: #6a6a6a;
   font-size: 14px;
   margin: 4px 0 0;
 }
@@ -293,15 +291,15 @@ onMounted(fetchCVs)
   inset-inline-start: 14px;
   top: 50%;
   transform: translateY(-50%);
-  color: #adb5bd;
+  color: #6a6a6a;
   font-size: 14px;
   pointer-events: none;
 }
 
 .search-input {
   padding-inline-start: 40px;
-  border-radius: 10px;
-  border: 1px solid #dee2e6;
+  border-radius: 12px;
+  border: 1px solid #c1c1c1;
   height: 42px;
   font-size: 14px;
   background: #ffffff;
@@ -309,8 +307,8 @@ onMounted(fetchCVs)
 }
 
 .search-input:focus {
-  border-color: #1a5276;
-  box-shadow: 0 0 0 3px rgba(26, 82, 118, 0.1);
+  border-color: #222222;
+  box-shadow: none;
 }
 
 .filter-select-wrapper {
@@ -318,24 +316,24 @@ onMounted(fetchCVs)
 }
 
 .filter-select {
-  border-radius: 10px;
-  border: 1px solid #dee2e6;
+  border-radius: 12px;
+  border: 1px solid #c1c1c1;
   height: 42px;
   font-size: 14px;
   background: #ffffff;
 }
 
 .filter-select:focus {
-  border-color: #1a5276;
-  box-shadow: 0 0 0 3px rgba(26, 82, 118, 0.1);
+  border-color: #222222;
+  box-shadow: none;
 }
 
 /* ── Data Card ── */
 .data-card {
   background: #ffffff;
   border-radius: 12px;
-  border: 1px solid #e9ecef;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  border: none;
+  box-shadow: rgba(0,0,0,0.02) 0px 0px 0px 1px, rgba(0,0,0,0.04) 0px 2px 6px, rgba(0,0,0,0.1) 0px 4px 8px;
   overflow: hidden;
 }
 
@@ -346,9 +344,9 @@ onMounted(fetchCVs)
 }
 
 .admin-table thead th {
-  background: #f8f9fb;
-  border-bottom: 2px solid #e9ecef;
-  color: #1a5276;
+  background: #ffffff;
+  border-bottom: 1px solid #ebebeb;
+  color: #222222;
   font-weight: 600;
   font-size: 12px;
   text-transform: uppercase;
@@ -360,38 +358,38 @@ onMounted(fetchCVs)
 .admin-table tbody td {
   padding: 14px 16px;
   vertical-align: middle;
-  border-bottom: 1px solid #f0f2f5;
+  border-bottom: 1px solid #f0f0f0;
 }
 
 .admin-table tbody tr:hover {
-  background: #f8fafc;
+  background: #f7f7f7;
 }
 
-.admin-table tbody tr:nth-child(even) {
-  background: #fafbfc;
+.cell-muted {
+  color: #6a6a6a;
 }
 
-.admin-table tbody tr:nth-child(even):hover {
-  background: #f0f4f8;
+.cell-dark {
+  color: #222222;
 }
 
 /* ── Badges ── */
 .badge-guest {
-  background: rgba(26, 82, 118, 0.1);
+  background: rgba(26, 82, 118, 0.08);
   color: #1a5276;
   font-size: 11px;
   font-weight: 600;
   padding: 3px 8px;
-  border-radius: 6px;
+  border-radius: 14px;
 }
 
 .badge-lang {
-  background: #f0f2f5;
-  color: #2c3e50;
+  background: #f7f7f7;
+  color: #222222;
   font-size: 12px;
   font-weight: 500;
   padding: 4px 10px;
-  border-radius: 6px;
+  border-radius: 14px;
 }
 
 /* ── Status Pills ── */
@@ -400,7 +398,7 @@ onMounted(fetchCVs)
   align-items: center;
   gap: 6px;
   padding: 5px 12px;
-  border-radius: 20px;
+  border-radius: 14px;
   font-size: 12px;
   font-weight: 600;
   text-transform: capitalize;
@@ -413,16 +411,16 @@ onMounted(fetchCVs)
 }
 
 .status-pill--draft {
-  background: #f0f2f5;
-  color: #6c757d;
+  background: #f7f7f7;
+  color: #6a6a6a;
 }
-.status-pill--draft .status-dot { background: #6c757d; }
+.status-pill--draft .status-dot { background: #6a6a6a; }
 
 .status-pill--pending {
   background: #fff8e1;
   color: #b8860b;
 }
-.status-pill--pending .status-dot { background: #daa520; }
+.status-pill--pending .status-dot { background: #c0982b; }
 
 .status-pill--approved {
   background: #e8f5e9;
@@ -447,7 +445,7 @@ onMounted(fetchCVs)
   width: 32px;
   height: 32px;
   border-radius: 8px;
-  border: 1px solid transparent;
+  border: none;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -458,9 +456,8 @@ onMounted(fetchCVs)
 }
 
 .action-btn--view {
-  background: rgba(26, 82, 118, 0.08);
+  background: #f7f7f7;
   color: #1a5276;
-  border-color: rgba(26, 82, 118, 0.15);
 }
 .action-btn--view:hover {
   background: #1a5276;
@@ -468,9 +465,8 @@ onMounted(fetchCVs)
 }
 
 .action-btn--approve {
-  background: rgba(46, 125, 50, 0.08);
+  background: #f7f7f7;
   color: #2e7d32;
-  border-color: rgba(46, 125, 50, 0.15);
 }
 .action-btn--approve:hover {
   background: #2e7d32;
@@ -478,9 +474,8 @@ onMounted(fetchCVs)
 }
 
 .action-btn--reject {
-  background: rgba(198, 40, 40, 0.08);
+  background: #f7f7f7;
   color: #c62828;
-  border-color: rgba(198, 40, 40, 0.15);
 }
 .action-btn--reject:hover {
   background: #c62828;
@@ -488,67 +483,88 @@ onMounted(fetchCVs)
 }
 
 .action-btn--revision {
-  background: rgba(192, 120, 43, 0.08);
-  color: #c0782b;
-  border-color: rgba(192, 120, 43, 0.15);
+  background: #f7f7f7;
+  color: #c0982b;
 }
 .action-btn--revision:hover {
-  background: #c0782b;
+  background: #c0982b;
   color: #fff;
 }
 
 /* ── Modal ── */
 .admin-modal {
   border: none;
-  border-radius: 14px;
+  border-radius: 20px;
   overflow: hidden;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+  box-shadow: rgba(0,0,0,0.02) 0px 0px 0px 1px, rgba(0,0,0,0.04) 0px 2px 6px, rgba(0,0,0,0.1) 0px 4px 8px;
 }
 
 .admin-modal-header {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 18px 24px;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-bottom: 1px solid #ebebeb;
+  background: #ffffff;
+}
+
+.admin-modal-header .modal-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #222222;
+  margin: 0;
+}
+
+.modal-close-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
   border: none;
-  color: #ffffff;
-}
-
-.admin-modal-header--danger {
-  background: linear-gradient(135deg, #c62828, #e53935);
-}
-
-.admin-modal-header--warning {
-  background: linear-gradient(135deg, #c0782b, #e09138);
-}
-
-.modal-header-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.2);
+  background: #f7f7f7;
+  color: #222222;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.modal-close-btn:hover {
+  background: #ebebeb;
 }
 
 .admin-textarea {
-  border-radius: 10px;
-  border: 1px solid #dee2e6;
+  border-radius: 12px;
+  border: 1px solid #c1c1c1;
   resize: vertical;
   font-size: 14px;
+  background: #ffffff;
 }
 
 .admin-textarea:focus {
-  border-color: #1a5276;
-  box-shadow: 0 0 0 3px rgba(26, 82, 118, 0.1);
+  border-color: #222222;
+  box-shadow: none;
 }
 
 .admin-modal-footer {
-  border-top: 1px solid #f0f0f0;
+  border-top: 1px solid #ebebeb;
   padding: 16px 24px;
   gap: 8px;
+  background: #ffffff;
+}
+
+.btn-cancel {
+  border-radius: 8px;
+  font-weight: 600;
+  padding: 8px 20px;
+  font-size: 14px;
+  border: 1px solid #c1c1c1;
+  background: #ffffff;
+  color: #222222;
+}
+
+.btn-cancel:hover {
+  background: #f7f7f7;
 }
 
 .admin-btn {
@@ -563,6 +579,6 @@ onMounted(fetchCVs)
 .admin-btn--danger { background: #c62828; }
 .admin-btn--danger:hover { background: #b71c1c; color: #ffffff; }
 
-.admin-btn--warning { background: #c0782b; }
-.admin-btn--warning:hover { background: #a8692a; color: #ffffff; }
+.admin-btn--gold { background: #c0982b; }
+.admin-btn--gold:hover { background: #a8862a; color: #ffffff; }
 </style>

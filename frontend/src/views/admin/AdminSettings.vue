@@ -113,14 +113,14 @@
               />
               <div v-if="logoUploading" class="py-2">
                 <div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div>
-                <span class="text-muted">{{ t('app.loading') }}</span>
+                <span class="cell-muted">{{ t('app.loading') }}</span>
               </div>
               <div v-else class="upload-zone-content">
                 <div class="upload-zone-icon">
                   <i class="fas fa-cloud-upload-alt"></i>
                 </div>
-                <p class="mb-1 text-muted">{{ t('admin.dragDropLogo') }}</p>
-                <small class="text-muted">{{ t('admin.logoHint') }}</small>
+                <p class="mb-1 cell-muted">{{ t('admin.dragDropLogo') }}</p>
+                <small class="cell-muted">{{ t('admin.logoHint') }}</small>
               </div>
             </div>
           </div>
@@ -514,12 +514,12 @@ async function sendNotif() {
 .page-title {
   font-size: 24px;
   font-weight: 700;
-  color: #1a5276;
+  color: #222222;
   margin: 0;
 }
 
 .page-subtitle {
-  color: #6c757d;
+  color: #6a6a6a;
   font-size: 14px;
   margin: 4px 0 0;
 }
@@ -534,10 +534,10 @@ async function sendNotif() {
 
 .settings-tab {
   padding: 10px 20px;
-  border-radius: 10px;
-  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  border: 1px solid #c1c1c1;
   background: #ffffff;
-  color: #6c757d;
+  color: #6a6a6a;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
@@ -545,8 +545,8 @@ async function sendNotif() {
 }
 
 .settings-tab:hover {
-  color: #1a5276;
-  border-color: #1a5276;
+  color: #222222;
+  border-color: #222222;
 }
 
 .settings-tab.active {
@@ -559,8 +559,8 @@ async function sendNotif() {
 .settings-card {
   background: #ffffff;
   border-radius: 12px;
-  border: 1px solid #e9ecef;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  border: none;
+  box-shadow: rgba(0,0,0,0.02) 0px 0px 0px 1px, rgba(0,0,0,0.04) 0px 2px 6px, rgba(0,0,0,0.1) 0px 4px 8px;
   overflow: hidden;
   margin-bottom: 20px;
 }
@@ -570,12 +570,12 @@ async function sendNotif() {
   border-bottom: 1px solid #f0f0f0;
   font-size: 15px;
   font-weight: 600;
-  color: #1a5276;
+  color: #222222;
 }
 
 .settings-card-header--preview {
-  background: #f8f9fb;
-  color: #6c757d;
+  background: #f7f7f7;
+  color: #6a6a6a;
   font-size: 13px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -593,7 +593,7 @@ async function sendNotif() {
 .settings-label {
   display: block;
   font-weight: 600;
-  color: #2c3e50;
+  color: #222222;
   margin-bottom: 8px;
   font-size: 14px;
 }
@@ -605,20 +605,21 @@ async function sendNotif() {
   padding: 16px 24px;
   gap: 14px;
   color: #ffffff;
+  border-radius: 0;
 }
 
 .preview-logo {
   height: 36px;
   width: auto;
   object-fit: contain;
-  border-radius: 6px;
+  border-radius: 8px;
 }
 
 .preview-logo-placeholder {
   height: 36px;
   width: 36px;
   background: rgba(255, 255, 255, 0.2);
-  border-radius: 6px;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -641,9 +642,9 @@ async function sendNotif() {
 
 .logo-preview-box {
   padding: 10px;
-  border: 1px solid #e9ecef;
-  border-radius: 10px;
-  background: #f8f9fa;
+  border: 1px solid #ebebeb;
+  border-radius: 12px;
+  background: #f7f7f7;
 }
 
 .logo-preview-img {
@@ -654,39 +655,43 @@ async function sendNotif() {
 
 /* ── Upload Zone ── */
 .upload-zone {
-  border: 2px dashed #dee2e6;
+  border: 2px dashed #c1c1c1;
   border-radius: 12px;
   padding: 32px;
   text-align: center;
   cursor: pointer;
   transition: all 0.2s;
-  background: #fafbfc;
+  background: #ffffff;
 }
 
 .upload-zone:hover,
 .upload-zone.drag-over {
-  border-color: #1a5276;
-  background: rgba(26, 82, 118, 0.03);
+  border-color: #222222;
+  background: #f7f7f7;
 }
 
 .upload-zone-icon {
   font-size: 36px;
-  color: #adb5bd;
+  color: #c1c1c1;
   margin-bottom: 8px;
+}
+
+.cell-muted {
+  color: #6a6a6a;
 }
 
 /* ── Color Picker ── */
 .color-field {
   padding: 14px;
-  background: #f8f9fb;
-  border-radius: 10px;
+  background: #f7f7f7;
+  border-radius: 12px;
 }
 
 .color-field-label {
   display: block;
   font-size: 12px;
   font-weight: 500;
-  color: #6c757d;
+  color: #6a6a6a;
   margin-bottom: 10px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -701,7 +706,7 @@ async function sendNotif() {
 .color-input {
   width: 48px;
   height: 40px;
-  border: 2px solid #dee2e6;
+  border: 2px solid #c1c1c1;
   border-radius: 8px;
   cursor: pointer;
   padding: 2px;
@@ -722,32 +727,34 @@ async function sendNotif() {
 
 /* ── Form Elements ── */
 .admin-input {
-  border-radius: 10px;
-  border: 1px solid #dee2e6;
+  border-radius: 12px;
+  border: 1px solid #c1c1c1;
   height: 42px;
   font-size: 14px;
+  background: #ffffff;
 }
 
 .admin-input:focus {
-  border-color: #1a5276;
-  box-shadow: 0 0 0 3px rgba(26, 82, 118, 0.1);
+  border-color: #222222;
+  box-shadow: none;
 }
 
 .admin-textarea {
-  border-radius: 10px;
-  border: 1px solid #dee2e6;
+  border-radius: 12px;
+  border: 1px solid #c1c1c1;
   font-size: 14px;
   resize: vertical;
+  background: #ffffff;
 }
 
 .admin-textarea:focus {
-  border-color: #1a5276;
-  box-shadow: 0 0 0 3px rgba(26, 82, 118, 0.1);
+  border-color: #222222;
+  box-shadow: none;
 }
 
 .custom-switch:checked {
-  background-color: #1a5276;
-  border-color: #1a5276;
+  background-color: #222222;
+  border-color: #222222;
 }
 
 /* ── Buttons ── */
@@ -760,11 +767,11 @@ async function sendNotif() {
 }
 
 .admin-btn--primary {
-  background: #1a5276;
+  background: #222222;
   color: #ffffff;
 }
 .admin-btn--primary:hover {
-  background: #154360;
+  background: #000000;
   color: #ffffff;
 }
 
@@ -785,7 +792,7 @@ async function sendNotif() {
   background: #e8f5e9;
   color: #2e7d32;
   border: 1px solid #c8e6c9;
-  border-radius: 10px;
+  border-radius: 12px;
   padding: 14px 20px;
   font-weight: 500;
 }

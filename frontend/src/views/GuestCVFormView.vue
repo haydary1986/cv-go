@@ -1,11 +1,11 @@
 <template>
   <div class="guest-form-page">
-    <div class="container py-4" style="max-width: 800px;">
+    <div class="container py-5" style="max-width: 800px;">
 
       <!-- Header -->
       <div class="text-center mb-4">
-        <h3 class="fw-bold" style="color: var(--uni-primary);">{{ t('cv.createWithoutAccount') }}</h3>
-        <p class="text-muted mb-0">{{ t('cv.step') || '' }} {{ currentStep + 1 }} / {{ steps.length }}</p>
+        <h3 class="page-title">{{ t('cv.createWithoutAccount') }}</h3>
+        <p class="page-step mb-0">{{ t('cv.step') || '' }} {{ currentStep + 1 }} / {{ steps.length }}</p>
       </div>
 
       <!-- Guest Warning Banner -->
@@ -27,14 +27,9 @@
         </div>
       </div>
 
-      <!-- Progress Bar -->
-      <div class="progress mb-2" style="height: 8px; border-radius: 8px;">
-        <div
-          class="progress-bar"
-          role="progressbar"
-          :style="{ width: ((currentStep + 1) / steps.length * 100) + '%', background: 'var(--uni-accent)' }"
-          style="transition: width 0.4s ease; border-radius: 8px;"
-        ></div>
+      <!-- Progress Indicator -->
+      <div class="progress-track mb-4">
+        <div class="progress-track-fill" :style="{ width: ((currentStep + 1) / steps.length * 100) + '%' }"></div>
       </div>
 
       <!-- Steps Navigation -->
@@ -55,8 +50,8 @@
       </div>
 
       <!-- Step Card -->
-      <div class="card border-0 shadow-sm" style="border-radius: 16px;">
-        <div class="card-body p-4 p-md-5">
+      <div class="step-card">
+        <div class="step-card-body">
 
           <!-- Step 0: Guest Info + Basic Info -->
           <div v-show="currentStep === 0">
@@ -66,29 +61,29 @@
             </div>
             <div class="row g-3">
               <div class="col-md-6">
-                <label class="form-label fw-semibold">{{ t('cv.guestName') }} *</label>
-                <input type="text" class="form-control form-control-lg" v-model="guestName" required />
+                <label class="form-label field-label">{{ t('cv.guestName') }} *</label>
+                <input type="text" class="form-control form-control-lg field-input" v-model="guestName" required />
               </div>
               <div class="col-md-6">
-                <label class="form-label fw-semibold">{{ t('cv.guestEmail') }}</label>
-                <input type="email" class="form-control form-control-lg" v-model="guestEmail" />
+                <label class="form-label field-label">{{ t('cv.guestEmail') }}</label>
+                <input type="email" class="form-control form-control-lg field-input" v-model="guestEmail" />
               </div>
-              <div class="col-12"><hr class="my-2" /></div>
+              <div class="col-12"><hr class="section-divider" /></div>
               <div class="col-md-6">
-                <label class="form-label fw-semibold">{{ t('cv.language') }}</label>
-                <select class="form-select form-select-lg" v-model="form.language">
+                <label class="form-label field-label">{{ t('cv.language') }}</label>
+                <select class="form-select form-select-lg field-input" v-model="form.language">
                   <option value="ar">{{ t('app.arabic') }}</option>
                   <option value="en">{{ t('app.english') }}</option>
                 </select>
               </div>
               <div class="col-md-6">
-                <label class="form-label fw-semibold">{{ t('cv.template') }}</label>
-                <select class="form-select form-select-lg" v-model="form.template">
+                <label class="form-label field-label">{{ t('cv.template') }}</label>
+                <select class="form-select form-select-lg field-input" v-model="form.template">
                   <option v-for="tmpl in templates" :key="tmpl" :value="tmpl">{{ t(`templates.${tmpl}`) }}</option>
                 </select>
               </div>
               <div class="col-12">
-                <label class="form-label fw-semibold">{{ t('cv.chooseTemplate') }}</label>
+                <label class="form-label field-label">{{ t('cv.chooseTemplate') }}</label>
                 <div class="row g-2">
                   <div class="col-4 col-md-2" v-for="tmpl in templates" :key="tmpl">
                     <div
@@ -96,7 +91,7 @@
                       :class="{ 'template-card--selected': form.template === tmpl }"
                       @click="form.template = tmpl"
                     >
-                      <i class="fas fa-file-alt fa-2x mb-1" :class="form.template === tmpl ? 'text-accent' : 'text-muted'"></i>
+                      <i class="fas fa-file-alt fa-2x mb-1" :class="form.template === tmpl ? 'text-accent' : 'text-secondary-light'"></i>
                       <small>{{ t(`templates.${tmpl}`) }}</small>
                     </div>
                   </div>
@@ -105,12 +100,12 @@
 
               <!-- University Affiliation Section -->
               <div class="col-12">
-                <hr class="my-2" />
-                <h5 class="mb-3" style="color: var(--uni-primary);">
-                  <i class="fas fa-university me-2" style="color: var(--uni-accent);"></i>
+                <hr class="section-divider" />
+                <h5 class="section-heading mb-3">
+                  <i class="fas fa-university me-2 section-heading-icon"></i>
                   {{ t('cv.universityAffiliation') }}
                 </h5>
-                <p class="text-muted mb-3">{{ t('cv.areYouMember') }}</p>
+                <p class="section-desc mb-3">{{ t('cv.areYouMember') }}</p>
 
                 <div class="row g-3">
                   <div class="col-md-6">
@@ -119,9 +114,9 @@
                       :class="{ 'affiliation-card--selected': isUniversityMember }"
                       @click="isUniversityMember = true"
                     >
-                      <i class="fas fa-university fa-2x mb-2" :class="isUniversityMember ? 'text-accent' : 'text-muted'"></i>
+                      <i class="fas fa-university fa-2x mb-2" :class="isUniversityMember ? 'text-accent' : 'text-secondary-light'"></i>
                       <h6>{{ t('cv.yesMember') }}</h6>
-                      <small class="text-muted">{{ t('cv.memberDescription') }}</small>
+                      <small class="text-secondary-light">{{ t('cv.memberDescription') }}</small>
                     </div>
                   </div>
                   <div class="col-md-6">
@@ -130,9 +125,9 @@
                       :class="{ 'affiliation-card--selected': !isUniversityMember }"
                       @click="isUniversityMember = false; selectedFacultyId = null; selectedDepartmentId = null"
                     >
-                      <i class="fas fa-user-tie fa-2x mb-2" :class="!isUniversityMember ? 'text-accent' : 'text-muted'"></i>
+                      <i class="fas fa-user-tie fa-2x mb-2" :class="!isUniversityMember ? 'text-accent' : 'text-secondary-light'"></i>
                       <h6>{{ t('cv.noExternal') }}</h6>
-                      <small class="text-muted">{{ t('cv.externalDescription') }}</small>
+                      <small class="text-secondary-light">{{ t('cv.externalDescription') }}</small>
                     </div>
                   </div>
                 </div>
@@ -140,8 +135,8 @@
                 <!-- Faculty & Department Dropdowns -->
                 <div v-if="isUniversityMember" class="row g-3 mt-2">
                   <div class="col-md-6">
-                    <label class="form-label fw-semibold">{{ t('cv.selectFaculty') }} *</label>
-                    <select class="form-select" v-model="selectedFacultyId">
+                    <label class="form-label field-label">{{ t('cv.selectFaculty') }} *</label>
+                    <select class="form-select field-input" v-model="selectedFacultyId">
                       <option :value="null" disabled>{{ t('cv.selectFaculty') }}</option>
                       <option v-for="fac in faculties" :key="fac.id" :value="fac.id">
                         {{ fac.name_ar || fac.name_en || fac.name }}
@@ -149,8 +144,8 @@
                     </select>
                   </div>
                   <div class="col-md-6">
-                    <label class="form-label fw-semibold">{{ t('cv.selectDepartment') }}</label>
-                    <select class="form-select" v-model="selectedDepartmentId" :disabled="!selectedFacultyId">
+                    <label class="form-label field-label">{{ t('cv.selectDepartment') }}</label>
+                    <select class="form-select field-input" v-model="selectedDepartmentId" :disabled="!selectedFacultyId">
                       <option :value="null" disabled>{{ t('cv.selectDepartment') }}</option>
                       <option v-for="dept in departments" :key="dept.id" :value="dept.id">
                         {{ dept.name_ar || dept.name_en || dept.name }}
@@ -170,36 +165,36 @@
             </div>
             <div class="row g-3">
               <div class="col-md-6">
-                <label class="form-label fw-semibold">{{ t('cv.fullName') }} *</label>
-                <input type="text" class="form-control" v-model="form.data.personal_info.full_name" />
+                <label class="form-label field-label">{{ t('cv.fullName') }} *</label>
+                <input type="text" class="form-control field-input" v-model="form.data.personal_info.full_name" />
               </div>
               <div class="col-md-6">
-                <label class="form-label fw-semibold">{{ t('cv.jobTitle') }}</label>
-                <input type="text" class="form-control" v-model="form.data.personal_info.job_title" />
+                <label class="form-label field-label">{{ t('cv.jobTitle') }}</label>
+                <input type="text" class="form-control field-input" v-model="form.data.personal_info.job_title" />
               </div>
               <div class="col-md-6">
-                <label class="form-label fw-semibold">{{ t('cv.email') }}</label>
-                <input type="email" class="form-control" v-model="form.data.personal_info.email" />
+                <label class="form-label field-label">{{ t('cv.email') }}</label>
+                <input type="email" class="form-control field-input" v-model="form.data.personal_info.email" />
               </div>
               <div class="col-md-6">
-                <label class="form-label fw-semibold">{{ t('cv.phone') }}</label>
-                <input type="tel" class="form-control" v-model="form.data.personal_info.phone" />
+                <label class="form-label field-label">{{ t('cv.phone') }}</label>
+                <input type="tel" class="form-control field-input" v-model="form.data.personal_info.phone" />
               </div>
               <div class="col-md-6">
-                <label class="form-label fw-semibold">{{ t('cv.address') }}</label>
-                <input type="text" class="form-control" v-model="form.data.personal_info.address" />
+                <label class="form-label field-label">{{ t('cv.address') }}</label>
+                <input type="text" class="form-control field-input" v-model="form.data.personal_info.address" />
               </div>
               <div class="col-md-6">
-                <label class="form-label fw-semibold">{{ t('cv.dateOfBirth') }}</label>
-                <input type="date" class="form-control" v-model="form.data.personal_info.date_of_birth" />
+                <label class="form-label field-label">{{ t('cv.dateOfBirth') }}</label>
+                <input type="date" class="form-control field-input" v-model="form.data.personal_info.date_of_birth" />
               </div>
               <div class="col-md-6">
-                <label class="form-label fw-semibold">{{ t('cv.nationality') }}</label>
-                <input type="text" class="form-control" v-model="form.data.personal_info.nationality" />
+                <label class="form-label field-label">{{ t('cv.nationality') }}</label>
+                <input type="text" class="form-control field-input" v-model="form.data.personal_info.nationality" />
               </div>
               <div class="col-md-6">
-                <label class="form-label fw-semibold">{{ t('cv.linkedin') }}</label>
-                <input type="url" class="form-control" v-model="form.data.personal_info.linkedin" />
+                <label class="form-label field-label">{{ t('cv.linkedin') }}</label>
+                <input type="url" class="form-control field-input" v-model="form.data.personal_info.linkedin" />
               </div>
             </div>
           </div>
@@ -210,8 +205,8 @@
               <div class="step-icon"><i class="fas fa-bullseye"></i></div>
               <h4>{{ t('cv.objective') }}</h4>
             </div>
-            <label class="form-label fw-semibold">{{ t('cv.objective') }}</label>
-            <textarea class="form-control" rows="5" v-model="form.data.objective"></textarea>
+            <label class="form-label field-label">{{ t('cv.objective') }}</label>
+            <textarea class="form-control field-input" rows="5" v-model="form.data.objective"></textarea>
           </div>
 
           <!-- Step 3: Experience -->
@@ -222,26 +217,26 @@
             </div>
             <div v-for="(exp, idx) in form.data.experiences" :key="idx" class="section-entry mb-3">
               <div class="d-flex justify-content-between align-items-center mb-2">
-                <h6 class="mb-0 fw-semibold">{{ t('cv.experience') }} {{ idx + 1 }}</h6>
+                <h6 class="mb-0 entry-label">{{ t('cv.experience') }} {{ idx + 1 }}</h6>
                 <button @click="form.data.experiences.splice(idx, 1)" class="btn-delete">
                   <i class="fas fa-trash-alt"></i>
                 </button>
               </div>
               <div class="row g-2">
                 <div class="col-md-6">
-                  <input type="text" class="form-control" :placeholder="t('cv.position')" v-model="exp.title" />
+                  <input type="text" class="form-control field-input" :placeholder="t('cv.position')" v-model="exp.title" />
                 </div>
                 <div class="col-md-6">
-                  <input type="text" class="form-control" :placeholder="t('cv.companyName')" v-model="exp.company" />
+                  <input type="text" class="form-control field-input" :placeholder="t('cv.companyName')" v-model="exp.company" />
                 </div>
                 <div class="col-md-4">
-                  <input type="text" class="form-control" :placeholder="t('cv.location')" v-model="exp.location" />
+                  <input type="text" class="form-control field-input" :placeholder="t('cv.location')" v-model="exp.location" />
                 </div>
                 <div class="col-md-3">
-                  <input type="month" class="form-control" v-model="exp.start_date" />
+                  <input type="month" class="form-control field-input" v-model="exp.start_date" />
                 </div>
                 <div class="col-md-3">
-                  <input type="month" class="form-control" v-model="exp.end_date" :disabled="exp.current" />
+                  <input type="month" class="form-control field-input" v-model="exp.end_date" :disabled="exp.current" />
                 </div>
                 <div class="col-md-2 d-flex align-items-center">
                   <div class="form-check">
@@ -250,7 +245,7 @@
                   </div>
                 </div>
                 <div class="col-12">
-                  <textarea class="form-control" rows="2" :placeholder="t('cv.description')" v-model="exp.description"></textarea>
+                  <textarea class="form-control field-input" rows="2" :placeholder="t('cv.description')" v-model="exp.description"></textarea>
                 </div>
               </div>
             </div>
@@ -267,29 +262,29 @@
             </div>
             <div v-for="(edu, idx) in form.data.education" :key="idx" class="section-entry mb-3">
               <div class="d-flex justify-content-between align-items-center mb-2">
-                <h6 class="mb-0 fw-semibold">{{ t('cv.education') }} {{ idx + 1 }}</h6>
+                <h6 class="mb-0 entry-label">{{ t('cv.education') }} {{ idx + 1 }}</h6>
                 <button @click="form.data.education.splice(idx, 1)" class="btn-delete">
                   <i class="fas fa-trash-alt"></i>
                 </button>
               </div>
               <div class="row g-2">
                 <div class="col-md-6">
-                  <input type="text" class="form-control" :placeholder="t('cv.degree')" v-model="edu.degree" />
+                  <input type="text" class="form-control field-input" :placeholder="t('cv.degree')" v-model="edu.degree" />
                 </div>
                 <div class="col-md-6">
-                  <input type="text" class="form-control" :placeholder="t('cv.institution')" v-model="edu.institution" />
+                  <input type="text" class="form-control field-input" :placeholder="t('cv.institution')" v-model="edu.institution" />
                 </div>
                 <div class="col-md-4">
-                  <input type="text" class="form-control" :placeholder="t('cv.location')" v-model="edu.location" />
+                  <input type="text" class="form-control field-input" :placeholder="t('cv.location')" v-model="edu.location" />
                 </div>
                 <div class="col-md-3">
-                  <input type="month" class="form-control" v-model="edu.start_date" />
+                  <input type="month" class="form-control field-input" v-model="edu.start_date" />
                 </div>
                 <div class="col-md-3">
-                  <input type="month" class="form-control" v-model="edu.end_date" />
+                  <input type="month" class="form-control field-input" v-model="edu.end_date" />
                 </div>
                 <div class="col-md-2">
-                  <input type="text" class="form-control" :placeholder="t('cv.gpa')" v-model="edu.gpa" />
+                  <input type="text" class="form-control field-input" :placeholder="t('cv.gpa')" v-model="edu.gpa" />
                 </div>
               </div>
             </div>
@@ -306,10 +301,10 @@
             </div>
             <div v-for="(skill, idx) in form.data.skills" :key="idx" class="row g-2 mb-2 align-items-center">
               <div class="col-md-6">
-                <input type="text" class="form-control" :placeholder="t('cv.skillName')" v-model="skill.name" />
+                <input type="text" class="form-control field-input" :placeholder="t('cv.skillName')" v-model="skill.name" />
               </div>
               <div class="col-md-4">
-                <select class="form-select" v-model="skill.level">
+                <select class="form-select field-input" v-model="skill.level">
                   <option value="beginner">{{ t('cv.beginner') }}</option>
                   <option value="intermediate">{{ t('cv.intermediate') }}</option>
                   <option value="advanced">{{ t('cv.advanced') }}</option>
@@ -335,10 +330,10 @@
             </div>
             <div v-for="(lang, idx) in form.data.languages" :key="idx" class="row g-2 mb-2 align-items-center">
               <div class="col-md-6">
-                <input type="text" class="form-control" :placeholder="t('cv.languageName')" v-model="lang.name" />
+                <input type="text" class="form-control field-input" :placeholder="t('cv.languageName')" v-model="lang.name" />
               </div>
               <div class="col-md-4">
-                <select class="form-select" v-model="lang.level">
+                <select class="form-select field-input" v-model="lang.level">
                   <option value="basic">{{ t('cv.basic') }}</option>
                   <option value="conversational">{{ t('cv.conversational') }}</option>
                   <option value="fluent">{{ t('cv.fluent') }}</option>
@@ -364,20 +359,20 @@
             </div>
             <div v-for="(cert, idx) in form.data.certificates" :key="idx" class="section-entry mb-3">
               <div class="d-flex justify-content-between align-items-center mb-2">
-                <h6 class="mb-0 fw-semibold">{{ t('cv.certificates') }} {{ idx + 1 }}</h6>
+                <h6 class="mb-0 entry-label">{{ t('cv.certificates') }} {{ idx + 1 }}</h6>
                 <button @click="form.data.certificates.splice(idx, 1)" class="btn-delete">
                   <i class="fas fa-trash-alt"></i>
                 </button>
               </div>
               <div class="row g-2">
                 <div class="col-md-6">
-                  <input type="text" class="form-control" :placeholder="t('cv.certName')" v-model="cert.name" />
+                  <input type="text" class="form-control field-input" :placeholder="t('cv.certName')" v-model="cert.name" />
                 </div>
                 <div class="col-md-6">
-                  <input type="text" class="form-control" :placeholder="t('cv.certIssuer')" v-model="cert.issuer" />
+                  <input type="text" class="form-control field-input" :placeholder="t('cv.certIssuer')" v-model="cert.issuer" />
                 </div>
                 <div class="col-md-4">
-                  <input type="month" class="form-control" v-model="cert.date" />
+                  <input type="month" class="form-control field-input" v-model="cert.date" />
                 </div>
               </div>
             </div>
@@ -430,14 +425,14 @@
       </div>
 
       <!-- Success Modal -->
-      <div v-if="showSuccess" class="modal fade show d-block" tabindex="-1" style="background:rgba(0,0,0,0.6)">
+      <div v-if="showSuccess" class="modal fade show d-block" tabindex="-1" style="background:rgba(0,0,0,0.5)">
         <div class="modal-dialog modal-dialog-centered">
           <div class="modal-content success-modal">
             <div class="modal-body text-center py-5 px-4">
               <div class="success-icon-wrap mb-3">
                 <i class="fas fa-check"></i>
               </div>
-              <h4 class="fw-bold mb-1" style="color: var(--uni-primary);">{{ t('cv.guestSuccess') }}</h4>
+              <h4 class="success-title mb-1">{{ t('cv.guestSuccess') }}</h4>
               <div class="input-group my-3 share-link-group">
                 <input type="text" class="form-control" :value="shareLink" readonly />
                 <button @click="copyLink" class="btn btn-outline-secondary">
@@ -587,9 +582,18 @@ async function handleSubmit() {
 
 <style scoped>
 .guest-form-page {
-  --uni-primary: #1a5276;
-  --uni-accent: #c0982b;
-  --uni-secondary: #2c3e50;
+  min-height: 100vh;
+  background: #ffffff;
+}
+
+.page-title {
+  font-weight: 700;
+  color: #222222;
+}
+
+.page-step {
+  color: #6a6a6a;
+  font-weight: 500;
 }
 
 /* Guest Warning Card */
@@ -597,33 +601,35 @@ async function handleSubmit() {
   display: flex;
   gap: 1rem;
   padding: 1.25rem;
-  border-radius: 14px;
-  background: linear-gradient(135deg, #fffbf0, #fff8e1);
-  border: 1px solid rgba(192, 152, 43, 0.25);
-  box-shadow: 0 2px 10px rgba(192, 152, 43, 0.08);
+  border-radius: 12px;
+  background: #ffffff;
+  border-left: 4px solid #c0982b;
+  box-shadow:
+    rgba(0, 0, 0, 0.02) 0px 0px 0px 1px,
+    rgba(0, 0, 0, 0.04) 0px 2px 6px;
 }
 
 .guest-warning-icon {
-  width: 48px;
-  height: 48px;
-  min-width: 48px;
-  border-radius: 12px;
-  background: var(--uni-accent);
-  color: #fff;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  border-radius: 50%;
+  background: rgba(192, 152, 43, 0.1);
+  color: #c0982b;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.2rem;
+  font-size: 1.1rem;
 }
 
 .guest-warning-title {
-  font-weight: 700;
-  color: var(--uni-secondary);
+  font-weight: 600;
+  color: #222222;
   margin-bottom: 0.25rem;
 }
 
 .guest-warning-text {
-  color: #6c757d;
+  color: #6a6a6a;
   font-size: 0.88rem;
   line-height: 1.5;
 }
@@ -632,7 +638,7 @@ async function handleSubmit() {
   display: inline-flex;
   align-items: center;
   padding: 0.4rem 1rem;
-  border-radius: 999px;
+  border-radius: 8px;
   font-size: 0.82rem;
   font-weight: 600;
   text-decoration: none;
@@ -641,24 +647,39 @@ async function handleSubmit() {
 }
 
 .guest-cta-btn--primary {
-  background: var(--uni-primary);
-  color: #fff;
+  background: #1a5276;
+  color: #ffffff;
 }
 
 .guest-cta-btn--primary:hover {
-  background: #1e6291;
-  color: #fff;
+  background: #154360;
+  color: #ffffff;
 }
 
 .guest-cta-btn--outline {
   background: transparent;
-  border: 1.5px solid var(--uni-primary);
-  color: var(--uni-primary);
+  border: 1px solid #dddddd;
+  color: #222222;
 }
 
 .guest-cta-btn--outline:hover {
-  background: rgba(26, 82, 118, 0.06);
-  color: var(--uni-primary);
+  border-color: #222222;
+  color: #222222;
+}
+
+/* Progress Track */
+.progress-track {
+  height: 4px;
+  background: #f0f0f0;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-track-fill {
+  height: 100%;
+  background: #1a5276;
+  border-radius: 4px;
+  transition: width 0.4s ease;
 }
 
 /* Steps Navigation */
@@ -675,12 +696,12 @@ async function handleSubmit() {
   align-items: center;
   gap: 0.35rem;
   padding: 0.35rem 0.65rem;
-  border-radius: 999px;
+  border-radius: 20px;
   font-size: 0.78rem;
   font-weight: 500;
-  border: 1.5px solid #dee2e6;
-  background: #fff;
-  color: #6c757d;
+  border: 1px solid #dddddd;
+  background: #ffffff;
+  color: #6a6a6a;
   cursor: pointer;
   transition: all 0.2s ease;
   white-space: nowrap;
@@ -691,8 +712,8 @@ async function handleSubmit() {
   width: 22px;
   height: 22px;
   border-radius: 50%;
-  background: #e9ecef;
-  color: #6c757d;
+  background: #f0f0f0;
+  color: #6a6a6a;
   font-size: 0.7rem;
   font-weight: 700;
   display: inline-flex;
@@ -701,24 +722,38 @@ async function handleSubmit() {
 }
 
 .step-chip--active {
-  border-color: var(--uni-primary);
-  background: var(--uni-primary);
-  color: #fff;
+  border-color: #222222;
+  background: #222222;
+  color: #ffffff;
 }
 
 .step-chip--active .step-chip-num {
-  background: rgba(255, 255, 255, 0.25);
-  color: #fff;
+  background: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
 }
 
 .step-chip--done {
-  border-color: var(--uni-accent);
-  color: var(--uni-accent);
+  border-color: #1e8449;
+  color: #1e8449;
 }
 
 .step-chip--done .step-chip-num {
-  background: var(--uni-accent);
-  color: #fff;
+  background: #1e8449;
+  color: #ffffff;
+}
+
+/* Step Card */
+.step-card {
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow:
+    rgba(0, 0, 0, 0.02) 0px 0px 0px 1px,
+    rgba(0, 0, 0, 0.04) 0px 2px 6px,
+    rgba(0, 0, 0, 0.1) 0px 4px 8px;
+}
+
+.step-card-body {
+  padding: 32px;
 }
 
 /* Step Header */
@@ -731,9 +766,9 @@ async function handleSubmit() {
 .step-icon {
   width: 44px;
   height: 44px;
-  border-radius: 12px;
-  background: linear-gradient(135deg, var(--uni-primary), #1e6291);
-  color: var(--uni-accent);
+  border-radius: 50%;
+  background: rgba(26, 82, 118, 0.08);
+  color: #1a5276;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -742,67 +777,118 @@ async function handleSubmit() {
 
 .step-header h4 {
   margin: 0;
-  color: var(--uni-primary);
+  color: #222222;
   font-weight: 700;
+}
+
+/* Field styles */
+.field-label {
+  font-weight: 600;
+  color: #222222;
+  font-size: 0.9rem;
+}
+
+.field-input {
+  border: 1px solid #dddddd;
+  border-radius: 8px;
+  color: #222222;
+  transition: border-color 0.2s;
+}
+
+.field-input:focus {
+  border-color: #222222;
+  box-shadow: none;
+}
+
+.section-divider {
+  border-color: #ebebeb;
+  margin: 1rem 0;
+}
+
+.section-heading {
+  color: #222222;
+  font-weight: 700;
+}
+
+.section-heading-icon {
+  color: #c0982b;
+}
+
+.section-desc {
+  color: #6a6a6a;
+  font-size: 0.9rem;
+}
+
+.text-secondary-light {
+  color: #6a6a6a;
+}
+
+.text-accent {
+  color: #c0982b !important;
 }
 
 /* Template Card */
 .template-card {
   text-align: center;
   padding: 0.75rem 0.5rem;
-  border-radius: 10px;
-  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  border: 1px solid #dddddd;
   cursor: pointer;
   transition: all 0.2s ease;
-  background: #fff;
+  background: #ffffff;
 }
 
 .template-card:hover {
-  border-color: rgba(26, 82, 118, 0.3);
+  border-color: #222222;
 }
 
 .template-card--selected {
-  border-color: var(--uni-accent);
-  background: rgba(192, 152, 43, 0.06);
-}
-
-.text-accent {
-  color: var(--uni-accent) !important;
+  border-color: #c0982b;
+  background: rgba(192, 152, 43, 0.04);
 }
 
 /* Affiliation Card */
 .affiliation-card {
   text-align: center;
   padding: 1.5rem 1rem;
-  border-radius: 14px;
-  border: 2px solid #e9ecef;
+  border-radius: 12px;
+  border: 1px solid #dddddd;
   cursor: pointer;
   transition: all 0.2s ease;
-  background: #fff;
+  background: #ffffff;
   height: 100%;
 }
 
 .affiliation-card:hover {
-  border-color: rgba(26, 82, 118, 0.3);
+  border-color: #222222;
 }
 
 .affiliation-card--selected {
-  border-color: var(--uni-primary);
+  border-color: #1a5276;
   background: rgba(26, 82, 118, 0.03);
-  box-shadow: 0 2px 12px rgba(26, 82, 118, 0.1);
+}
+
+.affiliation-card h6 {
+  color: #222222;
+  font-weight: 600;
 }
 
 /* Section Entry */
 .section-entry {
-  border: 1px solid #e9ecef;
+  border: 1px solid #ebebeb;
   border-radius: 12px;
   padding: 1rem;
-  background: #fafbfc;
+  background: #fafafa;
   transition: border-color 0.2s;
 }
 
 .section-entry:hover {
-  border-color: rgba(26, 82, 118, 0.2);
+  border-color: #dddddd;
+}
+
+.entry-label {
+  font-weight: 600;
+  color: #222222;
 }
 
 /* Buttons */
@@ -810,18 +896,19 @@ async function handleSubmit() {
   display: inline-flex;
   align-items: center;
   padding: 0.5rem 1.2rem;
-  border-radius: 999px;
+  border-radius: 8px;
   font-size: 0.85rem;
   font-weight: 600;
-  border: 1.5px dashed var(--uni-primary);
+  border: 1px dashed #dddddd;
   background: transparent;
-  color: var(--uni-primary);
+  color: #1a5276;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .btn-add:hover {
-  background: rgba(26, 82, 118, 0.04);
+  border-color: #1a5276;
+  background: rgba(26, 82, 118, 0.03);
 }
 
 .btn-delete {
@@ -831,34 +918,34 @@ async function handleSubmit() {
   padding: 0.35rem 0.65rem;
   border-radius: 8px;
   font-size: 0.78rem;
-  border: 1px solid #f5c6cb;
-  background: #fff5f5;
-  color: #dc3545;
+  border: 1px solid #dddddd;
+  background: #ffffff;
+  color: #c0392b;
   cursor: pointer;
   transition: all 0.15s;
 }
 
 .btn-delete:hover {
-  background: #dc3545;
-  color: #fff;
-  border-color: #dc3545;
+  background: #c0392b;
+  color: #ffffff;
+  border-color: #c0392b;
 }
 
 /* Disclaimer */
 .disclaimer-card {
   border-radius: 12px;
   padding: 1rem 1.25rem;
-  background: linear-gradient(135deg, #fffbf0, #fff8e1);
-  border: 1px solid rgba(192, 152, 43, 0.2);
+  background: #fafafa;
+  border-left: 4px solid #c0982b;
 }
 
 .disclaimer-icon {
   width: 36px;
   height: 36px;
   min-width: 36px;
-  border-radius: 8px;
-  background: var(--uni-accent);
-  color: #fff;
+  border-radius: 50%;
+  background: rgba(192, 152, 43, 0.1);
+  color: #c0982b;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -871,7 +958,7 @@ async function handleSubmit() {
   display: inline-flex;
   align-items: center;
   padding: 0.55rem 1.5rem;
-  border-radius: 999px;
+  border-radius: 8px;
   font-size: 0.88rem;
   font-weight: 600;
   border: none;
@@ -887,44 +974,44 @@ async function handleSubmit() {
 
 .nav-btn--back {
   background: transparent;
-  border: 1.5px solid #dee2e6;
-  color: #6c757d;
+  border: 1px solid #dddddd;
+  color: #6a6a6a;
 }
 
 .nav-btn--back:hover:not(:disabled) {
-  border-color: #adb5bd;
-  color: #495057;
+  border-color: #222222;
+  color: #222222;
 }
 
 .nav-btn--next {
-  background: var(--uni-accent);
-  color: #fff;
-  box-shadow: 0 2px 8px rgba(192, 152, 43, 0.25);
+  background: #222222;
+  color: #ffffff;
 }
 
 .nav-btn--next:hover:not(:disabled) {
-  background: #d4a82f;
-  box-shadow: 0 4px 14px rgba(192, 152, 43, 0.35);
-  color: #fff;
+  background: #000000;
+  color: #ffffff;
 }
 
 .nav-btn--submit {
-  background: #28a745;
-  color: #fff;
-  box-shadow: 0 2px 8px rgba(40, 167, 69, 0.25);
+  background: #1a5276;
+  color: #ffffff;
 }
 
 .nav-btn--submit:hover:not(:disabled) {
-  background: #218838;
-  color: #fff;
+  background: #154360;
+  color: #ffffff;
 }
 
 /* Success Modal */
 .success-modal {
   border: none;
-  border-radius: 20px;
+  border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+  box-shadow:
+    rgba(0, 0, 0, 0.02) 0px 0px 0px 1px,
+    rgba(0, 0, 0, 0.04) 0px 2px 6px,
+    rgba(0, 0, 0, 0.1) 0px 4px 8px;
 }
 
 .success-icon-wrap {
@@ -934,17 +1021,28 @@ async function handleSubmit() {
   width: 70px;
   height: 70px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #28a745, #20c997);
-  color: #fff;
+  background: rgba(30, 132, 73, 0.1);
+  color: #1e8449;
   font-size: 1.8rem;
-  box-shadow: 0 6px 20px rgba(40, 167, 69, 0.25);
+}
+
+.success-title {
+  font-weight: 700;
+  color: #222222;
 }
 
 .share-link-group .form-control {
-  border-radius: 10px 0 0 10px;
+  border-radius: 8px 0 0 8px;
+  border: 1px solid #dddddd;
 }
 
 .share-link-group .btn {
-  border-radius: 0 10px 10px 0;
+  border-radius: 0 8px 8px 0;
+}
+
+@media (max-width: 768px) {
+  .step-card-body {
+    padding: 20px;
+  }
 }
 </style>

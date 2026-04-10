@@ -1,102 +1,84 @@
 <template>
   <div class="login-page">
-    <div class="login-split">
-      <!-- Left Side: Form -->
-      <div class="login-form-side">
-        <div class="login-form-container">
-          <!-- Welcome Text -->
-          <h2 class="login-greeting">{{ t('auth.welcomeBack') }}</h2>
-          <p class="login-subtitle">{{ t('auth.signInToAccount') }}</p>
-
-          <!-- Error Alert -->
-          <div v-if="error" class="alert alert-danger d-flex align-items-center border-0 login-alert" role="alert">
-            <i class="fas fa-exclamation-circle me-2 flex-shrink-0"></i>
-            <div>{{ error }}</div>
-          </div>
-
-          <form @submit.prevent="handleLogin">
-            <!-- Email -->
-            <div class="mb-4">
-              <label class="form-label login-label">{{ t('auth.email') }}</label>
-              <div class="login-input-wrap">
-                <i class="fas fa-envelope login-input-icon"></i>
-                <input
-                  type="email"
-                  class="form-control login-input"
-                  v-model="form.email"
-                  :placeholder="t('auth.email')"
-                  required
-                  autocomplete="email"
-                />
-              </div>
-            </div>
-
-            <!-- Password -->
-            <div class="mb-4">
-              <label class="form-label login-label">{{ t('auth.password') }}</label>
-              <div class="login-input-wrap">
-                <i class="fas fa-lock login-input-icon"></i>
-                <input
-                  :type="showPassword ? 'text' : 'password'"
-                  class="form-control login-input login-input-password"
-                  v-model="form.password"
-                  :placeholder="t('auth.password')"
-                  required
-                  autocomplete="current-password"
-                />
-                <button
-                  type="button"
-                  class="login-toggle-pw"
-                  @click="showPassword = !showPassword"
-                  :title="showPassword ? t('auth.hidePassword') : t('auth.showPassword')"
-                >
-                  <i class="fas" :class="showPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
-                </button>
-              </div>
-            </div>
-
-            <!-- Submit Button -->
-            <button type="submit" class="btn login-submit-btn w-100 fw-semibold" :disabled="loading">
-              <span v-if="loading" class="spinner-border spinner-border-sm me-2" role="status"></span>
-              <i v-else class="fas fa-sign-in-alt me-2"></i>
-              {{ loading ? t('app.loading') : t('auth.loginBtn') }}
-            </button>
-          </form>
-
-          <!-- Divider -->
-          <div class="login-divider">
-            <span>{{ t('auth.orContinueWith') }}</span>
-          </div>
-
-          <!-- Google Login -->
-          <button @click="handleGoogleLogin" class="btn login-google-btn w-100">
-            <i class="fab fa-google me-2"></i>{{ t('auth.googleLogin') }}
-          </button>
-
-          <!-- Register Link -->
-          <div class="login-register-link">
-            <span>{{ t('auth.noAccount') }}</span>
-            <router-link to="/register" class="fw-semibold">
-              {{ t('auth.registerBtn') }}
-            </router-link>
-          </div>
-        </div>
+    <div class="login-card">
+      <!-- Logo -->
+      <div class="login-logo">
+        <img :src="brandingStore.logoUrl || '/logo.svg'" alt="Logo" />
       </div>
 
-      <!-- Right Side: University Branding -->
-      <div class="login-brand-side">
-        <div class="login-brand-content">
-          <div class="login-brand-logo">
-            <img :src="brandingStore.logoUrl || '/logo.svg'" alt="Logo" />
-          </div>
-          <h1 class="login-brand-name">{{ brandingStore.systemName }}</h1>
-          <p class="login-brand-tagline">{{ t('auth.loginSubtitle') }}</p>
-          <div class="login-brand-decoration">
-            <div class="login-brand-line"></div>
-            <i class="fas fa-graduation-cap login-brand-icon-accent"></i>
-            <div class="login-brand-line"></div>
+      <!-- Welcome Text -->
+      <h2 class="login-greeting">{{ t('auth.welcomeBack') }}</h2>
+      <p class="login-subtitle">{{ t('auth.signInToAccount') }}</p>
+
+      <!-- Error Alert -->
+      <div v-if="error" class="login-alert" role="alert">
+        <i class="fas fa-exclamation-circle"></i>
+        <span>{{ error }}</span>
+      </div>
+
+      <form @submit.prevent="handleLogin">
+        <!-- Email -->
+        <div class="login-field">
+          <label class="login-label">{{ t('auth.email') }}</label>
+          <div class="login-input-wrap">
+            <input
+              type="email"
+              class="login-input"
+              v-model="form.email"
+              :placeholder="t('auth.email')"
+              required
+              autocomplete="email"
+            />
           </div>
         </div>
+
+        <!-- Password -->
+        <div class="login-field">
+          <label class="login-label">{{ t('auth.password') }}</label>
+          <div class="login-input-wrap">
+            <input
+              :type="showPassword ? 'text' : 'password'"
+              class="login-input login-input-password"
+              v-model="form.password"
+              :placeholder="t('auth.password')"
+              required
+              autocomplete="current-password"
+            />
+            <button
+              type="button"
+              class="login-toggle-pw"
+              @click="showPassword = !showPassword"
+              :title="showPassword ? t('auth.hidePassword') : t('auth.showPassword')"
+            >
+              <i class="fas" :class="showPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" class="login-submit-btn" :disabled="loading">
+          <span v-if="loading" class="spinner-border spinner-border-sm me-2" role="status"></span>
+          <i v-else class="fas fa-sign-in-alt me-2"></i>
+          {{ loading ? t('app.loading') : t('auth.loginBtn') }}
+        </button>
+      </form>
+
+      <!-- Divider -->
+      <div class="login-divider">
+        <span>{{ t('auth.orContinueWith') }}</span>
+      </div>
+
+      <!-- Google Login -->
+      <button @click="handleGoogleLogin" class="login-google-btn">
+        <i class="fab fa-google me-2"></i>{{ t('auth.googleLogin') }}
+      </button>
+
+      <!-- Register Link -->
+      <div class="login-register-link">
+        <span>{{ t('auth.noAccount') }}</span>
+        <router-link to="/register">
+          {{ t('auth.registerBtn') }}
+        </router-link>
       </div>
     </div>
   </div>
@@ -142,31 +124,32 @@ function handleGoogleLogin() {
 </script>
 
 <style scoped>
-/* ── Layout ── */
 .login-page {
   min-height: 100vh;
-}
-
-.login-split {
-  display: flex;
-  min-height: 100vh;
-}
-
-/* ── Left: Form Side ── */
-.login-form-side {
-  flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 3rem 2rem;
-  background: #fff;
-  animation: loginFadeIn 0.7s ease-out both;
+  background: #ffffff;
+  padding: 24px;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 480px;
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 48px 40px;
+  box-shadow:
+    rgba(0, 0, 0, 0.02) 0px 0px 0px 1px,
+    rgba(0, 0, 0, 0.04) 0px 2px 6px,
+    rgba(0, 0, 0, 0.1) 0px 4px 8px;
+  animation: loginFadeIn 0.5s ease-out both;
 }
 
 @keyframes loginFadeIn {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(12px);
   }
   to {
     opacity: 1;
@@ -174,75 +157,92 @@ function handleGoogleLogin() {
   }
 }
 
-.login-form-container {
-  width: 100%;
-  max-width: 420px;
+/* Logo */
+.login-logo {
+  text-align: center;
+  margin-bottom: 32px;
 }
 
+.login-logo img {
+  height: 48px;
+  width: auto;
+  object-fit: contain;
+}
+
+/* Heading */
 .login-greeting {
-  font-size: 2rem;
-  font-weight: 800;
-  color: #1a5276;
-  margin-bottom: 0.25rem;
-  letter-spacing: -0.5px;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #222222;
+  margin-bottom: 4px;
+  text-align: center;
 }
 
 .login-subtitle {
-  color: #6c757d;
-  font-size: 1rem;
-  margin-bottom: 2rem;
+  color: #6a6a6a;
+  font-size: 0.95rem;
+  margin-bottom: 32px;
+  text-align: center;
 }
 
+/* Alert */
 .login-alert {
-  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  border-radius: 12px;
   background: #fef2f2;
   color: #b91c1c;
-  margin-bottom: 1.5rem;
+  font-size: 0.9rem;
+  margin-bottom: 24px;
 }
 
-/* ── Inputs ── */
+.login-alert i {
+  flex-shrink: 0;
+}
+
+/* Fields */
+.login-field {
+  margin-bottom: 20px;
+}
+
 .login-label {
-  font-weight: 600;
+  display: block;
+  font-weight: 500;
   font-size: 0.875rem;
-  color: #2c3e50;
-  margin-bottom: 0.4rem;
+  color: #222222;
+  margin-bottom: 6px;
 }
 
 .login-input-wrap {
   position: relative;
 }
 
-.login-input-icon {
-  position: absolute;
-  top: 50%;
-  inset-inline-start: 16px;
-  transform: translateY(-50%);
-  color: #9ca3af;
-  font-size: 0.95rem;
-  pointer-events: none;
-  z-index: 2;
-}
-
 .login-input {
-  height: 52px;
-  padding-inline-start: 46px;
-  padding-inline-end: 16px;
-  border: 2px solid #e5e7eb;
+  width: 100%;
+  height: 48px;
+  padding: 0 16px;
+  border: 1px solid #c1c1c1;
   border-radius: 12px;
-  font-size: 1rem;
-  background: #f9fafb;
-  transition: border-color 0.2s, background-color 0.2s, box-shadow 0.2s;
+  font-size: 0.95rem;
+  color: #222222;
+  background: #ffffff;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  outline: none;
 }
 
 .login-input-password {
-  padding-inline-end: 46px;
+  padding-inline-end: 44px;
+}
+
+.login-input::placeholder {
+  color: #b0b0b0;
 }
 
 .login-input:focus {
   border-color: #1a5276;
-  background: #fff;
-  box-shadow: 0 0 0 3px rgba(26, 82, 118, 0.1);
-  outline: none;
+  box-shadow: 0 0 0 2px rgba(26, 82, 118, 0.15);
 }
 
 .login-toggle-pw {
@@ -252,7 +252,7 @@ function handleGoogleLogin() {
   transform: translateY(-50%);
   background: none;
   border: none;
-  color: #9ca3af;
+  color: #b0b0b0;
   cursor: pointer;
   padding: 4px;
   z-index: 2;
@@ -263,36 +263,40 @@ function handleGoogleLogin() {
   color: #1a5276;
 }
 
-/* ── Submit ── */
+/* Submit */
 .login-submit-btn {
-  height: 52px;
-  font-size: 1.05rem;
-  border-radius: 12px;
-  background: linear-gradient(135deg, #c0982b 0%, #d4a933 100%);
+  width: 100%;
+  height: 48px;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 8px;
+  background: #1a5276;
   border: none;
-  color: #fff;
-  letter-spacing: 0.3px;
-  transition: transform 0.15s, box-shadow 0.2s;
-  margin-top: 0.5rem;
+  color: #ffffff;
+  cursor: pointer;
+  transition: background-color 0.2s, box-shadow 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .login-submit-btn:hover:not(:disabled) {
-  transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(192, 152, 43, 0.35);
-  background: linear-gradient(135deg, #b08a24 0%, #c0982b 100%);
-  color: #fff;
+  background: #164666;
+  box-shadow:
+    rgba(0, 0, 0, 0.04) 0px 2px 6px,
+    rgba(0, 0, 0, 0.12) 0px 4px 12px;
 }
 
 .login-submit-btn:disabled {
-  opacity: 0.65;
-  color: #fff;
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
-/* ── Divider ── */
+/* Divider */
 .login-divider {
   position: relative;
   text-align: center;
-  margin: 1.75rem 0;
+  margin: 28px 0;
 }
 
 .login-divider::before {
@@ -301,46 +305,54 @@ function handleGoogleLogin() {
   top: 50%;
   left: 0;
   right: 0;
-  border-top: 1px solid #e5e7eb;
+  border-top: 1px solid #e8e8e8;
 }
 
 .login-divider span {
   position: relative;
   padding: 0 16px;
-  background: #fff;
-  color: #9ca3af;
+  background: #ffffff;
+  color: #6a6a6a;
   font-size: 0.85rem;
 }
 
-/* ── Google ── */
+/* Google */
 .login-google-btn {
+  width: 100%;
   height: 48px;
-  border: 2px solid #e5e7eb;
-  border-radius: 12px;
-  background: #fff;
-  color: #374151;
+  border: 1px solid #c1c1c1;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #222222;
   font-weight: 500;
-  transition: all 0.2s;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .login-google-btn:hover {
-  border-color: #1a5276;
-  background: #f0f7fc;
-  color: #1a5276;
+  border-color: #222222;
+  box-shadow:
+    rgba(0, 0, 0, 0.04) 0px 2px 6px,
+    rgba(0, 0, 0, 0.08) 0px 4px 8px;
 }
 
-/* ── Register Link ── */
+/* Register Link */
 .login-register-link {
   text-align: center;
-  margin-top: 2rem;
-  color: #6c757d;
-  font-size: 0.95rem;
+  margin-top: 28px;
+  color: #6a6a6a;
+  font-size: 0.9rem;
 }
 
 .login-register-link a {
   color: #1a5276;
   text-decoration: none;
-  margin-inline-start: 6px;
+  font-weight: 600;
+  margin-inline-start: 4px;
   transition: color 0.15s;
 }
 
@@ -348,127 +360,15 @@ function handleGoogleLogin() {
   color: #c0982b;
 }
 
-/* ── Right: Branding Side ── */
-.login-brand-side {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(160deg, #1a5276 0%, #0d6efd 100%);
-  position: relative;
-  overflow: hidden;
-}
-
-.login-brand-side::before {
-  content: '';
-  position: absolute;
-  top: -30%;
-  right: -20%;
-  width: 500px;
-  height: 500px;
-  border-radius: 50%;
-  background: rgba(192, 152, 43, 0.08);
-}
-
-.login-brand-side::after {
-  content: '';
-  position: absolute;
-  bottom: -20%;
-  left: -15%;
-  width: 400px;
-  height: 400px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.04);
-}
-
-.login-brand-content {
-  position: relative;
-  z-index: 1;
-  text-align: center;
-  padding: 3rem;
-  animation: loginBrandFade 0.9s ease-out 0.3s both;
-}
-
-@keyframes loginBrandFade {
-  from {
-    opacity: 0;
-    transform: scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-.login-brand-logo {
-  margin-bottom: 2rem;
-}
-
-.login-brand-logo img {
-  height: 120px;
-  width: auto;
-  object-fit: contain;
-  filter: drop-shadow(0 4px 20px rgba(0, 0, 0, 0.15));
-}
-
-.login-brand-name {
-  font-size: 2rem;
-  font-weight: 800;
-  color: #fff;
-  margin-bottom: 0.75rem;
-  letter-spacing: -0.3px;
-}
-
-.login-brand-tagline {
-  color: rgba(255, 255, 255, 0.75);
-  font-size: 1.1rem;
-  max-width: 320px;
-  margin: 0 auto 2rem;
-  line-height: 1.6;
-}
-
-.login-brand-decoration {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-}
-
-.login-brand-line {
-  width: 48px;
-  height: 2px;
-  background: rgba(192, 152, 43, 0.6);
-  border-radius: 1px;
-}
-
-.login-brand-icon-accent {
-  color: #c0982b;
-  font-size: 1.25rem;
-}
-
-/* ── Responsive ── */
-@media (max-width: 991.98px) {
-  .login-brand-side {
-    display: none;
-  }
-
-  .login-form-side {
-    padding: 2rem 1.5rem;
-  }
-}
-
+/* Responsive */
 @media (max-width: 576px) {
+  .login-card {
+    padding: 32px 24px;
+    border-radius: 16px;
+  }
+
   .login-greeting {
     font-size: 1.5rem;
   }
-
-  .login-form-container {
-    max-width: 100%;
-  }
-}
-
-/* ── RTL ── */
-[dir="rtl"] .login-split {
-  flex-direction: row-reverse;
 }
 </style>
