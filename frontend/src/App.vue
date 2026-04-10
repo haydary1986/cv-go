@@ -5,7 +5,7 @@
          :class="{ 'app-navbar--scrolled': isScrolled }">
       <div class="container">
         <router-link class="navbar-brand d-flex align-items-center gap-2" to="/">
-          <img :src="brandingStore.logoUrl || '/logo.svg'" alt="Logo" class="navbar-logo" />
+          <img :src="brandingStore.logoUrl || '/logo.png'" alt="Logo" class="navbar-logo" />
           <span class="navbar-brand-text">{{ brandingStore.systemName }}</span>
         </router-link>
 
@@ -112,7 +112,7 @@
       <div class="container">
         <div class="app-footer-inner">
           <div class="app-footer-brand">
-            <img :src="brandingStore.logoUrl || '/logo.svg'" alt="Logo" class="app-footer-logo" />
+            <img :src="brandingStore.logoUrl || '/logo.png'" alt="Logo" class="app-footer-logo" />
             <span>{{ brandingStore.systemName }}</span>
           </div>
           <p class="app-footer-copy mb-0">&copy; {{ new Date().getFullYear() }} {{ brandingStore.systemName }}</p>

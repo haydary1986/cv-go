@@ -3,7 +3,7 @@
     <div class="reg-card">
       <!-- Logo -->
       <div class="reg-logo">
-        <img :src="brandingStore.logoUrl || '/logo.svg'" alt="Logo" />
+        <img :src="brandingStore.logoUrl || '/logo.png'" alt="Logo" />
       </div>
 
       <h2 class="reg-heading">{{ t('auth.createYourAccount') }}</h2>

@@ -8,7 +8,7 @@
             <!-- University Logo + Name -->
             <div class="d-flex align-items-center mb-4 fade-in">
               <img
-                :src="brandingStore.logoUrl || '/logo.svg'"
+                :src="brandingStore.logoUrl || '/logo.png'"
                 alt="University of Heritage Logo"
                 class="hero-university-logo"
               />
@@ -67,7 +67,7 @@
             <div class="hero-visual fade-in-right">
               <!-- Large University Logo -->
               <div class="hero-logo-showcase">
-                <img :src="brandingStore.logoUrl || '/logo.svg'" alt="University Logo" class="hero-logo-large" />
+                <img :src="brandingStore.logoUrl || '/logo.png'" alt="University Logo" class="hero-logo-large" />
               </div>
               <div class="floating-badge floating-badge-ai">
                 <i class="fas fa-magic"></i> AI
@@ -236,7 +236,7 @@
         <div class="row g-4">
           <div class="col-lg-4 mb-3">
             <div class="d-flex align-items-center mb-3">
-              <img :src="brandingStore.logoUrl || '/logo.svg'" alt="Logo" class="footer-logo me-2" />
+              <img :src="brandingStore.logoUrl || '/logo.png'" alt="Logo" class="footer-logo me-2" />
               <h5 class="footer-brand-name mb-0">{{ brandingStore.systemName }}</h5>
             </div>
             <p class="footer-desc">{{ t('home.footerDesc') }}</p>

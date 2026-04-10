@@ -548,7 +548,12 @@ function copyLink() {
 }
 
 async function handleSubmit() {
+  // Use personal info name as fallback for guest name
   if (!guestName.value) {
+    guestName.value = form.data.personal_info.full_name
+  }
+  if (!guestName.value) {
+    toast.warning(t('cv.guestNameRequired') || 'Please enter your name')
     currentStep.value = 0
     return
   }

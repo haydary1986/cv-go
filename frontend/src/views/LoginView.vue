@@ -3,7 +3,7 @@
     <div class="login-card">
       <!-- Logo -->
       <div class="login-logo">
-        <img :src="brandingStore.logoUrl || '/logo.svg'" alt="Logo" />
+        <img :src="brandingStore.logoUrl || '/logo.png'" alt="Logo" />
       </div>
 
       <!-- Welcome Text -->
