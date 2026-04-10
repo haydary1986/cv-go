@@ -4,8 +4,17 @@ set -e
 DATA_DIR="/app/data"
 ENV_FILE="$DATA_DIR/.env"
 
-# Ensure data directory exists
-mkdir -p "$DATA_DIR/uploads"
+# Ensure data directory exists with correct permissions
+mkdir -p "$DATA_DIR/uploads" "$DATA_DIR/backups"
+chmod -R 777 "$DATA_DIR" 2>/dev/null || true
+# Fix SQLite database file permissions if it exists
+if [ -f "$DATA_DIR/cvbuilder.db" ]; then
+    chmod 666 "$DATA_DIR/cvbuilder.db" 2>/dev/null || true
+    # Also fix WAL and SHM files
+    chmod 666 "$DATA_DIR/cvbuilder.db-wal" 2>/dev/null || true
+    chmod 666 "$DATA_DIR/cvbuilder.db-shm" 2>/dev/null || true
+    echo "==> Fixed database file permissions"
+fi
 
 # Generate persistent secrets on first run
 if [ ! -f "$ENV_FILE" ]; then
