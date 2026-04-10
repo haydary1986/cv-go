@@ -76,7 +76,7 @@ func (h *CVHandler) CreateGuestCV(c *gin.Context) {
 	}
 
 	if err := h.DB.Create(&cv).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create CV"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create CV", "detail": err.Error()})
 		return
 	}
 
