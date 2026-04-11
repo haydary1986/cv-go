@@ -44,7 +44,8 @@ func main() {
 
 	// Database
 	slog.Info("Connecting to database...")
-	db, err := gorm.Open(sqlite.Open(cfg.DBPath), &gorm.Config{})
+	dbDSN := cfg.DBPath + "?_journal_mode=WAL&_busy_timeout=5000&_synchronous=NORMAL&_foreign_keys=ON"
+	db, err := gorm.Open(sqlite.Open(dbDSN), &gorm.Config{})
 	if err != nil {
 		slog.Error("Failed to connect to database", "error", err)
 		os.Exit(1)

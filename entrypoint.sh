@@ -6,15 +6,31 @@ ENV_FILE="$DATA_DIR/.env"
 
 # Ensure data directory exists with correct permissions
 mkdir -p "$DATA_DIR/uploads" "$DATA_DIR/backups"
+
+# Fix permissions - try multiple approaches
 chmod -R 777 "$DATA_DIR" 2>/dev/null || true
-# Fix SQLite database file permissions if it exists
-if [ -f "$DATA_DIR/cvbuilder.db" ]; then
-    chmod 666 "$DATA_DIR/cvbuilder.db" 2>/dev/null || true
-    # Also fix WAL and SHM files
-    chmod 666 "$DATA_DIR/cvbuilder.db-wal" 2>/dev/null || true
-    chmod 666 "$DATA_DIR/cvbuilder.db-shm" 2>/dev/null || true
-    echo "==> Fixed database file permissions"
+chown -R "$(id -u):$(id -g)" "$DATA_DIR" 2>/dev/null || true
+
+# Fix SQLite database file permissions
+DB_FILE="$DATA_DIR/cvbuilder.db"
+if [ -f "$DB_FILE" ]; then
+    chmod 666 "$DB_FILE" 2>/dev/null || true
+    chmod 666 "${DB_FILE}-wal" 2>/dev/null || true
+    chmod 666 "${DB_FILE}-shm" 2>/dev/null || true
+
+    # Test if DB is writable
+    if ! touch "${DB_FILE}.test" 2>/dev/null; then
+        echo "==> WARNING: Database directory is read-only! Attempting to fix..."
+        # Try copying DB to a writable temp location
+        cp "$DB_FILE" "/tmp/cvbuilder_backup.db" 2>/dev/null || true
+    else
+        rm -f "${DB_FILE}.test"
+        echo "==> Database file permissions OK"
+    fi
 fi
+
+echo "==> Data directory: $(ls -la $DATA_DIR/ 2>/dev/null | head -10)"
+echo "==> Current user: $(id)"
 
 # Generate persistent secrets on first run
 if [ ! -f "$ENV_FILE" ]; then
