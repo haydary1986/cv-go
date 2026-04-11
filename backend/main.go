@@ -15,6 +15,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"syscall"
 	"time"
 
@@ -44,18 +45,14 @@ func main() {
 
 	// Database
 	slog.Info("Connecting to database...")
-	dbDSN := cfg.DBPath + "?_journal_mode=WAL&_busy_timeout=5000&_synchronous=NORMAL&_foreign_keys=ON"
+	dbDSN := cfg.DBPath + "?_journal_mode=WAL&_busy_timeout=5000&_synchronous=NORMAL"
 	db, err := gorm.Open(sqlite.Open(dbDSN), &gorm.Config{})
 	if err != nil {
 		slog.Error("Failed to connect to database", "error", err)
 		os.Exit(1)
 	}
-	// SQLite performance and safety PRAGMAs
+	// SQLite connection pool settings
 	sqlDB, _ := db.DB()
-	sqlDB.Exec("PRAGMA journal_mode=WAL")
-	sqlDB.Exec("PRAGMA busy_timeout=5000")
-	sqlDB.Exec("PRAGMA synchronous=NORMAL")
-	sqlDB.Exec("PRAGMA foreign_keys=ON")
 	sqlDB.Exec("PRAGMA cache_size=-20000")
 	sqlDB.SetMaxOpenConns(1)
 	sqlDB.SetMaxIdleConns(1)
@@ -316,20 +313,39 @@ func main() {
 	// Serve uploaded files (logos, etc.)
 	r.Static("/uploads", "/app/data/uploads")
 
+	// Determine static files directory (absolute path)
+	staticDir := "./static"
+	if exePath, err := os.Executable(); err == nil {
+		candidate := filepath.Join(filepath.Dir(exePath), "static")
+		if _, err := os.Stat(candidate); err == nil {
+			staticDir = candidate
+		}
+	}
+
 	// Serve frontend static files
-	if _, err := os.Stat("./static"); err == nil {
-		r.Static("/assets", "./static/assets")
-		r.StaticFile("/vite.svg", "./static/vite.svg")
-		r.StaticFile("/logo.png", "./static/logo.png")
-		r.StaticFile("/logo-white.png", "./static/logo-white.png")
-		r.StaticFile("/manifest.webmanifest", "./static/manifest.webmanifest")
-		r.StaticFile("/sw.js", "./static/sw.js")
-		r.StaticFile("/registerSW.js", "./static/registerSW.js")
-		r.StaticFile("/workbox-01ded3f8.js", "./static/workbox-01ded3f8.js")
+	if _, err := os.Stat(staticDir); err == nil {
+		slog.Info("Serving frontend", "staticDir", staticDir)
+		r.Static("/assets", filepath.Join(staticDir, "assets"))
+
+		// Serve individual root-level static files
+		rootFiles := []string{
+			"vite.svg", "logo.png", "logo-white.png",
+			"manifest.webmanifest", "sw.js", "registerSW.js",
+			"workbox-01ded3f8.js", "favicon.ico",
+		}
+		for _, f := range rootFiles {
+			fPath := filepath.Join(staticDir, f)
+			if _, err := os.Stat(fPath); err == nil {
+				r.StaticFile("/"+f, fPath)
+			}
+		}
+
+		indexFile := filepath.Join(staticDir, "index.html")
 		r.NoRoute(func(c *gin.Context) {
-			c.File("./static/index.html")
+			c.File(indexFile)
 		})
 	} else {
+		slog.Warn("Static directory not found", "path", staticDir)
 		r.NoRoute(func(c *gin.Context) {
 			c.JSON(http.StatusNotFound, gin.H{"error": "Not found"})
 		})
